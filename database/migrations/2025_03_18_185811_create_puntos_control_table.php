@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('imagen', 255)->nullable();
             $table->string('color', 20)->nullable();
             $table->string('icono', 50)->nullable();
-            $table->foreignId('grupo_id')->constrained('grupos');
+            $table->foreignId('grupo_id')->nullable()->constrained('grupos');
             $table->enum('estado', ['pendiente', 'en_curso', 'completado'])->default('pendiente');
             $table->timestamps();
         });
