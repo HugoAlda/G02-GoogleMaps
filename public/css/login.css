@@ -1,0 +1,216 @@
+/* Estilos del contenedor principal */
+main {
+    min-height: 100vh;
+    background: linear-gradient(120deg, #2980b9, #6dd5fa, #ffffff);
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 1; /* Asegura que el contenido principal esté por encima de las ondas */
+}
+
+/* Efecto de ondas animadas */
+main::before,
+main::after {
+    content: '';
+    position: absolute;
+    width: 150vw;
+    height: 150vh;
+    top: -25vh;
+    left: -25vw;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: wave 12s infinite linear;
+    z-index: 0; /* Coloca las ondas detrás del contenido */
+    pointer-events: none; /* Permite que los eventos pasen a través de las ondas */
+}
+
+main::after {
+    animation-delay: -6s;
+    background: rgba(255,255,255,0.15);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Animación de ondas */
+@keyframes wave {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estilos para el formulario */
+.form__group {
+    position: relative;
+    padding: 15px 0 0;
+    margin-top: 10px;
+    width: 100%;
+    z-index: 2; /* Asegura que el formulario esté por encima de las ondas */
+}
+
+.form__field {
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid #9b9b9b;
+    outline: 0;
+    padding: 7px 0;
+    background: transparent;
+    transition: border-color 0.2s;
+    position: relative;
+    z-index: 2;
+}
+
+.form__field::placeholder {
+    color: transparent;
+}
+
+.form__field:placeholder-shown ~ .form__label {
+    font-size: 1.3rem;
+    cursor: text;
+    top: 20px;
+}
+
+.form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: #9b9b9b;
+    z-index: 2;
+}
+
+.form__field:focus {
+    padding-bottom: 6px;
+    font-weight: 700;
+    border-width: 3px;
+    border-image: linear-gradient(to right, #0066CC, #AADAFF);
+    border-image-slice: 1;
+}
+
+.form__field:focus ~ .form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: #0066CC;
+    font-weight: 700;
+}
+
+/* Reset input */
+.form__field:required,
+.form__field:invalid {
+    box-shadow: none;
+}
+
+/* Estilos para el botón */
+.btn-custom-blue {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background-color: #0066CC;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+.btn-custom-blue:hover {
+    background-color: #005bb5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+  
+.btn-custom-blue:active {
+    background-color: #004999;
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para el card */
+.custom-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.custom-card .card-header {
+    background: transparent;
+    border-bottom: 2px solid #0066CC;
+    padding: 20px;
+}
+
+.custom-card .card-header h4 {
+    color: #0066CC;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.custom-card .card-body {
+    padding: 30px;
+}
+
+/* Estilos para el enlace de olvidar contraseña */
+.forgot-password {
+    color: #0066CC;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.forgot-password:hover {
+    color: #004999;
+    text-decoration: underline !important;
+}
+
+.btn-custom-white {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #0066CC;
+    border: 2px solid #0066CC;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.btn-custom-white:hover {
+    background-color: #0066CC;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.btn-custom-white:active {
+    background-color: #004999;
+    color: #ffffff;
+    border-color: #004999;
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
