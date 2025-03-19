@@ -4,13 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 // Rutas para el AuthController
 Route::controller(AuthController::class)->group(function () {
-    Route::get('/login', 'showLoginForm')->name('login');     // Vista de login
+    Route::get('/', function () {
+        return view('auth.login');
+    });
     Route::post('/login', 'login')->name('login.post'); // Procesar el login
     Route::get('/logout', 'logout')->name('logout'); // Cerrar sesión
     Route::get('/register', 'showRegisterForm')->name('register'); // Vista de registro
