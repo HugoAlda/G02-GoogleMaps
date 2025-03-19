@@ -11,4 +11,14 @@ class MapController extends Controller
     {
         return view('mapa.index');
     }
+
+    public function juego()
+    {
+        return view('mapa.juego');
+    }
+
+    public function partida()
+    {
+        return view('mapa.partida');
+    }
 }
