@@ -41,12 +41,14 @@ class AuthController extends Controller
                 return redirect()->intended('home');
             }
     
-            $errorResponse = ['invalid' => 'Credenciales incorrectas'];
+            $errorResponse = ['invalid' => 'Credenciales incorrectas, '];
     
+            // Si la solicitud es una solicitud JSON, devolver un error 401
             if ($request->expectsJson()) {
                 return response()->json(['errors' => $errorResponse], 401);
             }
     
+            // En caso de que no sea una solicitud JSON, redirigir al usuario a la página de login con los errores y los datos del formulario
             return redirect()->route('login')->withErrors($errorResponse)->withInput();
     
         } catch (ValidationException $e) {

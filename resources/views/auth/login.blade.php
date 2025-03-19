@@ -16,7 +16,7 @@
                             @csrf
                             {{-- Campo de correo electrónico --}}
                             <div class="mb-3">
-                                <div class="input-group">
+                                <div class="position-relative">
                                     <div class="form__group field">
                                         <input type="email" class="form__field @error('email') is-invalid @enderror"
                                             placeholder="Correo Electrónico" name="email" id='email'
@@ -35,25 +35,29 @@
                             </div>
                             {{-- Campo de contraseña --}}
                             <div class="mb-3">
-                                <div class="input-group">
-                                    <div class="form__group field">
+                                <div class="position-relative">
+                                    {{-- Contenedor del input y label --}}
+                                    <div class="form__group field w-100">
                                         <input type="password" class="form__field @error('password') is-invalid @enderror"
-                                            placeholder="Contraseña" name="password" id='password' />
-                                        <label for="password"
-                                            class="form__label @error('password') text-danger @enderror">Contraseña</label>
+                                            placeholder="Contraseña" name="password" id="password" />
+                                        <label for="password" class="form__label @error('password') text-danger @enderror">Contraseña</label>
                                     </div>
-                                    {{-- Mensaje de error desde frontend --}}
-                                    <span class="text-danger mt-2 text-sm d-none" id="passwordError"></span>
-                                    {{-- Mensaje de error desde servidor --}}
-                                    @error('password')
-                                        <span class="text-danger mt-1 text-sm">{{ $message }}</span>
-                                    @enderror
+                            
+                                    {{-- Icono del ojo (posicionado dentro del input) --}}
+                                    <i class="bi bi-eye-slash toggle-password position-absolute" id="togglePassword"></i>
                                 </div>
+                            
+                                {{-- Mensaje de error desde frontend --}}
+                                <span class="text-danger mt-2 text-sm d-none" id="passwordError"></span>
+                            
+                                {{-- Mensaje de error desde servidor --}}
+                                @error('password')
+                                    <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                @enderror
                             </div>
-
                             {{-- Mensaje de errores generales desde servidor --}}
                             <div id="errorMessage" class="alert custom-error-alert d-none">
-                                <i class="bi bi-exclamation-triangle"></i><span id="errorMessageText"></span>
+                                <i class="bi bi-exclamation-triangle"> </i><span id="errorMessageText"></span>
                             </div>
                             
                             {{-- Mensaje de éxito --}}

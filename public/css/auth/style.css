@@ -245,3 +245,28 @@ main::after {
 .is-invalid ~ .form__label {
     color: red;
 }
+
+/* Estilos para el icono del ojo */
+.toggle-password {
+    cursor: pointer;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-20%);
+    font-size: 1.2rem;
+    color: #9b9b9b;
+    transition: color 0.3s ease, transform 0.2s ease;
+    z-index: 3;
+}
+
+/* Efecto hover para mejor usabilidad */
+.toggle-password:hover {
+    color: #0066CC;
+    transform: translateY(-40%) scale(1.1);
+}
+
+/* Efecto cuando se presiona */
+.toggle-password:active {
+    color: #004999;
+    transform: translateY(-40%) scale(0.95);
+}
