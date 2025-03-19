@@ -19,6 +19,7 @@
                         <form method="POST" action="{{ route('register.post') }}">
                             @csrf
                             @method('POST')
+                            
                             {{-- Primera fila: Nombre, Apellido, Email --}}
                             <div class="row mb-3">
                                 {{-- Campo de nombre --}}
@@ -37,10 +38,10 @@
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <div class="form__group field">
-                                            <input type="input" class="form__field @error('lastname') is-invalid @enderror" placeholder="Apellido" name="lastname" id='lastname' value="{{ old('lastname') }}" />
-                                            <label for="lastname" class="form__label @error('lastname') text-danger @enderror">Apellido</label>
+                                            <input type="input" class="form__field @error('surname') is-invalid @enderror" placeholder="Apellido" name="surname" id='surname' value="{{ old('surname') }}" />
+                                            <label for="surname" class="form__label @error('surname') text-danger @enderror">Apellido</label>
                                         </div>
-                                        @error('lastname')
+                                        @error('surname')
                                             <span class="text-danger mt-1 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>
@@ -58,6 +59,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             {{-- Segunda fila: Contraseña y Confirmar Contraseña --}}
                             <div class="row mb-3">
                                 {{-- Campo de contraseña --}}
@@ -66,9 +68,6 @@
                                         <div class="form__group field">
                                             <input type="password" class="form__field @error('password') is-invalid @enderror" placeholder="Contraseña" name="password" id='password' />
                                             <label for="password" class="form__label @error('password') text-danger @enderror">Contraseña</label>
-                                            <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
-                                                <i class="bi bi-eye-slash fs-4" id="togglePassword"></i>
-                                            </span>
                                         </div>
                                         @error('password')
                                             <span class="text-danger mt-1 text-sm">{{ $message }}</span>
@@ -81,9 +80,6 @@
                                         <div class="form__group field">
                                             <input type="password" class="form__field @error('password_confirmation') is-invalid @enderror" placeholder="Confirmar Contraseña" name="password_confirmation" id='password_confirmation' />
                                             <label for="password_confirmation" class="form__label @error('password_confirmation') text-danger @enderror">Confirmar Contraseña</label>
-                                            <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
-                                                <i class="bi bi-eye-slash fs-4" id="togglePasswordConfirm"></i>
-                                            </span>
                                         </div>
                                         @error('password_confirmation')
                                             <span class="text-danger mt-1 text-sm">{{ $message }}</span>

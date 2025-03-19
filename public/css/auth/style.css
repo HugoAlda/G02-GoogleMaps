@@ -236,3 +236,12 @@ main::after {
 .custom-success-alert:hover {
     background-color: rgba(72, 189, 79, 0.2);
 }
+
+/* Estilos para los campos de error */
+.is-invalid {
+    border-color: red;
+}
+
+.is-invalid ~ .form__label {
+    color: red;
+}

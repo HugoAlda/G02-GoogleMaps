@@ -3,30 +3,31 @@
 @section('title', 'Login')
 
 @section('content')
-{{-- Contenido principal --}}
 <main>
-    {{-- Contenedor principal con el formulario de login --}}
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                {{-- Tarjeta personalizada para el formulario --}}
                 <div class="card shadow custom-card">
-                    {{-- Encabezado de la tarjeta --}}
                     <div class="card-header text-center">
                         <h4>Iniciar Sesión</h4>
                     </div>
-                    {{-- Cuerpo de la tarjeta con el formulario --}}
                     <div class="card-body">
-                        <form method="POST" action="{{ route('login.post') }}">
+                        <form method="POST" action="{{ route('login.post') }}" id="loginForm">
                             @csrf
-                            @method('POST')
                             {{-- Campo de correo electrónico --}}
                             <div class="mb-3">
                                 <div class="input-group">
                                     <div class="form__group field">
-                                        <input type="input" class="form__field @error('email') is-invalid @enderror" placeholder="Correo Electrónico" name="email" id='email' value="{{ old('email') }}" />
-                                        <label for="email" class="form__label @error('email') text-danger @enderror">Correo Electrónico</label>
+                                        <input type="email" class="form__field @error('email') is-invalid @enderror"
+                                            placeholder="Correo Electrónico" name="email" id='email'
+                                            value="{{ old('email') }}" />
+                                        <label for="email"
+                                            class="form__label @error('email') text-danger @enderror">Correo
+                                            Electrónico</label>
                                     </div>
+                                    {{-- Mensaje de error desde frontend --}}
+                                    <span class="text-danger mt-2 text-sm d-none" id="emailError"></span>
+                                    {{-- Mensaje de error desde servidor --}}
                                     @error('email')
                                         <span class="text-danger mt-1 text-sm">{{ $message }}</span>
                                     @enderror
@@ -36,39 +37,40 @@
                             <div class="mb-3">
                                 <div class="input-group">
                                     <div class="form__group field">
-                                        <input type="password" class="form__field @error('password') is-invalid @enderror" placeholder="Contraseña" name="password" id='password' value="{{ old('password') }}" />
-                                        <label for="password" class="form__label @error('password') text-danger @enderror">Contraseña</label>
-                                        {{-- Botón para mostrar/ocultar contraseña --}}
-                                        <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
-                                            <i class="bi bi-eye-slash fs-4" id="togglePassword"></i>
-                                        </span>
+                                        <input type="password" class="form__field @error('password') is-invalid @enderror"
+                                            placeholder="Contraseña" name="password" id='password' />
+                                        <label for="password"
+                                            class="form__label @error('password') text-danger @enderror">Contraseña</label>
                                     </div>
+                                    {{-- Mensaje de error desde frontend --}}
+                                    <span class="text-danger mt-2 text-sm d-none" id="passwordError"></span>
+                                    {{-- Mensaje de error desde servidor --}}
                                     @error('password')
                                         <span class="text-danger mt-1 text-sm">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
-                            {{-- Mensaje de error para credenciales incorrectas --}}
-                            @error('invalid')
-                                <div class="alert custom-error-alert">
-                                    <i class="bi bi-exclamation-triangle"></i> {{ $message }}
-                                </div>
-                            @enderror
 
+                            {{-- Mensaje de errores generales desde servidor --}}
+                            <div id="errorMessage" class="alert custom-error-alert d-none">
+                                <i class="bi bi-exclamation-triangle"></i><span id="errorMessageText"></span>
+                            </div>
+                            
                             {{-- Mensaje de éxito --}}
                             @if (session('success'))
-                                <div class="alert custom-success-alert">
-                                    <i class="bi bi-check-circle"></i> {{ session('success') }}
+                                <div id="successMessage" class="alert custom-success-alert d-none">
+                                    <i class="bi bi-check-circle"></i> <span>{{ session('success') }}</span>
                                 </div>
                             @endif
-                            
+
                             {{-- Enlace para recuperar contraseña --}}
                             <div class="d-flex justify-content-end mb-3">
                                 <a href="#" class="text-decoration-none forgot-password">¿Olvidaste tu contraseña?</a>
                             </div>
+
                             {{-- Botones de acción --}}
                             <div class="d-grid">
-                                <button type="submit" class="btn-custom-white">
+                                <button type="submit" class="btn-custom-white" id="loginButton">
                                     <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                                 </button>
                                 <a href="{{ route('register') }}" class="btn-custom-blue mt-3">
