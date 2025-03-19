@@ -212,3 +212,28 @@ main::after {
     transform: translateY(1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Estilos para el alert */
+.custom-error-alert {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+}
+.custom-error-alert:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+.custom-success-alert {
+    background-color: rgba(72, 189, 79, 0.1);
+    border: 1px solid #49c596;
+    color: #49c596;
+    padding: 0.75rem 1.25rem;
+}
+
+.custom-success-alert:hover {
+    background-color: rgba(72, 189, 79, 0.2);
+}

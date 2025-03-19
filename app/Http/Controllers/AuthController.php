@@ -37,6 +37,13 @@ class AuthController extends Controller
             return redirect()->intended('home'); // TODO: Cambiar a la página de inicio
         }
     
-        return redirect()->route('login')->withErrors(['email' => 'Credenciales incorrectas']);
+        // Si las credenciales son incorrectas, redirigir al usuario a la página de login con un mensaje de error y con su old input
+        return redirect()->route('login')->withErrors(['invalid' => 'Credenciales incorrectas'])->withInput();
+    }
+
+    // Método para cerrar sesión
+    public function logout() {
+        Auth::logout();
+        return redirect()->route('login')->with('success', 'Sesión cerrada exitosamente');
     }
 }
