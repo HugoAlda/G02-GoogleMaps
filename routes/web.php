@@ -10,5 +10,5 @@ Route::get('/', function () {
 // Rutas para el AuthController
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');     // Vista de login
-    Route::post('/login', 'login'); // Procesar el login
+    Route::post('/login', 'login')->name('login.post'); // Procesar el login
 });

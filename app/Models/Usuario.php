@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; // Importar la clase Authenticatable
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Usuario extends Model
+class Usuario extends Authenticatable // Cambiar a Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'usuarios';
+    protected $table = 'usuarios'; // Tabla 'usuarios'
 
     protected $fillable = [
         'nombre',
@@ -21,7 +21,7 @@ class Usuario extends Model
     ];
 
     protected $hidden = [
-        'password',
+        'password', // Ocultar la contraseña
     ];
 
     public function rol()

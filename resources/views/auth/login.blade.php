@@ -25,7 +25,7 @@
                             <h4>Iniciar Sesión</h4>
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="{{ route('login') }}">
+                            <form method="POST" action="{{ route('login.post') }}">
                                 @csrf
                                 @method('POST')
                                 <div class="mb-3">
@@ -33,10 +33,10 @@
                                         <div class="form__group field">
                                             <input type="input" class="form__field @error('email') is-invalid @enderror" placeholder="Correo Electrónico" name="email" id='email' value="{{ old('email') }}" />
                                             <label for="email" class="form__label @error('email') text-danger @enderror">Correo Electrónico</label>
-                                            @error('email')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
-                                          </div>
+                                        </div>
+                                        @error('email')
+                                            <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="mb-3">
@@ -47,10 +47,10 @@
                                             <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
                                                 <i class="bi bi-eye-slash fs-4" id="togglePassword"></i>
                                             </span>
-                                            @error('password')
-                                                <span class="text-danger">{{ $message }}</span>
-                                            @enderror
                                         </div>
+                                        @error('password')
+                                            <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end mb-3">
