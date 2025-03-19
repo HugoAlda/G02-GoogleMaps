@@ -32,9 +32,15 @@ class AuthController extends Controller
             // Generar una sesión de usuario
             $request->session()->regenerate();
 
-            // Redirigir al usuario a la página de inicio
-            // Usa intended para redirigir a la última página protegida visitada
-            return redirect()->intended('home'); // TODO: Cambiar a la página de inicio
+            $user = Auth::user(); // Obtiene el usuario autenticado
+
+            // Verificar el rol del usuario y redirigir según corresponda
+            if ($user->rol_id === 2) {
+                return redirect()->route('mapa.index');
+            }         
+            
+            // Si no es cliente, redirigir a una ruta por defecto
+            return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
         }
     
         // Si las credenciales son incorrectas, redirigir al usuario a la página de login con un mensaje de error y con su old input
