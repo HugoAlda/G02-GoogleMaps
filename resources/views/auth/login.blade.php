@@ -85,7 +85,7 @@
                                     <button type="submit" class="btn-custom-white">
                                         <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
                                     </button>
-                                    <a href="#" class="btn-custom-blue mt-3">
+                                    <a href="{{ route('register') }}" class="btn-custom-blue mt-3">
                                         <i class="bi bi-person-plus"></i> Registrarme
                                     </a>
                                 </div>
@@ -101,6 +101,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     {{-- Scripts personalizados --}}
-    <script src="{{ asset('js/auth/login.js') }}"></script>
+    <script src="{{ asset('js/auth/auth.js') }}"></script>
 </body>
 </html>

@@ -46,4 +46,9 @@ class AuthController extends Controller
         Auth::logout();
         return redirect()->route('login')->with('success', 'Sesión cerrada exitosamente');
     }
+
+    // Método para renderizar la vista del registro
+    public function showRegisterForm() {
+        return view('auth.register');
+    }
 }

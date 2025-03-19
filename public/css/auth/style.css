@@ -199,8 +199,7 @@ main::after {
 }
 
 .btn-custom-white:hover {
-    background-color: #0066CC;
-    color: #ffffff;
+    background-color: #f7f7f7;
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }

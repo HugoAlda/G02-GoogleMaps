@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+{{-- Sección del head con metadatos y enlaces a estilos --}}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Registro</title>
+    {{-- Estilos boostrap --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    {{-- Iconos boostrap --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    {{-- Estilos propios --}}
+    <link rel="stylesheet" href="{{ asset('css/auth/style.css') }}">
+    <style>
+        
+    </style>
+</head>
+<body>
+    {{-- Contenido principal --}}
+    <main>
+        {{-- Contenedor principal con el formulario de registro --}}
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    {{-- Tarjeta personalizada para el formulario --}}
+                    <div class="card shadow custom-card">
+                        {{-- Encabezado de la tarjeta --}}
+                        <div class="card-header text-center">
+                            <h4>Registro de Usuario</h4>
+                        </div>
+                        {{-- Cuerpo de la tarjeta con el formulario --}}
+                        <div class="card-body">
+                            <form method="POST" action="{{ route('register.post') }}">
+                                @csrf
+                                @method('POST')
+                                {{-- Primera fila: Nombre, Apellido, Email --}}
+                                <div class="row mb-3">
+                                    {{-- Campo de nombre --}}
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <div class="form__group field">
+                                                <input type="input" class="form__field @error('name') is-invalid @enderror" placeholder="Nombre" name="name" id='name' value="{{ old('name') }}" />
+                                                <label for="name" class="form__label @error('name') text-danger @enderror">Nombre</label>
+                                            </div>
+                                            @error('name')
+                                                <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    {{-- Campo de apellido --}}
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <div class="form__group field">
+                                                <input type="input" class="form__field @error('lastname') is-invalid @enderror" placeholder="Apellido" name="lastname" id='lastname' value="{{ old('lastname') }}" />
+                                                <label for="lastname" class="form__label @error('lastname') text-danger @enderror">Apellido</label>
+                                            </div>
+                                            @error('lastname')
+                                                <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    {{-- Campo de correo electrónico --}}
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <div class="form__group field">
+                                                <input type="email" class="form__field @error('email') is-invalid @enderror" placeholder="Correo Electrónico" name="email" id='email' value="{{ old('email') }}" />
+                                                <label for="email" class="form__label @error('email') text-danger @enderror">Correo Electrónico</label>
+                                            </div>
+                                            @error('email')
+                                                <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Segunda fila: Contraseña y Confirmar Contraseña --}}
+                                <div class="row mb-3">
+                                    {{-- Campo de contraseña --}}
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <div class="form__group field">
+                                                <input type="password" class="form__field @error('password') is-invalid @enderror" placeholder="Contraseña" name="password" id='password' />
+                                                <label for="password" class="form__label @error('password') text-danger @enderror">Contraseña</label>
+                                                <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
+                                                    <i class="bi bi-eye-slash fs-4" id="togglePassword"></i>
+                                                </span>
+                                            </div>
+                                            @error('password')
+                                                <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    {{-- Campo de confirmar contraseña --}}
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <div class="form__group field">
+                                                <input type="password" class="form__field @error('password_confirmation') is-invalid @enderror" placeholder="Confirmar Contraseña" name="password_confirmation" id='password_confirmation' />
+                                                <label for="password_confirmation" class="form__label @error('password_confirmation') text-danger @enderror">Confirmar Contraseña</label>
+                                                <span class="input-group-text" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
+                                                    <i class="bi bi-eye-slash fs-4" id="togglePasswordConfirm"></i>
+                                                </span>
+                                            </div>
+                                            @error('password_confirmation')
+                                                <span class="text-danger mt-1 text-sm">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Mensaje de error general --}}
+                                @error('invalid')
+                                    <div class="alert custom-error-alert">
+                                        <i class="bi bi-exclamation-triangle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+
+                                {{-- Mensaje de éxito --}}
+                                @if (session('success'))
+                                    <div class="alert custom-success-alert">
+                                        <i class="bi bi-check-circle"></i> {{ session('success') }}
+                                    </div>
+                                @endif
+
+                                {{-- Botones de acción --}}
+                                <div class="d-grid">
+                                    <button type="submit" class="btn-custom-white mt-3">
+                                        <i class="bi bi-person-plus"></i> Registrarme
+                                    </button>
+                                    <a href="{{ route('login') }}" class="btn-custom-blue mt-3">
+                                        <i class="bi bi-box-arrow-in-right"></i> Ya tengo cuenta
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {{-- Scripts de Bootstrap --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Scripts personalizados --}}
+    <script src="{{ asset('js/auth/auth.js') }}"></script>
+</body>
+</html>
