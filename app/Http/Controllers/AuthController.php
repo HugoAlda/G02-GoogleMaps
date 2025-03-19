@@ -34,9 +34,19 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
     
-                if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
-                }
+                // if ($request->expectsJson()) {
+                //     return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
+                // }
+
+                $user = Auth::user(); // Obtiene el usuario autenticado
+
+                // Verificar el rol del usuario y redirigir según corresponda
+                if ($user->rol_id === 2) {
+                    return redirect()->route('mapa.index');
+                }         
+                
+                // Si no es cliente, redirigir a una ruta por defecto
+                return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
     
                 return redirect()->intended('home');
             }
