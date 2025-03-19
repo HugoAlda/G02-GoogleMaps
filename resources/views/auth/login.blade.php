@@ -10,7 +10,7 @@
     {{-- Iconos boostrap --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     {{-- Estilos propios --}}
-    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth/style.css') }}">
     <style>
         
     </style>
@@ -76,6 +76,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     {{-- Scripts propios --}}
-    <script src="{{ asset('js/login.js') }}"></script>
+    <script src="{{ asset('js/auth/login.js') }}"></script>
 </body>
 </html>
