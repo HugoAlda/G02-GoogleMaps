@@ -42,13 +42,11 @@ class AuthController extends Controller
 
                 // Verificar el rol del usuario y redirigir según corresponda
                 if ($user->rol_id === 2) {
-                    return redirect()->route('mapa.index');
+                    return redirect()->intended('mapa.index');
                 }         
                 
                 // Si no es cliente, redirigir a una ruta por defecto
                 return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
-    
-                return redirect()->intended('home');
             }
     
             $errorResponse = ['invalid' => 'Credenciales incorrectas, '];

@@ -13,7 +13,19 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/logout', 'logout')->name('logout');
     Route::get('/register', 'showRegisterForm')->name('register');
     Route::post('/register', 'register')->name('register.post');
-    Route::get('/mapa', [MapController::class, 'index'])->name('mapa.index');
-    Route::get('/mapa/juego', [MapController::class, 'juego'])->name('mapa.juego');
-    Route::get('/mapa/partida', [MapController::class, 'partida'])->name('mapa.partida');
+});
+
+/**
+ * Rutas del mapa protegidas por autenticación
+ * 
+ * @middleware auth - Verifica que el usuario esté autenticado
+ * @prefix mapa - Agrega '/mapa' como prefijo a todas las rutas del grupo
+ * @controller MapController - Asigna el controlador para manejar las rutas
+ */
+
+// Rutas del mapa protegidas por autenticación
+Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
+    Route::get('/', 'index')->name('mapa.index');
+    Route::get('/juego', 'juego')->name('mapa.juego');
+    Route::get('/partida', 'partida')->name('mapa.partida');
 });
