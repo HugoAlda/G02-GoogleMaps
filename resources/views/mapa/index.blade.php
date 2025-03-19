@@ -13,14 +13,24 @@
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Mapa</a>
+            <div class="search-container">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Buscar ubicación..." aria-label="Buscar">
+                    <button class="btn btn-search" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('logout') }}">Cerrar sesión</a>
+                        <a class="nav-link" href="{{ route('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Cerrar sesión
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -32,6 +42,12 @@
 
     <!-- Panel de controles -->
     <div class="controls-panel">
+        <button id="zoomOut" class="btn btn-primary" title="Alejar">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button id="zoomIn" class="btn btn-primary" title="Acercar">
+            <i class="fas fa-plus"></i>
+        </button>
         <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
             <i class="fas fa-location-crosshairs"></i>
         </button>

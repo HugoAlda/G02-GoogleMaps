@@ -21,7 +21,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!map) {
                         // Primera vez - inicializar el mapa
-                        map = L.map('map').setView(userCoords, 17);
+                        map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
+                        baseLayers[currentLayer].addTo(map);
+                    }
+
+                    if (currentLocationMarker) {
+                        map.removeLayer(currentLocationMarker);
+                    }
+
+                    currentLocationMarker = L.marker(userCoords).addTo(map);
+                },
+                (error) => {
+                    console.error('Error:', error);
+                    alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
+                }
+            );
+        } else {
+            alert('Tu navegador no soporta geolocalización');
+        }
+    }
+
+    function centerLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userCoords = [position.coords.latitude, position.coords.longitude];
+                    
+                    if (!map) {
+                        // Primera vez - inicializar el mapa
+                        map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
                         baseLayers[currentLayer].addTo(map);
                     } else {
                         // Actualizar vista
@@ -45,7 +73,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Evento para el botón de centrar en la ubicación actual
-    document.getElementById('centerUser').addEventListener('click', getLocation);
+    document.getElementById('centerUser').addEventListener('click', centerLocation);
+
+    // Eventos para los botones de zoom
+    document.getElementById('zoomIn').addEventListener('click', () => {
+        if (map) map.setZoom(map.getZoom() + 1);
+    });
+
+    document.getElementById('zoomOut').addEventListener('click', () => {
+        if (map) map.setZoom(map.getZoom() - 1);
+    });
 
     // Evento para cambiar el tipo de mapa
     document.getElementById('toggleSatellite').addEventListener('click', () => {
