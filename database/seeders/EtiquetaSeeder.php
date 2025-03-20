@@ -16,7 +16,7 @@ class EtiquetaSeeder extends Seeder
             [
                 'nombre' => 'Admin',
                 'password' => bcrypt('admin'),
-                'rol_id' => 1 // Asumiendo que 1 es el ID del rol admin
+                'rol_id' => 1
             ]
         );
 
@@ -26,27 +26,26 @@ class EtiquetaSeeder extends Seeder
                 'nombre' => 'Monumentos',
                 'icono' => 'monument',
                 'es_privado' => false,
+                'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Hoteles',
                 'icono' => 'hotel',
                 'es_privado' => false,
+                'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Puntos de interés',
                 'icono' => 'info',
                 'es_privado' => false,
+                'usuario_id' => $admin->id
             ]
         ];
 
         foreach ($etiquetas as $etiqueta) {
             Etiqueta::firstOrCreate(
                 ['nombre' => $etiqueta['nombre']],
-                [
-                    'icono' => $etiqueta['icono'],
-                    'es_privado' => $etiqueta['es_privado'],
-                    'usuario_id' => $admin->id
-                ]
+                $etiqueta
             );
         }
     }

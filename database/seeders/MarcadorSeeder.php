@@ -5,92 +5,110 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Marcador;
 use App\Models\Usuario;
-use App\Models\Etiqueta;
 
 class MarcadorSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = Usuario::where('email', 'admin@example.com')->first();
-        
-        // Obtener las etiquetas
-        $etiquetaMonumentos = Etiqueta::where('nombre', 'Monumentos')->first();
-        $etiquetaHoteles = Etiqueta::where('nombre', 'Hoteles')->first();
-        $etiquetaInteres = Etiqueta::where('nombre', 'Puntos de interés')->first();
+        // Obtener el usuario admin
+        $admin = Usuario::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'nombre' => 'Admin',
+                'password' => bcrypt('admin'),
+                'rol_id' => 1
+            ]
+        );
 
         // Monumentos
-        Marcador::create([
-            'nombre' => 'Iglesia de Bellvitge',
-            'descripcion' => 'Iglesia románica del siglo XII, uno de los monumentos más antiguos de L\'Hospitalet',
-            'latitud' => 41.3526,
-            'longitud' => 2.1083,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaMonumentos->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Iglesia de Bellvitge'],
+            [
+                'descripcion' => 'Iglesia románica del siglo XII, uno de los monumentos más antiguos de L\'Hospitalet',
+                'latitud' => 41.3526,
+                'longitud' => 2.1083,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Ermita Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+            ]
+        );
 
-        Marcador::create([
-            'nombre' => 'Ermita de Bellvitge',
-            'descripcion' => 'Ermita medieval dedicada a la Mare de Déu de Bellvitge',
-            'latitud' => 41.3519,
-            'longitud' => 2.1067,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaMonumentos->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Ermita de Bellvitge'],
+            [
+                'descripcion' => 'Ermita medieval dedicada a la Mare de Déu de Bellvitge',
+                'latitud' => 41.3519,
+                'longitud' => 2.1067,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Av. Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+            ]
+        );
 
         // Hoteles
-        Marcador::create([
-            'nombre' => 'Hotel SB Plaza Europa',
-            'descripcion' => 'Hotel moderno de 4 estrellas cerca de la Fira de Barcelona',
-            'latitud' => 41.3589,
-            'longitud' => 2.1289,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaHoteles->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Hotel SB Plaza Europa'],
+            [
+                'descripcion' => 'Hotel moderno de 4 estrellas cerca de la Fira de Barcelona',
+                'latitud' => 41.3589,
+                'longitud' => 2.1289,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Carrer de les Ciències, 11-13, L\'Hospitalet de Llobregat'
+            ]
+        );
 
-        Marcador::create([
-            'nombre' => 'Hotel Travelodge L\'Hospitalet',
-            'descripcion' => 'Hotel económico bien comunicado con el centro de Barcelona',
-            'latitud' => 41.3561,
-            'longitud' => 2.1198,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaHoteles->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Hotel Travelodge L\'Hospitalet'],
+            [
+                'descripcion' => 'Hotel económico bien comunicado con el centro de Barcelona',
+                'latitud' => 41.3561,
+                'longitud' => 2.1198,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Carrer Botànica, 25, L\'Hospitalet de Llobregat'
+            ]
+        );
 
         // Puntos de interés
-        Marcador::create([
-            'nombre' => 'Hospital Universitario de Bellvitge',
-            'descripcion' => 'Uno de los hospitales más importantes de Cataluña',
-            'latitud' => 41.3442,
-            'longitud' => 2.1019,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaInteres->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Hospital Universitario de Bellvitge'],
+            [
+                'descripcion' => 'Uno de los hospitales más importantes de Cataluña',
+                'latitud' => 41.3442,
+                'longitud' => 2.1019,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Carrer de la Feixa Llarga, s/n, L\'Hospitalet de Llobregat'
+            ]
+        );
 
-        Marcador::create([
-            'nombre' => 'Centro Comercial Gran Via 2',
-            'descripcion' => 'Centro comercial con tiendas, restaurantes y cines',
-            'latitud' => 41.3587,
-            'longitud' => 2.1297,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaInteres->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Centro Comercial Gran Via 2'],
+            [
+                'descripcion' => 'Centro comercial con tiendas, restaurantes y cines',
+                'latitud' => 41.3587,
+                'longitud' => 2.1297,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Av. de la Granvia, 75, L\'Hospitalet de Llobregat'
+            ]
+        );
 
-        Marcador::create([
-            'nombre' => 'Parc de Bellvitge',
-            'descripcion' => 'Parque urbano con áreas verdes y zonas de recreo',
-            'latitud' => 41.3534,
-            'longitud' => 2.1089,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaInteres->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Parc de Bellvitge'],
+            [
+                'descripcion' => 'Parque urbano con áreas verdes y zonas de recreo',
+                'latitud' => 41.3534,
+                'longitud' => 2.1089,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Avinguda Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+            ]
+        );
 
-        Marcador::create([
-            'nombre' => 'Estación de Metro Bellvitge',
-            'descripcion' => 'Estación de la línea L1 del metro de Barcelona',
-            'latitud' => 41.3611,
-            'longitud' => 2.1222,
-            'usuario_id' => $admin->id,
-            'etiqueta_id' => $etiquetaInteres->id
-        ]);
+        Marcador::firstOrCreate(
+            ['nombre' => 'Estación de Metro Bellvitge'],
+            [
+                'descripcion' => 'Estación de la línea L1 del metro de Barcelona',
+                'latitud' => 41.3611,
+                'longitud' => 2.1222,
+                'usuario_id' => $admin->id,
+                'direccion' => 'Rambla Marina, L\'Hospitalet de Llobregat'
+            ]
+        );
     }
 }
