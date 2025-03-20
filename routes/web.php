@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\AdminController;
 
 // Ruta principal redirige al login
 Route::get('/', [AuthController::class, 'showLoginView'])->name('login');
@@ -28,4 +29,9 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     Route::get('/', 'index')->name('mapa.index');
     Route::get('/juego', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
+});
+
+// Rutas del administrador protegidas por autenticación
+Route::middleware('auth')->prefix('admin')->controller(AdminController::class)->group(function () {
+    Route::get('/', 'index')->name('admin.index');
 });

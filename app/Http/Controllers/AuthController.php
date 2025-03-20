@@ -17,6 +17,11 @@ class AuthController extends Controller
 
     // Método para renderizar la vista del registro
     public function showRegisterView() {
+        // Si el usuario está autenticado, redirigir al mapa
+        if (Auth::check()) {
+            return redirect()->route('mapa.index');
+        }
+
         return view('auth.register');
     }
     
@@ -51,8 +56,10 @@ class AuthController extends Controller
                     2 => 'mapa.index', // Ruta para el cliente
                 ];
 
-                // Verificar si el rol tiene una ruta asignada
-                if (isset($routes[$user->rol_id])) {
+                // // Verificar si el rol tiene una ruta asignada
+                // dd($routes[intval($user->rol_id)]);
+
+                if (isset($routes[intval($user->rol_id)])) {
                     // Si la solicitud es una solicitud JSON, devolver un mensaje de éxito
                     if ($request->expectsJson()) {
                         return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
