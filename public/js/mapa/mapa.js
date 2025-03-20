@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let map, currentLocationMarker;
     let currentLayer = 'normal';
-    
-    // Capas base disponibles
+
+    // Definición de las capas base
     let baseLayers = {
         "normal": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -12,22 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     };
 
-    // Inicializar el mapa
-    map = L.map('map').setView([41.3526, 2.1083], 14);
+    // Inicialización del mapa
+    map = L.map('map', {
+        layers: [baseLayers[currentLayer]], // Capa inicial
+        zoomControl: false // Desactivamos los controles de zoom predeterminados
+    }).setView([41.3526, 2.1083], 14);
 
-    // Añadir capa de OpenStreetMap
-    baseLayers[currentLayer].addTo(map);
-
-    // Almacenar todos los marcadores
+    // LayerGroup para los marcadores
     let marcadoresLayer = L.layerGroup().addTo(map);
     let marcadoresActivos = [];
 
-    // Función para crear un marcador con icono personalizado según la etiqueta
+    // Función para crear un marcador personalizado
     function crearMarcador(marcador) {
-        let iconoClass = 'fa-info'; // Icono por defecto
+        let iconoClass = 'fa-info';
 
-        // Asignar icono según la etiqueta
-        switch(marcador.etiqueta.nombre) {
+        switch (marcador.etiqueta.nombre) {
             case 'monumentos':
                 iconoClass = 'fa-monument';
                 break;
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return marker;
     }
 
-    // Función para actualizar los marcadores visibles
+    // Función para actualizar los marcadores según una etiqueta
     function actualizarMarcadores(etiquetaNombre = 'all') {
         marcadoresLayer.clearLayers();
         marcadoresActivos = [];
@@ -70,51 +69,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Si hay marcadores visibles, ajustar el mapa para mostrarlos todos
         if (marcadoresActivos.length > 0) {
             const grupo = L.featureGroup(marcadoresActivos);
             map.fitBounds(grupo.getBounds(), { padding: [50, 50] });
         }
     }
 
-    // Manejar clics en los botones de etiquetas
+    // Event listeners para los botones de filtro
     document.querySelectorAll('.btn-tag').forEach(button => {
         button.addEventListener('click', (e) => {
-            // Remover clase active de todos los botones
-            document.querySelectorAll('.btn-tag').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Añadir clase active al botón clickeado
+            document.querySelectorAll('.btn-tag').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-
-            // Actualizar marcadores
-            const etiquetaNombre = button.dataset.tag;
-            actualizarMarcadores(etiquetaNombre);
+            actualizarMarcadores(button.dataset.tag);
         });
     });
 
-    // Inicializar marcadores
+    // Actualizar marcadores al cargar la página
     actualizarMarcadores();
 
-    // Búsqueda de marcadores
+    // Funcionalidad de búsqueda
     const searchInput = document.querySelector('.form-control');
     const searchButton = document.querySelector('.btn-search');
 
     function buscarMarcadores(query) {
         if (!query.trim()) {
-            actualizarMarcadores(); // Si la búsqueda está vacía, mostrar todos
+            actualizarMarcadores();
             return;
         }
-
         query = query.toLowerCase();
-        
         marcadoresLayer.clearLayers();
         marcadoresActivos = [];
 
         window.marcadores.forEach(marcador => {
-            if (marcador.nombre.toLowerCase().includes(query) || 
-                marcador.descripcion.toLowerCase().includes(query)) {
+            if (marcador.nombre.toLowerCase().includes(query) || marcador.descripcion.toLowerCase().includes(query)) {
                 const marker = crearMarcador(marcador);
                 marcadoresLayer.addLayer(marker);
                 marcadoresActivos.push(marker);
@@ -127,80 +114,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    searchButton.addEventListener('click', () => {
-        buscarMarcadores(searchInput.value);
-    });
-
+    searchButton.addEventListener('click', () => buscarMarcadores(searchInput.value));
     searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            buscarMarcadores(searchInput.value);
-        }
+        if (e.key === 'Enter') buscarMarcadores(searchInput.value);
     });
 
-    // Evento para el botón de centrar en la ubicación actual
-    document.getElementById('centerUser').addEventListener('click', () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userCoords = [position.coords.latitude, position.coords.longitude];
-                    
-                    if (!currentLocationMarker) {
-                        currentLocationMarker = L.marker(userCoords).addTo(map);
-                    } else {
-                        currentLocationMarker.setLatLng(userCoords);
-                    }
+    // Obtener la ubicación actual
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userCoords = [position.coords.latitude, position.coords.longitude];
+                console.log('Ubicación obtenida:', userCoords);
 
-                    map.setView(userCoords, 17);
-                },
-                (error) => {
-                    console.error('Error:', error);
-                    alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
+                if (!currentLocationMarker) {
+                    currentLocationMarker = L.marker(userCoords, { title: "Tu ubicación" }).addTo(map);
+                } else {
+                    currentLocationMarker.setLatLng(userCoords);
                 }
-            );
-        } else {
-            alert('Tu navegador no soporta geolocalización');
-        }
-    });
+                map.setView(userCoords, 14); // Centrar el mapa en la ubicación del usuario
+            },
+            (error) => {
+                console.error('Error al obtener la ubicación:', error);
+                let errorMessage = 'No se pudo obtener tu ubicación.';
 
-    // Eventos para los botones de zoom
-    document.getElementById('zoomIn').addEventListener('click', () => {
-        if (map) map.setZoom(map.getZoom() + 1);
-    });
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += ' El usuario ha denegado el acceso a la ubicación.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += ' La información de ubicación no está disponible.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += ' Se ha excedido el tiempo de espera para obtener la ubicación.';
+                        break;
+                    default:
+                        errorMessage += ' Error desconocido.';
+                        break;
+                }
 
-    document.getElementById('zoomOut').addEventListener('click', () => {
-        if (map) map.setZoom(map.getZoom() - 1);
-    });
+                alert(errorMessage);
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+    } else {
+        alert('Tu navegador no soporta geolocalización.');
+    }
 
-    // Evento para cambiar el tipo de mapa
-    document.getElementById('toggleSatellite').addEventListener('click', () => {
-        if (!map) return;
+    // Botones de zoom in y zoom out
+    document.getElementById('zoomIn')?.addEventListener('click', () => map.setZoom(map.getZoom() + 1));
+    document.getElementById('zoomOut')?.addEventListener('click', () => map.setZoom(map.getZoom() - 1));
+
+    // Cambio de capa (normal/satélite)
+    document.getElementById('toggleSatellite')?.addEventListener('click', () => {
         map.removeLayer(baseLayers[currentLayer]);
         currentLayer = currentLayer === 'normal' ? 'satellite' : 'normal';
         baseLayers[currentLayer].addTo(map);
     });
-
-    // Estilos para los iconos personalizados
-    const style = document.createElement('style');
-    style.textContent = `
-        .custom-div-icon {
-            background: none;
-            border: none;
-        }
-        .custom-div-icon i {
-            font-size: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .marker-popup {
-            padding: 5px;
-        }
-        .marker-popup h5 {
-            margin: 0 0 5px 0;
-            color: #0066CC;
-        }
-        .marker-popup p {
-            margin: 0;
-            font-size: 14px;
-        }
-    `;
-    document.head.appendChild(style);
 });

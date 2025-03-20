@@ -37,11 +37,11 @@
             @endforeach
         </div>
 
-        <div id="map" style="height: 600px;"></div>
+        <div id="map"></div>
 
         <div class="controls-panel">
             <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
-                <i class="fas fa-map-marked-alt"></i>
+            <i class="fa-solid fa-right-from-bracket"></i>
             </a>
             <button id="zoomOut" class="btn btn-primary" title="Alejar">
                 <i class="fas fa-minus"></i>
