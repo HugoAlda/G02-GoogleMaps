@@ -12,8 +12,9 @@ class MapController extends Controller
     public function index()
     {
         $etiquetas = Etiqueta::where('es_privado', false)->get();
-        $marcadores = Marcador::with('etiqueta')->get();
+        $marcadores = Marcador::with('etiquetas')->get();
         $admin = Usuario::where('email', 'admin@example.com')->first();
+
         return view('mapa.index', compact('etiquetas', 'marcadores', 'admin'));
     }
 
