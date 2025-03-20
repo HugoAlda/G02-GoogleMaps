@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordError = document.getElementById('passwordError');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     // Manejador del evento submit del formulario
     form.addEventListener('submit', function (event) {
@@ -31,7 +32,8 @@ document.addEventListener('DOMContentLoaded', function () {
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
             }
         })
         .then(response => response.json().then(data => ({ status: response.status, body: data })))
@@ -39,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Si el login es exitoso
             if (status === 200) {
                 // Redirigir a la página de inicio si es exitoso
-                window.location.href = '/home'; // TODO: Cambiar a la ruta real
+                window.location.href = '/mapa'; // TODO: Cambiar a la ruta real
             }
 
             // Si el status es 401, mostrar el mensaje de error

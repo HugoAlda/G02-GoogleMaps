@@ -11,7 +11,7 @@ class AuthController extends Controller
 {
 
     // Método para renderizar la vista del login
-    public function showLoginForm() {
+    public function showLoginView() {
         return view('auth.login');
     }
     
@@ -33,23 +33,37 @@ class AuthController extends Controller
             // Intentar autenticar al usuario
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
-    
-                // if ($request->expectsJson()) {
-                //     return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
-                // }
 
                 $user = Auth::user(); // Obtiene el usuario autenticado
 
                 // Verificar el rol del usuario y redirigir según corresponda
-                if ($user->rol_id === 2) {
-                    return redirect()->intended('mapa.index');
-                }         
-                
-                // Si no es cliente, redirigir a una ruta por defecto
+                // 1: Administrador
+                // 2: Cliente
+
+                // Definir las rutas según el rol
+                $routes = [
+                    1 => 'admin.index',
+                    2 => 'mapa.index',
+                ];
+
+                // Verificar si el rol tiene una ruta asignada
+                if (isset($routes[$user->rol_id])) {
+                    // Si la solicitud es una solicitud JSON, devolver un mensaje de éxito
+                    if ($request->expectsJson()) {
+                        return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
+                    }
+
+                    // Redirigir al usuario a la ruta asignada según su rol
+                    return redirect()->intended(route($routes[$user->rol_id]));
+                }
+
+                // Si el rol no es válido, cerrar sesión y mostrar error
+                Auth::logout();
                 return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
+
             }
     
-            $errorResponse = ['invalid' => 'Credenciales incorrectas, '];
+            $errorResponse = ['invalid' => 'Credenciales incorrectas, introduce tus datos nuevamente.'];
     
             // Si la solicitud es una solicitud JSON, devolver un error 401
             if ($request->expectsJson()) {
@@ -90,7 +104,7 @@ class AuthController extends Controller
     }
 
     // Método para renderizar la vista del registro
-    public function showRegisterForm() {
+    public function showRegisterView() {
         return view('auth.register');
     }
 }
