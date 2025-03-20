@@ -14,6 +14,11 @@ class AuthController extends Controller
     public function showLoginView() {
         return view('auth.login');
     }
+
+    // Método para renderizar la vista del registro
+    public function showRegisterView() {
+        return view('auth.register');
+    }
     
     public function login(Request $request) {
         try {
@@ -42,8 +47,8 @@ class AuthController extends Controller
 
                 // Definir las rutas según el rol
                 $routes = [
-                    1 => 'admin.index',
-                    2 => 'mapa.index',
+                    1 => 'admin.index', // Ruta para el administrador
+                    2 => 'mapa.index', // Ruta para el cliente
                 ];
 
                 // Verificar si el rol tiene una ruta asignada
@@ -101,10 +106,5 @@ class AuthController extends Controller
 
         // Si el usuario no está autenticado, redirigir al login
         return redirect()->route('login');
-    }
-
-    // Método para renderizar la vista del registro
-    public function showRegisterView() {
-        return view('auth.register');
     }
 }

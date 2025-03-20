@@ -45,7 +45,7 @@ main::after {
 /* Estilos para el formulario */
 .form__group {
     position: relative;
-    padding: 15px 0 0;
+    padding: 21px 0 0;
     margin-top: 10px;
     width: 100%;
     z-index: 2; /* Asegura que el formulario esté por encima de las ondas */

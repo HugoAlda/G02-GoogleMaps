@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // Crear un objeto FormData para enviar los datos del formulario
         let formData = new FormData(form);
 
+        // Variables para almacenar los errores
+        let errors = false;
+
         // Deshabilitar el botón de inicio de sesión
         loginButton.disabled = true;
 
@@ -25,6 +28,40 @@ document.addEventListener('DOMContentLoaded', function () {
         emailError.classList.add('d-none');
         passwordError.classList.add('d-none');
         errorMessage.classList.add('d-none');
+
+        // Verificación del email
+        // Comprobar si el email no está vacío
+        if (emailInput.value === '') {
+            emailError.textContent = "El correo electrónico es requerido";
+            emailError.classList.remove('d-none');
+            emailInput.classList.add('is-invalid');
+            loginButton.disabled = false;
+            errors = true;
+        }
+
+        let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expresión regular para validar el email
+        // Verificar si el email es correcto
+        if (!regex.test(emailInput.value)) {
+            emailError.textContent = "El correo electrónico debe ser válido";
+            emailError.classList.remove('d-none');
+            emailInput.classList.add('is-invalid');
+            loginButton.disabled = false;
+            errors = true;
+        }
+
+        // Comprobar si la contraseña no está vacía
+        if (passwordInput.value === '') {
+            passwordError.textContent = "La contraseña es requerida";
+            passwordError.classList.remove('d-none');
+            passwordInput.classList.add('is-invalid');
+            loginButton.disabled = false;
+            errors = true;
+        }
+
+        // Si hay errores, no se envía el formulario
+        if (errors) {
+            return;
+        }
 
         // Realizar la solicitud AJAX al servidor
         fetch(form.action, {

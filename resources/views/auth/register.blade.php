@@ -77,7 +77,7 @@
                                         <label for="password_confirmation" class="form__label @error('password_confirmation') text-danger @enderror">Confirmar Contraseña</label>
                                     </div>
                                     <i class="bi bi-eye-slash toggle-password" id="togglePasswordConfirm"></i>
-                                    <span class="text-danger mt-2 text-sm d-none" id="passwordConfirmError"></span>
+                                    <span class="text-danger mt-2 text-sm d-none" id="passwordConfirmationError"></span>
                                     @error('password_confirmation')
                                         <span class="text-danger mt-1 text-sm">{{ $message }}</span>
                                     @enderror
