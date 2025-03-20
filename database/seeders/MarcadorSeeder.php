@@ -2,69 +2,95 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Marcador;
 use App\Models\Usuario;
-use Illuminate\Database\Seeder;
+use App\Models\Etiqueta;
 
 class MarcadorSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = Usuario::whereHas('rol', function($q) {
-            $q->where('nombre', 'admin');
-        })->first();
+        $admin = Usuario::where('email', 'admin@example.com')->first();
+        
+        // Obtener las etiquetas
+        $etiquetaMonumentos = Etiqueta::where('nombre', 'Monumentos')->first();
+        $etiquetaHoteles = Etiqueta::where('nombre', 'Hoteles')->first();
+        $etiquetaInteres = Etiqueta::where('nombre', 'Puntos de interés')->first();
 
-        $marcadores = [
-            [
-                'nombre' => 'Plaza Mayor',
-                'latitud' => 40.4168,
-                'longitud' => -3.7038,
-                'direccion' => 'Plaza Mayor, Madrid',
-                'descripcion' => 'Plaza histórica en el centro de Madrid',
-                'color' => '#FF0000',
-                'icono' => 'monument'
-            ],
-            [
-                'nombre' => 'Parque del Retiro',
-                'latitud' => 40.4152,
-                'longitud' => -3.6844,
-                'direccion' => 'Parque del Retiro, Madrid',
-                'descripcion' => 'Parque histórico de Madrid',
-                'color' => '#00FF00',
-                'icono' => 'park'
-            ],
-            [
-                'nombre' => 'Museo del Prado',
-                'latitud' => 40.4138,
-                'longitud' => -3.6921,
-                'direccion' => 'Paseo del Prado, Madrid',
-                'descripcion' => 'Museo nacional de arte',
-                'color' => '#0000FF',
-                'icono' => 'museum'
-            ],
-            [
-                'nombre' => 'Puerta del Sol',
-                'latitud' => 40.4169,
-                'longitud' => -3.7035,
-                'direccion' => 'Puerta del Sol, Madrid',
-                'descripcion' => 'Plaza emblemática de Madrid',
-                'color' => '#FFFF00',
-                'icono' => 'landmark'
-            ],
-            [
-                'nombre' => 'Palacio Real',
-                'latitud' => 40.4180,
-                'longitud' => -3.7144,
-                'direccion' => 'Calle Bailén, Madrid',
-                'descripcion' => 'Residencia oficial de la Familia Real Española',
-                'color' => '#800080',
-                'icono' => 'castle'
-            ]
-        ];
+        // Monumentos
+        Marcador::create([
+            'nombre' => 'Iglesia de Bellvitge',
+            'descripcion' => 'Iglesia románica del siglo XII, uno de los monumentos más antiguos de L\'Hospitalet',
+            'latitud' => 41.3526,
+            'longitud' => 2.1083,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaMonumentos->id
+        ]);
 
-        foreach ($marcadores as $marcador) {
-            $marcador['usuario_id'] = $admin->id;
-            Marcador::create($marcador);
-        }
+        Marcador::create([
+            'nombre' => 'Ermita de Bellvitge',
+            'descripcion' => 'Ermita medieval dedicada a la Mare de Déu de Bellvitge',
+            'latitud' => 41.3519,
+            'longitud' => 2.1067,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaMonumentos->id
+        ]);
+
+        // Hoteles
+        Marcador::create([
+            'nombre' => 'Hotel SB Plaza Europa',
+            'descripcion' => 'Hotel moderno de 4 estrellas cerca de la Fira de Barcelona',
+            'latitud' => 41.3589,
+            'longitud' => 2.1289,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaHoteles->id
+        ]);
+
+        Marcador::create([
+            'nombre' => 'Hotel Travelodge L\'Hospitalet',
+            'descripcion' => 'Hotel económico bien comunicado con el centro de Barcelona',
+            'latitud' => 41.3561,
+            'longitud' => 2.1198,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaHoteles->id
+        ]);
+
+        // Puntos de interés
+        Marcador::create([
+            'nombre' => 'Hospital Universitario de Bellvitge',
+            'descripcion' => 'Uno de los hospitales más importantes de Cataluña',
+            'latitud' => 41.3442,
+            'longitud' => 2.1019,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaInteres->id
+        ]);
+
+        Marcador::create([
+            'nombre' => 'Centro Comercial Gran Via 2',
+            'descripcion' => 'Centro comercial con tiendas, restaurantes y cines',
+            'latitud' => 41.3587,
+            'longitud' => 2.1297,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaInteres->id
+        ]);
+
+        Marcador::create([
+            'nombre' => 'Parc de Bellvitge',
+            'descripcion' => 'Parque urbano con áreas verdes y zonas de recreo',
+            'latitud' => 41.3534,
+            'longitud' => 2.1089,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaInteres->id
+        ]);
+
+        Marcador::create([
+            'nombre' => 'Estación de Metro Bellvitge',
+            'descripcion' => 'Estación de la línea L1 del metro de Barcelona',
+            'latitud' => 41.3611,
+            'longitud' => 2.1222,
+            'usuario_id' => $admin->id,
+            'etiqueta_id' => $etiquetaInteres->id
+        ]);
     }
 }

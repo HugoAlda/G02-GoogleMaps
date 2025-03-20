@@ -10,12 +10,11 @@ html, body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1001;
-    padding: 0.5rem;
+    padding: 0;
     height: 48px;
-    background: white;
-    border-radius: 24px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     width: auto;
+    display: flex;
+    align-items: center;
 }
 
 .container-fluid {
@@ -28,42 +27,37 @@ html, body {
 .search-container {
     width: 400px;
     position: relative;
+    padding: 0;
 }
 
 .input-group {
     width: 100%;
     position: relative;
-    border-radius: 24px;
-    background-color: #fff;
 }
 
 .input-group .form-control {
-    height: 40px;
-    padding: 8px 40px 8px 16px;
-    font-size: 14px;
-    border: 1px solid #dfe1e5;
-    border-radius: 24px;
-    background-color: #f1f3f4;
+    height: 48px;
+    padding: 8px 48px 8px 20px;
+    font-size: 15px;
+    border: none;
+    background-color: white;
     transition: all 0.3s ease;
     width: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .input-group .form-control:hover {
-    background-color: #fff;
-    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-    border-color: rgba(223,225,229,0);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 
 .input-group .form-control:focus {
-    background-color: white;
-    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-    border-color: rgba(223,225,229,0);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     outline: none;
 }
 
 .input-group .btn-search {
     position: absolute;
-    right: 4px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     height: 32px;
@@ -71,25 +65,26 @@ html, body {
     padding: 0;
     border: none;
     background: transparent;
-    z-index: 4;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     transition: all 0.2s;
+    color: #5f6368;
+    pointer-events: auto;
 }
 
 .input-group .btn-search:hover {
-    background-color: #f8f9fa;
+    background-color: rgba(0,102,204,0.1);
 }
 
 .input-group .btn-search i {
-    color: #5f6368;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .input-group .btn-search:hover i {
-    color: #1a73e8;
+    color: #0066CC;
 }
 
 .logout-button {
@@ -114,6 +109,48 @@ html, body {
     background-color: rgba(0,0,0,0.05);
 }
 
+/* Barra de etiquetas */
+.tags-bar {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.btn-tag {
+    padding: 8px 16px;
+    border: none;
+    background: white;
+    color: #5f6368;
+    border-radius: 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-tag i {
+    font-size: 14px;
+}
+
+.btn-tag:hover {
+    background: #f1f3f4;
+    color: #0066CC;
+}
+
+.btn-tag.active {
+    background: #0066CC;
+    color: white;
+}
+
 #map {
     height: 100vh;
     width: 100%;
@@ -122,7 +159,7 @@ html, body {
 .controls-panel {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    right: 10px;
     padding: 10px;
     border-radius: 8px;
     z-index: 1000;
@@ -166,17 +203,33 @@ html, body {
     color: white;
 }
 
-.btn-primary:active, .btn-primary:focus {
-    background-color: #0052a3 !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+.btn-danger {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #cc0000;
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-radius: 50%;
+}
+
+.btn-danger:hover {
+    background-color: #a30000;
+    transform: scale(1.1);
+    color: white;
 }
 
 /* Ajustes responsive */
 @media (max-width: 768px) {
     .navbar {
         width: calc(100% - 20px);
+        max-width: none;
     }
 
     .search-container {
@@ -184,7 +237,18 @@ html, body {
     }
 
     .input-group .form-control {
-        height: 40px;
+        height: 44px;
         font-size: 14px;
+    }
+
+    .tags-bar {
+        width: calc(100% - 20px);
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 8px 12px;
+    }
+
+    .tags-bar::-webkit-scrollbar {
+        display: none;
     }
 }

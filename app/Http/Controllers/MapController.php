@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Marcador;
+use App\Models\Etiqueta;
+use App\Models\Usuario;
 
 class MapController extends Controller
 {
     public function index()
     {
-        return view('mapa.index');
+        $etiquetas = Etiqueta::where('es_privado', false)->get();
+        $marcadores = Marcador::with('etiqueta')->get();
+        $admin = Usuario::where('email', 'admin@example.com')->first();
+        return view('mapa.index', compact('etiquetas', 'marcadores', 'admin'));
     }
 
     public function juego()
