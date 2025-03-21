@@ -6,6 +6,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+        <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
+    @endif
     <link rel="stylesheet" href="{{ asset('css/mapa/mapa.css') }}">
     <title>Mapa Interactivo</title>
 </head>
@@ -63,11 +66,30 @@
             </a>
             <!-- Botones de ADMIN -->
             @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-                <button id="centerUser" class="btn btn-primary" title="Crear nuevo punto">
+                <button class="btn btn-danger" title="Crear nuevo punto" id="button-create-point" data-bs-toggle="modal" data-bs-target="#modal-create-point">
                     <i class="fa-solid fa-plus fa-xs me-1"></i>
                     <i class="fa-solid fa-location-dot"></i>
                 </button>
             @endif
+        </div>
+    </div>
+
+    {{-- Modal para el admin referencia a button-create-point --}}
+    <div class="modal fade" id="modal-create-point" tabindex="-1" aria-labelledby="modal-create-point-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content custom-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-create-point-label">Crear nuevo punto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h1>Etiquetas</h1>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-outline-secondary">Crear</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -78,5 +100,9 @@
         window.etiquetas = @json($etiquetas);
     </script>
     <script src="{{ asset('js/mapa/mapa.js') }}"></script>
+
+    @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+        <script src="{{ asset('js/admin/admin.js') }}"></script>
+    @endif
 </body>
 </html>
