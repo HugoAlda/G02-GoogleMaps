@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('jugadores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('usuario_id')->constrained('usuarios');
-            $table->string('respuesta', 100);
             $table->integer('puntos')->default(0);
             $table->timestamps();
         });
