@@ -61,6 +61,13 @@
             <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
                 <i class="fas fa-gamepad"></i>
             </a>
+            <!-- Botones de ADMIN -->
+            @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+                <button id="centerUser" class="btn btn-primary" title="Crear nuevo punto">
+                    <i class="fa-solid fa-plus fa-xs me-1"></i>
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>
+            @endif
         </div>
     </div>
 
