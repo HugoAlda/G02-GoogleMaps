@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('jugador_id')->constrained('jugadores');
             $table->foreignId('grupo_id')->constrained('grupos');
             $table->primary(['jugador_id', 'grupo_id']);
-            $table->boolean('is_owner')->default(false);
+            $table->boolean('is_owner')->nullable()->default(false);
         });
     }
 

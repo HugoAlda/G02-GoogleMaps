@@ -23,10 +23,12 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             JuegoSeeder::class,
             GrupoSeeder::class,
-            EtiquetaSeeder::class, 
+            EtiquetaSeeder::class,
+            JugadoresSeeder::class,
+            JugadoresGruposSeeder::class,
             MarcadorSeeder::class,
             MarcadoresEtiquetasSeeder::class,
-            PuntoControlSeeder::class,
+            PuntoControlSeeder::class
         ]);
     }
 }

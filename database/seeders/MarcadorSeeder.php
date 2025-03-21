@@ -10,15 +10,6 @@ class MarcadorSeeder extends Seeder
 {
     public function run(): void
     {
-        // Obtener el usuario admin
-        $admin = Usuario::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'nombre' => 'Admin',
-                'password' => bcrypt('admin'),
-                'rol_id' => 1
-            ]
-        );
 
         // Monumentos
         Marcador::firstOrCreate(
@@ -27,7 +18,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Iglesia románica del siglo XII, uno de los monumentos más antiguos de L\'Hospitalet',
                 'latitud' => 41.3526,
                 'longitud' => 2.1083,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Ermita Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
             ]
         );
@@ -38,7 +28,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Ermita medieval dedicada a la Mare de Déu de Bellvitge',
                 'latitud' => 41.3519,
                 'longitud' => 2.1067,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Av. Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
             ]
         );
@@ -50,7 +39,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Hotel moderno de 4 estrellas cerca de la Fira de Barcelona',
                 'latitud' => 41.3589,
                 'longitud' => 2.1289,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Carrer de les Ciències, 11-13, L\'Hospitalet de Llobregat'
             ]
         );
@@ -61,7 +49,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Hotel económico bien comunicado con el centro de Barcelona',
                 'latitud' => 41.3561,
                 'longitud' => 2.1198,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Carrer Botànica, 25, L\'Hospitalet de Llobregat'
             ]
         );
@@ -73,7 +60,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Uno de los hospitales más importantes de Cataluña',
                 'latitud' => 41.3442,
                 'longitud' => 2.1019,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Carrer de la Feixa Llarga, s/n, L\'Hospitalet de Llobregat'
             ]
         );
@@ -84,7 +70,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Centro comercial con tiendas, restaurantes y cines',
                 'latitud' => 41.3587,
                 'longitud' => 2.1297,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Av. de la Granvia, 75, L\'Hospitalet de Llobregat'
             ]
         );
@@ -95,7 +80,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Parque urbano con áreas verdes y zonas de recreo',
                 'latitud' => 41.3534,
                 'longitud' => 2.1089,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Avinguda Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
             ]
         );
@@ -106,7 +90,6 @@ class MarcadorSeeder extends Seeder
                 'descripcion' => 'Estación de la línea L1 del metro de Barcelona',
                 'latitud' => 41.3611,
                 'longitud' => 2.1222,
-                'usuario_id' => $admin->id,
                 'direccion' => 'Rambla Marina, L\'Hospitalet de Llobregat'
             ]
         );
