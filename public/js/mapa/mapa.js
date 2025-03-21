@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     };
 
+    // Función para obtener la ubicación del usuario
     function getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Función para centrar el mapa en la ubicación del usuario
     function centerLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -69,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Cargar los marcadores en el mapa
     function loadMarkers() {
         if (window.marcadores) {
             allMarkers = window.marcadores.map(marcador => {
@@ -82,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Filtrar los marcadores según la etiqueta seleccionada
     function filterMarkers(tag) {
         allMarkers.forEach((marker, index) => {
             const marcador = window.marcadores[index];
@@ -94,6 +98,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Función para actualizar la clase "active" de las etiquetas
+    function updateActiveTag(selectedTag) {
+        // Eliminar la clase 'active' de todos los botones
+        document.querySelectorAll('.filter-tag').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Añadir la clase 'active' al botón de la etiqueta seleccionada
+        const selectedButton = document.querySelector(`.filter-tag[data-tag="${selectedTag}"]`);
+        if (selectedButton) {
+            selectedButton.classList.add('active');
+        }
+
+        // Si se seleccionó "all", también añadir la clase 'active' al botón "Todos"
+        if (selectedTag === 'all') {
+            document.querySelector('.btn-tag[data-tag="all"]').classList.add('active');
+        }
+    }
+
+    // Añadir eventos a los botones para filtrar y actualizar la clase "active"
+    document.querySelectorAll('.filter-tag').forEach(button => {
+        button.addEventListener('click', function () {
+            const selectedTag = this.dataset.tag;
+            filterMarkers(selectedTag);
+            updateActiveTag(selectedTag);
+        });
+    });
+
+    // Función para manejar el botón "Todos" y mostrar todos los marcadores
+    document.querySelector('.btn-tag[data-tag="all"]').addEventListener('click', function () {
+        filterMarkers('all');
+        updateActiveTag('all');
+    });
+
+    // Funcionalidades del panel de controles
     document.getElementById('centerUser').addEventListener('click', centerLocation);
 
     document.getElementById('zoomIn').addEventListener('click', () => {
@@ -109,14 +148,6 @@ document.addEventListener('DOMContentLoaded', function () {
         map.removeLayer(baseLayers[currentLayer]);
         currentLayer = currentLayer === 'normal' ? 'satellite' : 'normal';
         baseLayers[currentLayer].addTo(map);
-    });
-
-    // Agregar evento a las etiquetas para filtrar
-    document.querySelectorAll('.filter-tag').forEach(button => {
-        button.addEventListener('click', function () {
-            const selectedTag = this.dataset.tag;
-            filterMarkers(selectedTag);
-        });
     });
 
     getLocation();

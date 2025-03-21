@@ -28,7 +28,7 @@
         <!-- Barra de etiquetas -->
         <div class="tags-bar">
             <button class="btn-tag active" data-tag="all">
-                <i class="fas fa-globe"></i> Todos
+            <i class="fas fa-globe"></i> Todos
             </button>
             @foreach($etiquetas as $etiqueta)
                 <button class="btn-tag filter-tag" data-tag="{{ $etiqueta->nombre }}">
