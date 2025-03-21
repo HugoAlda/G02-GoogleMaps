@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     let map, currentLocationMarker;
     let currentLayer = 'normal';
+    let allMarkers = [];
 
     // Capas base disponibles
     let baseLayers = {
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const userCoords = [position.coords.latitude, position.coords.longitude];
 
                     if (!map) {
-                        map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
+                        map = L.map('map', {zoomControl: false}).setView(userCoords, 16);
                         baseLayers[currentLayer].addTo(map);
                         loadMarkers(); // Cargar los marcadores en el mapa
                     }
@@ -46,11 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     const userCoords = [position.coords.latitude, position.coords.longitude];
 
                     if (!map) {
-                        map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
+                        map = L.map('map', {zoomControl: false}).setView(userCoords, 16);
                         baseLayers[currentLayer].addTo(map);
                         loadMarkers(); // Cargar los marcadores en el mapa
                     } else {
-                        map.setView(userCoords, 17);
+                        map.setView(userCoords, 16);
                     }
 
                     if (currentLocationMarker) {
@@ -70,14 +71,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function loadMarkers() {
         if (window.marcadores) {
-            window.marcadores.forEach(marcador => {
-                L.marker([marcador.latitud, marcador.longitud])
+            allMarkers = window.marcadores.map(marcador => {
+                return L.marker([marcador.latitud, marcador.longitud])
                     .addTo(map)
-                    .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`);
+                    .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`)
+                    .setOpacity(1); // Mostrar todos los marcadores al inicio
             });
         } else {
             console.error("No se encontraron marcadores");
         }
+    }
+
+    function filterMarkers(tag) {
+        allMarkers.forEach((marker, index) => {
+            const marcador = window.marcadores[index];
+    
+            if (marcador.etiqueta === tag || tag === "all") {
+                marker.addTo(map); // Mostrar marcador
+            } else {
+                map.removeLayer(marker); // Ocultar marcador
+            }
+        });
     }
 
     document.getElementById('centerUser').addEventListener('click', centerLocation);
@@ -95,6 +109,14 @@ document.addEventListener('DOMContentLoaded', function () {
         map.removeLayer(baseLayers[currentLayer]);
         currentLayer = currentLayer === 'normal' ? 'satellite' : 'normal';
         baseLayers[currentLayer].addTo(map);
+    });
+
+    // Agregar evento a las etiquetas para filtrar
+    document.querySelectorAll('.filter-tag').forEach(button => {
+        button.addEventListener('click', function () {
+            const selectedTag = this.dataset.tag;
+            filterMarkers(selectedTag);
+        });
     });
 
     getLocation();
