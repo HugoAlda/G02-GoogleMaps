@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('jugadores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id')->constrained('usuarios');
-            $table->integer('puntos')->default(0);
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios');
+            $table->integer('puntos')->nullable()->default(0);
             $table->timestamps();
         });
     }

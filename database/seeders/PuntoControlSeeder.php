@@ -23,8 +23,7 @@ class PuntoControlSeeder extends Seeder
                 'acertijo' => '¿Qué famoso edificio del siglo XVII se encuentra en el centro de esta plaza?',
                 'respuesta' => 'Casa de la Panadería',
                 'color' => '#FF0000',
-                'icono' => 'flag',
-                'grupo_id' => null
+                'icono' => 'flag'
             ],
             [
                 'nombre' => 'Punto Control 2',
@@ -34,8 +33,7 @@ class PuntoControlSeeder extends Seeder
                 'acertijo' => '¿Qué rey mandó construir este parque en el siglo XVII?',
                 'respuesta' => 'Felipe IV',
                 'color' => '#00FF00',
-                'icono' => 'flag',
-                'grupo_id' => null
+                'icono' => 'flag'
             ],
             [
                 'nombre' => 'Punto Control 3',
@@ -45,8 +43,7 @@ class PuntoControlSeeder extends Seeder
                 'acertijo' => '¿Qué famoso pintor español tiene más obras expuestas en este museo?',
                 'respuesta' => 'Francisco de Goya',
                 'color' => '#0000FF',
-                'icono' => 'flag',
-                'grupo_id' => null
+                'icono' => 'flag'
             ],
             [
                 'nombre' => 'Punto Control 4',
@@ -56,8 +53,7 @@ class PuntoControlSeeder extends Seeder
                 'acertijo' => '¿Cuántas habitaciones tiene el Palacio Real?',
                 'respuesta' => '3418',
                 'color' => '#800080',
-                'icono' => 'flag',
-                'grupo_id' => null
+                'icono' => 'flag'
             ]
         ];
 

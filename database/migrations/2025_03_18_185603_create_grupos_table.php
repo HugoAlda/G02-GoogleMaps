@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('grupos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 100);
-            $table->enum('estado', ['Abierto', 'Cerrado'])->default('Abierto');
-            $table->integer('puntos')->default(0);
+            $table->string('nombre', 100)->nullable();
+            $table->enum('estado', ['Abierto', 'Cerrado'])->nullable()->default('Abierto');
+            $table->integer('puntos')->nullable()->default(0);
             $table->timestamps();
         });
     }
