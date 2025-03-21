@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('usuarios_grupos', function (Blueprint $table) {
-            $table->foreignId('usuario_id')->constrained('usuarios');
+        Schema::create('jugadores_grupos', function (Blueprint $table) {
+            $table->foreignId('jugador_id')->constrained('jugadores');
             $table->foreignId('grupo_id')->constrained('grupos');
-            $table->primary(['usuario_id', 'grupo_id']);
+            $table->primary(['jugador_id', 'grupo_id']);
+            $table->boolean('is_owner')->default(false);
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('usuarios_grupos');
+        Schema::dropIfExists('jugadores_grupos');
     }
 };

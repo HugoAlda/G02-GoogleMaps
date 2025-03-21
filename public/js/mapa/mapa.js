@@ -30,10 +30,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         map.removeLayer(currentLocationMarker);
                     }
                     currentLocationMarker = L.marker(userCoords).addTo(map);
+
+                    return true;
                 },
                 (error) => {
                     console.error('Error:', error);
                     alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
+                    return false;
                 }
             );
         } else {
@@ -150,6 +153,11 @@ document.addEventListener('DOMContentLoaded', function () {
         baseLayers[currentLayer].addTo(map);
     });
 
-    getLocation();
-    setInterval(getLocation, 2000);
+    // Iniciar con la ubicación del usuario
+
+    // En caso que falle la geolocalización, no volver a intentarlo
+    if (getLocation()) {
+        // Actualizar la ubicación cada 2 segundos
+        setInterval(getLocation, 2000);
+    }
 });

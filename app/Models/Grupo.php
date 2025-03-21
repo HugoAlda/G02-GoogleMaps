@@ -15,11 +15,6 @@ class Grupo extends Model
         'estado',
     ];
 
-    public function usuarios()
-    {
-        return $this->belongsToMany(Usuario::class, 'usuarios_grupos', 'grupo_id', 'usuario_id');
-    }
-
     public function partidas()
     {
         return $this->belongsToMany(Partida::class, 'grupos_partidas', 'grupo_id', 'partida_id');
@@ -28,5 +23,17 @@ class Grupo extends Model
     public function puntosControl()
     {
         return $this->hasMany(PuntoControl::class, 'grupo_id');
+    }
+
+    public function jugadores()
+    {
+        return $this->belongsToMany(Jugador::class, 'jugadores_grupos', 'grupo_id', 'jugador_id');
+    }
+
+    // Método para obtener el owner del grupo
+    public function owner()
+    {
+        return $this->belongsTo(Jugador::class, 'jugadores_grupos', 'grupo_id', 'jugador_id')
+        ->wherePivot('is_owner', true);
     }
 }

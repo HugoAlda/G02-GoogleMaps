@@ -55,6 +55,7 @@
                                     <span class="text-danger mt-1 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
+
                             {{-- Mensaje de errores generales desde servidor --}}
                             <div id="errorMessage" class="alert custom-error-alert d-none">
                                 <i class="bi bi-exclamation-triangle"> </i><span id="errorMessageText"></span>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\AdminController;
 
 // Ruta principal redirige al login
 Route::get('/', [AuthController::class, 'showLoginView'])->name('login');
