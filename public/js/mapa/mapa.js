@@ -1,34 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let map, currentLocationMarker;
     let currentLayer = 'normal';
-    
+
     // Capas base disponibles
     let baseLayers = {
         "normal": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }),
         "satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            attribution: '&copy; Esri'
         })
     };
 
-    // Función para obtener la ubicación del usuario
     function getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const userCoords = [position.coords.latitude, position.coords.longitude];
-                    
+
                     if (!map) {
-                        // Primera vez - inicializar el mapa
                         map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
                         baseLayers[currentLayer].addTo(map);
+                        loadMarkers(); // Cargar los marcadores en el mapa
                     }
 
                     if (currentLocationMarker) {
                         map.removeLayer(currentLocationMarker);
                     }
-
                     currentLocationMarker = L.marker(userCoords).addTo(map);
                 },
                 (error) => {
@@ -46,20 +44,18 @@ document.addEventListener('DOMContentLoaded', function() {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const userCoords = [position.coords.latitude, position.coords.longitude];
-                    
+
                     if (!map) {
-                        // Primera vez - inicializar el mapa
                         map = L.map('map', {zoomControl: false}).setView(userCoords, 17);
                         baseLayers[currentLayer].addTo(map);
+                        loadMarkers(); // Cargar los marcadores en el mapa
                     } else {
-                        // Actualizar vista
                         map.setView(userCoords, 17);
                     }
 
                     if (currentLocationMarker) {
                         map.removeLayer(currentLocationMarker);
                     }
-
                     currentLocationMarker = L.marker(userCoords).addTo(map);
                 },
                 (error) => {
@@ -72,10 +68,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Evento para el botón de centrar en la ubicación actual
+    function loadMarkers() {
+        if (window.marcadores) {
+            window.marcadores.forEach(marcador => {
+                L.marker([marcador.latitud, marcador.longitud])
+                    .addTo(map)
+                    .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`);
+            });
+        } else {
+            console.error("No se encontraron marcadores");
+        }
+    }
+
     document.getElementById('centerUser').addEventListener('click', centerLocation);
 
-    // Eventos para los botones de zoom
     document.getElementById('zoomIn').addEventListener('click', () => {
         if (map) map.setZoom(map.getZoom() + 1);
     });
@@ -84,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (map) map.setZoom(map.getZoom() - 1);
     });
 
-    // Evento para cambiar el tipo de mapa
     document.getElementById('toggleSatellite').addEventListener('click', () => {
         if (!map) return;
         map.removeLayer(baseLayers[currentLayer]);
@@ -92,9 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         baseLayers[currentLayer].addTo(map);
     });
 
-    // Iniciar con la ubicación del usuario
     getLocation();
-
-    // Actualizar la ubicación cada 2 segundos
     setInterval(getLocation, 2000);
 });
