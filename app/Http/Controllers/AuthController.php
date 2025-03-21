@@ -44,17 +44,16 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
     
-                $user = Auth::user();
+                // Obtener el nombre del rol (el ? es para evitar errores si es null)
+                $roleName = Auth::user()->rol?->nombre;
     
                 // Mapear roles a rutas
                 $routes = [
                     'Administrador' => 'mapa.index',
                     'Cliente' => 'mapa.index',
                 ];
-    
-                // Obtener el nombre del rol
-                $roleName = $user->rol->nombre;
-    
+
+                
                 if (isset($routes[$roleName])) {
                     if ($request->expectsJson()) {
                         return response()->json([
