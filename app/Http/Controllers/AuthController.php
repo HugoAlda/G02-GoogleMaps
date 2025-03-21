@@ -43,46 +43,43 @@ class AuthController extends Controller
             // Intentar autenticar al usuario
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
-
-                $user = Auth::user(); // Obtiene el usuario autenticado
-
-                // Verificar el rol del usuario y redirigir según corresponda
-                // 1: Administrador
-                // 2: Cliente
-
-                // Definir las rutas según el rol
+    
+                $user = Auth::user();
+    
+                // Mapear roles a rutas
                 $routes = [
-                    1 => 'admin.index', // Ruta para el administrador
-                    2 => 'mapa.index', // Ruta para el cliente
+                    'Administrador' => 'mapa.index',
+                    'Cliente' => 'mapa.index',
                 ];
-
-                // // Verificar si el rol tiene una ruta asignada
-                // dd($routes[intval($user->rol_id)]);
-
-                if (isset($routes[intval($user->rol_id)])) {
-                    // Si la solicitud es una solicitud JSON, devolver un mensaje de éxito
+    
+                // Obtener el nombre del rol
+                $roleName = $user->rol->nombre;
+    
+                if (isset($routes[$roleName])) {
                     if ($request->expectsJson()) {
-                        return response()->json(['message' => 'Inicio de sesión exitoso'], 200);
+                        return response()->json([
+                            'message' => 'Inicio de sesión exitoso',
+                            'routes' => $routes[$roleName]
+                        ], 200);
                     }
-
-                    // Redirigir al usuario a la ruta asignada según su rol
-                    return redirect()->intended(route($routes[$user->rol_id]));
+    
+                    return redirect()->intended(route($routes[$roleName]));
                 }
-
+    
                 // Si el rol no es válido, cerrar sesión y mostrar error
                 Auth::logout();
-                return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
-
+                return redirect()->route('login')->withErrors([
+                    'invalid' => 'No tienes permiso para acceder'
+                ])->withInput();
             }
     
+            // Credenciales incorrectas
             $errorResponse = ['invalid' => 'Credenciales incorrectas, introduce tus datos nuevamente.'];
     
-            // Si la solicitud es una solicitud JSON, devolver un error 401
             if ($request->expectsJson()) {
                 return response()->json(['errors' => $errorResponse], 401);
             }
     
-            // En caso de que no sea una solicitud JSON, redirigir al usuario a la página de login con los errores y los datos del formulario
             return redirect()->route('login')->withErrors($errorResponse)->withInput();
     
         } catch (ValidationException $e) {
@@ -96,12 +93,17 @@ class AuthController extends Controller
         } catch (Exception $e) {
             // Manejo de errores inesperados del servidor
             if ($request->expectsJson()) {
-                return response()->json(['error' => 'Ocurrió un error en el servidor, intenta nuevamente: ' . $e->getMessage()], 500);
+                return response()->json([
+                    'error' => 'Ocurrió un error en el servidor, intenta nuevamente: ' . $e->getMessage()
+                ], 500);
             }
     
-            return redirect()->route('login')->withErrors(['server' => 'Ocurrió un error en el servidor, intenta nuevamente.'])->withInput();
+            return redirect()->route('login')->withErrors([
+                'server' => 'Ocurrió un error en el servidor, intenta nuevamente.'
+            ])->withInput();
         }
-    }    
+    }
+    
 
     // Método para cerrar sesión
     public function logout() {

@@ -30,8 +30,3 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     Route::get('/juego', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
 });
-
-// Rutas del administrador protegidas por autenticación
-Route::middleware('auth')->prefix('admin')->controller(AdminController::class)->group(function () {
-    Route::get('/', 'index')->name('admin.index');
-});
