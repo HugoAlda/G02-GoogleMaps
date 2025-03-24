@@ -13,84 +13,124 @@ class MarcadorSeeder extends Seeder
 
         // Monumentos
         Marcador::firstOrCreate(
-            ['nombre' => 'Iglesia de Bellvitge'],
+            ["nombre" => "Parroquia de Nuestra Señora de Bellvitge"],
             [
-                'descripcion' => 'Iglesia románica del siglo XII, uno de los monumentos más antiguos de L\'Hospitalet',
-                'latitud' => 41.3526,
-                'longitud' => 2.1083,
-                'direccion' => 'Ermita Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+                "descripcion" => "Parroquia románica del siglo XII, uno de los monumentos más antiguos de Hospitalet.",
+                "latitud" => 41.3492614,
+                "longitud" => 2.1085391,
+                "direccion" => "Carrer de l'Ermita, 65 - 67, 08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
 
         Marcador::firstOrCreate(
-            ['nombre' => 'Ermita de Bellvitge'],
+            ["nombre" => "Ermita Sta Mª de Bellvitge"],
             [
-                'descripcion' => 'Ermita medieval dedicada a la Mare de Déu de Bellvitge',
-                'latitud' => 41.3519,
-                'longitud' => 2.1067,
-                'direccion' => 'Av. Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+                "descripcion" => "Ermita medieval dedicada a la Mare de Déu de Bellvitge.",
+                "latitud" => 41.3490071,
+                "longitud" => 2.1088651,
+                "direccion" => "Carrer de l'Ermita de Bellvitge, 6, 08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
 
-        // Hoteles
+        // Hotel
         Marcador::firstOrCreate(
-            ['nombre' => 'Hotel SB Plaza Europa'],
+            ["nombre" => "Hyatt Regency Barcelona Tower"],
             [
-                'descripcion' => 'Hotel moderno de 4 estrellas cerca de la Fira de Barcelona',
-                'latitud' => 41.3589,
-                'longitud' => 2.1289,
-                'direccion' => 'Carrer de les Ciències, 11-13, L\'Hospitalet de Llobregat'
-            ]
-        );
-
-        Marcador::firstOrCreate(
-            ['nombre' => 'Hotel Travelodge L\'Hospitalet'],
-            [
-                'descripcion' => 'Hotel económico bien comunicado con el centro de Barcelona',
-                'latitud' => 41.3561,
-                'longitud' => 2.1198,
-                'direccion' => 'Carrer Botànica, 25, L\'Hospitalet de Llobregat'
+                "descripcion" => "Es el hotel por excelencia de Bellvitge.",
+                "latitud" => 41.346340,
+                "longitud" => 2.108386,
+                "direccion" => "Avinguda de la Granvia de l’Hospitalet, 144, 08907 Barcelona"
             ]
         );
 
         // Puntos de interés
         Marcador::firstOrCreate(
-            ['nombre' => 'Hospital Universitario de Bellvitge'],
+            ["nombre" => "Hospital Universitario de Bellvitge"],
             [
-                'descripcion' => 'Uno de los hospitales más importantes de Cataluña',
-                'latitud' => 41.3442,
-                'longitud' => 2.1019,
-                'direccion' => 'Carrer de la Feixa Llarga, s/n, L\'Hospitalet de Llobregat'
+                "descripcion" => "Uno de los hospitales más importantes de Cataluña.",
+                "latitud" => 41.3447701,
+                "longitud" => 2.101657,
+                "direccion" => "Carrer de la Feixa Llarga, s/n, 08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
 
         Marcador::firstOrCreate(
-            ['nombre' => 'Centro Comercial Gran Via 2'],
+            ["nombre" => "Parque de Bellvitge"],
             [
-                'descripcion' => 'Centro comercial con tiendas, restaurantes y cines',
-                'latitud' => 41.3587,
-                'longitud' => 2.1297,
-                'direccion' => 'Av. de la Granvia, 75, L\'Hospitalet de Llobregat'
+                "descripcion" => "Parque urbano con áreas verdes y zonas de recreo.",
+                "latitud" => 41.3484031,
+                "longitud" => 2.1083935,
+                "direccion" => "Carrer de l'Ermita de Bellvitge, 38, 08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
 
         Marcador::firstOrCreate(
-            ['nombre' => 'Parc de Bellvitge'],
+            ["nombre" => "Estación de Metro Bellvitge"],
             [
-                'descripcion' => 'Parque urbano con áreas verdes y zonas de recreo',
-                'latitud' => 41.3534,
-                'longitud' => 2.1089,
-                'direccion' => 'Avinguda Mare de Déu de Bellvitge, L\'Hospitalet de Llobregat'
+                "descripcion" => "Estación de la línea L1 del metro de Barcelona.",
+                "latitud" => 41.3509701,
+                "longitud" => 2.1109047,
+                "direccion" => "08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
 
         Marcador::firstOrCreate(
-            ['nombre' => 'Estación de Metro Bellvitge'],
+            ["nombre" => "Polideportivo Municipal Bellvitge Sergio Manzano"],
             [
-                'descripcion' => 'Estación de la línea L1 del metro de Barcelona',
-                'latitud' => 41.3611,
-                'longitud' => 2.1222,
-                'direccion' => 'Rambla Marina, L\'Hospitalet de Llobregat'
+                "descripcion" => "Polideportivo con pistas de fútbol, baloncesto, etc.",
+                "latitud" => 41.3475679,
+                "longitud" => 2.1051944,
+                "direccion" => "Av. Mare de Déu de Bellvitge, 7, 08907 L'Hospitalet de Llobregat, Barcelona"
+            ]
+        );
+
+        Marcador::firstOrCreate(
+            ["nombre" => "U.D. Unificación Bellvitge"],
+            [
+                "descripcion" => "Camp Municipal de la Feixa Llarga.",
+                "latitud" => 41.3484678,
+                "longitud" => 2.1042537,
+                "direccion" => "Complex Esportiu Feixa Llarga Campo Municipal de Fútbol Feixa Llarga, 08907 L'Hospitalet de Llobregat, Barcelona"
+            ]
+        );
+
+        Marcador::firstOrCreate(
+            ["nombre" => "Estadio Municipal de Fútbol de L'Hospitalet"],
+            [
+                "descripcion" => "Estadio de futbol donde juega el Hospitalet.",
+                "latitud" => 41.3477672,
+                "longitud" => 2.1033509,
+                "direccion" => "Carrer de la Residencia, 30, 08907 L'Hospitalet de Llobregat, Barcelona"
+            ]
+        );
+
+        Marcador::firstOrCreate(
+            ["nombre" => "Hospital Odontológico UB"],
+            [
+                "descripcion" => "Hospital de Odontologia de Hospitalet.",
+                "latitud" => 41.3461218,
+                "longitud" => 2.1053587,
+                "direccion" => "Campus Bellvitge, Carrer de la Feixa Llarga, s/n, 08907 L'Hospitalet de Llobregat, Barcelona"
+            ]
+        );
+
+        Marcador::firstOrCreate(
+            ["nombre" => "Gimnasio Metropolitan"],
+            [
+                "descripcion" => "Gimnasio que se encuentra al lado del Hyatt Regency Barcelona Tower.",
+                "latitud" => 41.3469942,
+                "longitud" => 2.1097974,
+                "direccion" => "Avinguda de la Granvia de l’Hospitalet, 142, 08907 L'Hospitalet de Llobregat, Barcelona"
+            ]
+        );
+
+        Marcador::firstOrCreate(
+            ["nombre" => "La Flama"],
+            [
+                "descripcion" => "Restaurante ubicado en el centro de Bellvitge",
+                "latitud" => 41.3509423,
+                "longitud" => 2.1116497,
+                "direccion" => "Avinguda de la Granvia de l’Hospitalet, 142, 08907 L'Hospitalet de Llobregat, Barcelona"
             ]
         );
     }

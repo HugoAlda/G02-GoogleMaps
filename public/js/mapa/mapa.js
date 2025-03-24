@@ -3,6 +3,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentLayer = 'normal';
     let allMarkers = [];
 
+    // Icono personalizado para la ubicación del usuario con FontAwesome
+    const userLocationIcon = L.divIcon({
+        className: 'custom-user-icon', // Clase CSS para personalizar el marcador
+        html: '<i class="fa-solid fa-map-pin"></i>', // Icono de FontAwesome
+        iconSize: [30, 30], // Tamaño del icono
+        iconAnchor: [15, 30], // Punto de anclaje del icono
+        popupAnchor: [0, -30] // Punto donde aparecerá el popup
+    });
+
     // Capas base disponibles
     let baseLayers = {
         "normal": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (currentLocationMarker) {
                         map.removeLayer(currentLocationMarker);
                     }
-                    currentLocationMarker = L.marker(userCoords).addTo(map);
+                    currentLocationMarker = L.marker(userCoords, { icon: userLocationIcon }).addTo(map);
 
                     return true;
                 },
@@ -62,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (currentLocationMarker) {
                         map.removeLayer(currentLocationMarker);
                     }
-                    currentLocationMarker = L.marker(userCoords).addTo(map);
+                    currentLocationMarker = L.marker(userCoords, { icon: userLocationIcon }).addTo(map);
                 },
                 (error) => {
                     console.error('Error:', error);
@@ -92,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function filterMarkers(tag) {
         allMarkers.forEach((marker, index) => {
             const marcador = window.marcadores[index];
-    
+
             if (marcador.etiqueta === tag || tag === "all") {
                 marker.addTo(map); // Mostrar marcador
             } else {
@@ -107,13 +116,13 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.btn-tag').forEach(button => {
             button.classList.remove('active');
         });
-    
+
         // Añadir la clase 'active' solo al botón seleccionado
         const selectedButton = document.querySelector(`.btn-tag[data-tag="${selectedTag}"]`);
         if (selectedButton) {
             selectedButton.classList.add('active');
         }
-    }    
+    }
 
     // Añadir eventos a los botones para filtrar y actualizar la clase "active"
     document.querySelectorAll('.filter-tag').forEach(button => {
@@ -149,8 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Iniciar con la ubicación del usuario
-
-    // En caso que falle la geolocalización, no volver a intentarlo
     if (getLocation()) {
         // Actualizar la ubicación cada 2 segundos
         setInterval(getLocation, 2000);
