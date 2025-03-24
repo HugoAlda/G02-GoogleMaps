@@ -232,30 +232,59 @@ html, body {
     color: white;
 }
 
-/* Ajustes responsive */
+/* Ajustes responsive mejorados */
 @media (max-width: 768px) {
     .navbar {
-        width: calc(100% - 20px);
-        max-width: none;
+        width: 100%;
+        left: 0;
+        transform: none;
+        display: flex;
+        justify-content: center;
     }
 
     .search-container {
-        width: 100%;
+        width: 90%;
+        margin-left: 20px;
     }
 
     .input-group .form-control {
         height: 44px;
         font-size: 14px;
+        padding: 8px 40px 8px 16px;
     }
 
     .tags-bar {
-        width: calc(100% - 20px);
-        overflow-x: auto;
+        position: absolute;
+        top: 60px; /* Ajustado para que se mantenga debajo de la navbar */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        display: flex;
+        flex-wrap: wrap; /* Permite que las etiquetas se acomoden en varias filas */
         justify-content: flex-start;
+        gap: 8px;
         padding: 8px 12px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        z-index: 999;
     }
 
     .tags-bar::-webkit-scrollbar {
-        display: none;
+        height: 4px;
+    }
+
+    .tags-bar::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+    }
+
+    .btn-tag {
+        flex: 1 1 auto; /* Permite que los botones se ajusten automáticamente */
+        min-width: 80px; /* Asegura que no sean demasiado pequeños */
+        padding: 6px 12px;
+        font-size: 13px;
+        display: flex;
+        justify-content: center;
     }
 }
