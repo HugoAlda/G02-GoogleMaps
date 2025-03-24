@@ -119,9 +119,6 @@ html, body {
     display: flex;
     gap: 8px;
     padding: 8px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .btn-tag {
@@ -253,20 +250,18 @@ html, body {
         padding: 8px 40px 8px 16px;
     }
 
+    /* Barra de etiquetas */
     .tags-bar {
         position: absolute;
-        top: 60px; /* Ajustado para que se mantenga debajo de la navbar */
+        top: 60px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
         display: flex;
-        flex-wrap: wrap; /* Permite que las etiquetas se acomoden en varias filas */
+        flex-wrap: wrap; /* Se mantiene el mismo comportamiento */
         justify-content: flex-start;
         gap: 8px;
         padding: 8px 12px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         z-index: 999;
     }
 
@@ -280,8 +275,8 @@ html, body {
     }
 
     .btn-tag {
-        flex: 1 1 auto; /* Permite que los botones se ajusten automáticamente */
-        min-width: 80px; /* Asegura que no sean demasiado pequeños */
+        flex: 1 1 auto;
+        min-width: 80px;
         padding: 6px 12px;
         font-size: 13px;
         display: flex;
