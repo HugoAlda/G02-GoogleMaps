@@ -12,23 +12,26 @@
     <!-- Contenedor del mapa -->
     <div id="map"></div>
 
-    <!-- Panel de controles -->
-    <div class="controls-panel">
-        <button id="zoomOut" class="btn btn-primary" title="Alejar">
-            <i class="fas fa-minus"></i>
-        </button>
-        <button id="zoomIn" class="btn btn-primary" title="Acercar">
-            <i class="fas fa-plus"></i>
-        </button>
-        <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
-            <i class="fas fa-location-crosshairs"></i>
-        </button>
-        <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
-            <i class="fas fa-map"></i>
-        </button>
-        <a href="" class="btn btn-primary" title="Volver al mapa">
-            <i class="fas fa-map-marked-alt"></i>
-        </a>
+    <!-- Panel de gestión de partidas -->
+    <div class="container mt-3">
+        <div class="card p-3 shadow">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <!-- Botón para crear nueva partida -->
+                <button class="btn btn-success" id="crearPartida">
+                    <i class="fas fa-plus-circle me-2"></i>Crear Partida
+                </button>
+
+                <!-- Input para buscar partidas por nombre -->
+                <input type="text" class="form-control" id="buscarPartidaInput" placeholder="Buscar partida por nombre..." />
+
+                <!-- Select para listar partidas existentes -->
+                <select id="selectPartidas" class="form-select">
+                    <option selected disabled>Selecciona una partida</option>
+                    <!-- Aquí se insertarán dinámicamente las partidas existentes -->
+                    <!-- <option value="1">Partida #1</option> -->
+                </select>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
