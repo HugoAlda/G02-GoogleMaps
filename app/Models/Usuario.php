@@ -29,14 +29,9 @@ class Usuario extends Authenticatable // Cambiar a Authenticatable
         return $this->belongsTo(Role::class, 'rol_id');
     }
 
-    public function grupos()
+    public function jugador()
     {
-        return $this->belongsToMany(Grupo::class, 'usuarios_grupos', 'usuario_id', 'grupo_id');
-    }
-
-    public function marcadores()
-    {
-        return $this->hasMany(Marcador::class, 'usuario_id');
+        return $this->hasOne(Jugador::class, 'usuario_id');
     }
 
     public function etiquetas()

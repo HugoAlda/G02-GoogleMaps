@@ -2,23 +2,51 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Etiqueta;
 use App\Models\Usuario;
-use Illuminate\Database\Seeder;
 
 class EtiquetaSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = Usuario::whereHas('rol', function($q) {
-            $q->where('nombre', 'admin');
-        })->first();
+        // Crear usuario admin si no existe
+        $admin = Usuario::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'nombre' => 'Admin',
+                'password' => bcrypt('admin'),
+                'rol_id' => 1
+            ]
+        );
 
-        Etiqueta::create([
-            'nombre' => 'admin',
-            'icono' => 'star',
-            'es_privado' => false,
-            'usuario_id' => $admin->id
-        ]);
+        // Crear etiquetas
+        $etiquetas = [
+            [
+                'nombre' => 'Monumentos',
+                'icono' => 'monument',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
+            ],
+            [
+                'nombre' => 'Hoteles',
+                'icono' => 'hotel',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
+            ],
+            [
+                'nombre' => 'Puntos de interés',
+                'icono' => 'info',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
+            ]
+        ];
+
+        foreach ($etiquetas as $etiqueta) {
+            Etiqueta::firstOrCreate(
+                ['nombre' => $etiqueta['nombre']],
+                $etiqueta
+            );
+        }
     }
 }

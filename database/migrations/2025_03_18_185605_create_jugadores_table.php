@@ -9,19 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('grupos', function (Blueprint $table) {
+        Schema::create('jugadores', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 100)->nullable();
-            $table->enum('estado', ['Abierto', 'Cerrado'])->nullable()->default('Abierto');
+            $table->foreignId('usuario_id')->nullable()->constrained('usuarios');
             $table->integer('puntos')->nullable()->default(0);
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('grupos');
+        Schema::dropIfExists('jugadores');
     }
 };
