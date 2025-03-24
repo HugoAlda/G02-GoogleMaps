@@ -104,21 +104,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Función para actualizar la clase "active" de las etiquetas
     function updateActiveTag(selectedTag) {
         // Eliminar la clase 'active' de todos los botones
-        document.querySelectorAll('.filter-tag').forEach(button => {
+        document.querySelectorAll('.btn-tag').forEach(button => {
             button.classList.remove('active');
         });
-
-        // Añadir la clase 'active' al botón de la etiqueta seleccionada
-        const selectedButton = document.querySelector(`.filter-tag[data-tag="${selectedTag}"]`);
+    
+        // Añadir la clase 'active' solo al botón seleccionado
+        const selectedButton = document.querySelector(`.btn-tag[data-tag="${selectedTag}"]`);
         if (selectedButton) {
             selectedButton.classList.add('active');
         }
-
-        // Si se seleccionó "all", también añadir la clase 'active' al botón "Todos"
-        if (selectedTag === 'all') {
-            document.querySelector('.btn-tag[data-tag="all"]').classList.add('active');
-        }
-    }
+    }    
 
     // Añadir eventos a los botones para filtrar y actualizar la clase "active"
     document.querySelectorAll('.filter-tag').forEach(button => {

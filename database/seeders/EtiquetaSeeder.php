@@ -39,6 +39,24 @@ class EtiquetaSeeder extends Seeder
                 'icono' => 'info',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
+            ],
+            [
+                'nombre' => 'Estadios',
+                'icono' => 'futbol',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
+            ],
+            [
+                'nombre' => 'Vacacion 2024',
+                'icono' => 'playa',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
+            ],
+            [
+                'nombre' => 'Parques',
+                'icono' => 'parque',
+                'es_privado' => false,
+                'usuario_id' => $admin->id
             ]
         ];
 
