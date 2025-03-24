@@ -1,3 +1,4 @@
+
 @extends('layout.lobby')
 
 @section('title', 'Lobby Inicial')
