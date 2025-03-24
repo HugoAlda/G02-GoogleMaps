@@ -66,7 +66,7 @@
             </a>
             <!-- Botones de ADMIN -->
             @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-                <button class="btn btn-danger" title="Crear nuevo punto" id="button-create-point" data-bs-toggle="modal" data-bs-target="#modal-create-point">
+                <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point" data-bs-toggle="modal" data-bs-target="#modal-add-point">
                     <i class="fa-solid fa-plus fa-xs me-1"></i>
                     <i class="fa-solid fa-location-dot"></i>
                 </button>
@@ -74,24 +74,82 @@
         </div>
     </div>
 
-    {{-- Modal para el admin referencia a button-create-point --}}
-    <div class="modal fade" id="modal-create-point" tabindex="-1" aria-labelledby="modal-create-point-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    {{-- Modal para el admin referencia a button-add-point --}}
+    <div class="modal fade" id="modal-add-point" tabindex="-1" aria-labelledby="modal-add-point-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-start">
             <div class="modal-content custom-modal">
+
+                {{-- Header del modal --}}
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-create-point-label">Crear nuevo punto</h5>
+                    <h4 class="modal-title" id="modal-add-point-label">Crear nuevo punto</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <h1>Etiquetas</h1>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-outline-secondary">Crear</button>
-                </div>
+
+                {{-- Formulario para crear un nuevo punto --}}
+                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('POST')
+
+                    <div class="modal-body">
+                        {{-- Selección de etiqueta --}}
+                        <div class="form-group mb-3">
+                            <label for="etiqueta-select" class="form-label fw-bold">Selecciona una etiqueta</label>
+                            <div class="d-flex align-items-center">
+                                {{-- Select para etiquetas existentes --}}
+                                <select class="form-control custom-select me-2" id="etiqueta-select" name="etiqueta_id">
+                                    <option value="" disabled selected>Selecciona una etiqueta</option>
+                                    @foreach($etiquetas as $etiqueta)
+                                        <option value="{{ $etiqueta->id }}">{{ $etiqueta->nombre }}</option>
+                                    @endforeach
+                                </select>
+
+                                {{-- Botón para crear una nueva etiqueta --}}
+                                <button type="button" class="btn btn-outline-secondary" id="btn-create-etiqueta" title="Crear nueva etiqueta">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+
+                            {{-- Contenedor para nueva etiqueta (se oculta inicialmente) --}}
+                            <div class="form-group mt-3 d-none" id="new-etiqueta-name-container">
+                                <label for="new-etiqueta-name" class="form-label fw-bold">Nombre de la nueva etiqueta</label>
+                                <input type="text" class="form-control" id="new-etiqueta-name" name="new_etiqueta_nombre" placeholder="Nombre de la etiqueta">
+                            </div>
+                        </div>
+
+                        {{-- Contenedor dinámico para los nuevos campos --}}
+                        <div id="extra-fields" class="d-none">
+
+                            {{-- Campo de descripción --}}
+                            <div class="form-group mb-3">
+                                <label for="nueva-descripcion" class="form-label fw-bold">Descripción de la etiqueta</label>
+                                <textarea class="form-control" id="nueva-descripcion" name="nueva_descripcion" placeholder="Descripción de la etiqueta"></textarea>
+                            </div>
+                        </div>
+
+                        {{-- Campo de nombre del punto --}}
+                        <div class="form-group mb-3">
+                            <label for="nombre" class="form-label fw-bold">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del punto" required>
+                        </div>
+
+                        {{-- Campo de descripción del punto --}}
+                        <div class="form-group mb-3">
+                            <label for="descripcion" class="form-label fw-bold">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" placeholder="Descripción del punto"></textarea>
+                        </div>
+                    </div>
+
+                    {{-- Footer del modal --}}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-outline-secondary">Crear</button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>
+
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -101,6 +159,7 @@
     </script>
     <script src="{{ asset('js/mapa/mapa.js') }}"></script>
 
+    {{-- Script para el admin --}}
     @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
         <script src="{{ asset('js/admin/admin.js') }}"></script>
     @endif

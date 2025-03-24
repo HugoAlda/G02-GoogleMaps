@@ -26,7 +26,11 @@ Route::controller(AuthController::class)->group(function () {
 
 // Rutas del mapa protegidas por autenticación
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
-    Route::get('/', 'index')->name('mapa.index');
-    Route::get('/juego', 'juego')->name('mapa.juego');
-    Route::get('/partida', 'partida')->name('mapa.partida');
+    // Métodos GET
+    Route::get('/', 'index')->name('mapa.index'); // Mostrar el mapa
+    Route::get('/juego', 'juego')->name('mapa.juego'); // Mostrar el juego
+    Route::get('/partida', 'partida')->name('mapa.partida'); // Iniciar una nueva partida
+
+    // Métodos POST
+    Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
 });

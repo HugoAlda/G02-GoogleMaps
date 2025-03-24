@@ -61,6 +61,56 @@
 }
 
 .btn-outline-secondary:hover {
+    border-color: #0045c5;
     background-color: #0066CC;
     color: white;
+}
+
+/* Estilos para el select */
+.custom-select {
+    appearance: none; /* Oculta el diseño por defecto */
+    background: white;
+    border: 2px solid #0066CC;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+/* Cambia el borde y fondo al enfocar */
+.custom-select:focus {
+    border-color: #0045c5;
+    box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+    outline: none;
+}
+
+/* Agrega un icono de flecha personalizada */
+.custom-select {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M7 10l5 5 5-5H7z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Hover para dar mejor experiencia */
+.custom-select:hover {
+    border-color: #0045c5;
+}
+
+/* Opciones del select */
+.custom-select option {
+    background: white;
+    color: #333;
+}
+
+/* Mejorar la apariencia en dispositivos móviles */
+@media (max-width: 768px) {
+    .custom-select {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
 }
