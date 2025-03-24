@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nombre', 100)->nullable();
             $table->enum('estado', ['Abierto', 'Cerrado'])->nullable()->default('Abierto');
             $table->integer('puntos')->nullable()->default(0);
+            $table->integer('max_jugadores')->nullable()->default(1);
             $table->timestamps();
         });
     }

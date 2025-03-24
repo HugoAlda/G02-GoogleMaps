@@ -66,7 +66,7 @@
             </a>
             <!-- Botones de ADMIN -->
             @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-                <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point" data-bs-toggle="modal" data-bs-target="#modal-add-point">
+                <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point-form" data-bs-toggle="modal" data-bs-target="#modal-add-point">
                     <i class="fa-solid fa-plus fa-xs me-1"></i>
                     <i class="fa-solid fa-location-dot"></i>
                 </button>
@@ -113,16 +113,6 @@
                             <div class="form-group mt-3 d-none" id="new-etiqueta-name-container">
                                 <label for="new-etiqueta-name" class="form-label fw-bold">Nombre de la nueva etiqueta</label>
                                 <input type="text" class="form-control" id="new-etiqueta-name" name="new_etiqueta_nombre" placeholder="Nombre de la etiqueta">
-                            </div>
-                        </div>
-
-                        {{-- Contenedor dinámico para los nuevos campos --}}
-                        <div id="extra-fields" class="d-none">
-
-                            {{-- Campo de descripción --}}
-                            <div class="form-group mb-3">
-                                <label for="nueva-descripcion" class="form-label fw-bold">Descripción de la etiqueta</label>
-                                <textarea class="form-control" id="nueva-descripcion" name="nueva_descripcion" placeholder="Descripción de la etiqueta"></textarea>
                             </div>
                         </div>
 

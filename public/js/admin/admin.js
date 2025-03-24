@@ -1,6 +1,6 @@
 // Recoger el boton de crear nuevo punto
 
-const buttonCreatePoint = document.getElementById('button-add-point');
+const buttonCreatePoint = document.getElementById('button-add-point-form');
 const buttonAddEtiqueta = document.getElementById('btn-create-etiqueta');
 
 // Crear nuevo punto

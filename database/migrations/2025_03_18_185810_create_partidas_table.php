@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('juego_id')->constrained('juegos');
             $table->enum('estado', ['pendiente', 'en curso', 'completada'])->default('pendiente');
+            $table->integer('max_grupos')->nullable()->default(2);
             $table->dateTime('fecha_inicio');
             $table->dateTime('fecha_fin')->nullable();
             $table->timestamps();
