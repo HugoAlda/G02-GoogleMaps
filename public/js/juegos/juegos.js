@@ -84,7 +84,4 @@ function mostrarMapa(){
 
     // Iniciar el seguimiento de ubicación
     trackLocation();
-}
-
-
-
+} 
