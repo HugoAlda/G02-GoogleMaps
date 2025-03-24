@@ -229,6 +229,13 @@ html, body {
     color: white;
 }
 
+.custom-user-icon {
+    font-size: 24px;
+    color: rgb(43, 0, 255); /* Color del icono */
+    text-align: center;
+    line-height: 30px;
+}
+
 /* Ajustes responsive mejorados */
 @media (max-width: 768px) {
     .navbar {

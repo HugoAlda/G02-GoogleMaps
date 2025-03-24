@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('marcadores', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
-            // $table->foreignId('usuario_id')->constrained('usuarios');
             $table->decimal('latitud', 10, 8);
             $table->decimal('longitud', 11, 8);
-            $table->string('direccion', 100);
+            $table->string('direccion', 300);
             $table->text('descripcion');
             $table->string('imagen', 255)->nullable();
             $table->string('color', 20)->nullable();
