@@ -1,155 +1,123 @@
-document.addEventListener('DOMContentLoaded', function () {
-    let map, currentLocationMarker;
-    let currentLayer = 'normal';
-    let allMarkers = [];
+document.addEventListener('DOMContentLoaded', () => {
+    // Elementos del DOM para la carga y vista previa de imágenes
+    const imageInput = document.getElementById("imagen");
+    const imagePreview = document.getElementById("image-preview");
+    const imagePreviewContainer = document.getElementById("image-preview-container");
+    const removeImageButton = document.getElementById("remove-image");
 
-    // Icono personalizado para la ubicación del usuario con FontAwesome
-    const userLocationIcon = L.divIcon({
-        className: 'custom-user-icon', // Clase CSS para personalizar el marcador
-        html: '<i class="fa-solid fa-map-pin"></i>', // Icono de FontAwesome
-        iconSize: [30, 30], // Tamaño del icono
-        iconAnchor: [15, 30], // Punto de anclaje del icono
-        popupAnchor: [0, -30] // Punto donde aparecerá el popup
+    // Evento para mostrar la vista previa de la imagen seleccionada
+    imageInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.classList.remove("d-none");
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
-    // Capas base disponibles
-    let baseLayers = {
-        "normal": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }),
-        "satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri'
-        })
+    // Evento para eliminar la imagen seleccionada
+    removeImageButton.addEventListener("click", () => {
+        imageInput.value = "";
+        imagePreview.src = "";
+        imagePreviewContainer.classList.add("d-none");
+    });
+
+    // Botón para añadir un punto en el mapa
+    const buttonAddPoint = document.getElementById("button-add-point");
+    buttonAddPoint.addEventListener("click", () => {
+        let modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
+        modal.hide();
+
+        const pointControls = document.getElementById("point-controls");
+        const confirmButton = document.getElementById("confirm-add-point");
+        const cancelButton = document.getElementById("cancel-add-point");
+
+        pointControls.style.display = "block";
+        confirmButton.disabled = true;
+
+        // Manejador de eventos para capturar coordenadas en el mapa
+        const mapClickHandler = (e) => console.log("Coordenadas del clic:", e.latlng);
+        map.on("click", mapClickHandler);
+
+        // Evento para cancelar la adición de un punto
+        cancelButton.addEventListener("click", () => {
+            pointControls.style.display = "none";
+            map.off("click", mapClickHandler);
+            modal.show();
+        }, { once: true });
+    });
+
+    // Variables del mapa y marcador de ubicación actual
+    let map, currentLocationMarker, currentLayer = 'normal', allMarkers = [];
+    const userLocationIcon = L.divIcon({
+        className: 'custom-user-icon',
+        html: '<i class="fa-solid fa-map-pin"></i>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });
+
+    // Capas base del mapa (Normal y Satélite)
+    const baseLayers = {
+        normal: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }),
+        satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' })
     };
 
-    // Función para obtener la ubicación del usuario
+    // Inicializa el mapa con coordenadas dadas
+    function initializeMap(coords) {
+        map = L.map('map', { zoomControl: false }).setView(coords, 16);
+        baseLayers[currentLayer].addTo(map);
+        loadMarkers();
+    }
+
+    // Actualiza la ubicación del usuario en el mapa
+    function updateLocation(coords) {
+        if (!map) initializeMap(coords);
+        if (currentLocationMarker) map.removeLayer(currentLocationMarker);
+        currentLocationMarker = L.marker(coords, { icon: userLocationIcon }).addTo(map);
+    }
+
+    // Obtiene la ubicación actual del usuario
     function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userCoords = [position.coords.latitude, position.coords.longitude];
-
-                    if (!map) {
-                        map = L.map('map', {zoomControl: false}).setView(userCoords, 16);
-                        baseLayers[currentLayer].addTo(map);
-                        loadMarkers(); // Cargar los marcadores en el mapa
-                    }
-
-                    if (currentLocationMarker) {
-                        map.removeLayer(currentLocationMarker);
-                    }
-                    currentLocationMarker = L.marker(userCoords, { icon: userLocationIcon }).addTo(map);
-
-                    return true;
-                },
-                (error) => {
-                    console.error('Error:', error);
-                    alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
-                    return false;
-                }
-            );
-        } else {
-            alert('Tu navegador no soporta geolocalización');
-        }
+        if (!navigator.geolocation) return alert('Tu navegador no soporta geolocalización');
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => updateLocation([coords.latitude, coords.longitude]),
+            () => alert('No se pudo obtener tu ubicación. Verifica los permisos.')
+        );
     }
 
-    // Función para centrar el mapa en la ubicación del usuario
-    function centerLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userCoords = [position.coords.latitude, position.coords.longitude];
-
-                    if (!map) {
-                        map = L.map('map', {zoomControl: false}).setView(userCoords, 16);
-                        baseLayers[currentLayer].addTo(map);
-                        loadMarkers(); // Cargar los marcadores en el mapa
-                    } else {
-                        map.setView(userCoords, 16);
-                    }
-
-                    if (currentLocationMarker) {
-                        map.removeLayer(currentLocationMarker);
-                    }
-                    currentLocationMarker = L.marker(userCoords, { icon: userLocationIcon }).addTo(map);
-                },
-                (error) => {
-                    console.error('Error:', error);
-                    alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
-                }
-            );
-        } else {
-            alert('Tu navegador no soporta geolocalización');
-        }
-    }
-
-    // Cargar los marcadores en el mapa
+    // Carga los marcadores predefinidos en el mapa
     function loadMarkers() {
-        if (window.marcadores) {
-            allMarkers = window.marcadores.map(marcador => {
-                return L.marker([marcador.latitud, marcador.longitud])
-                    .addTo(map)
-                    .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`)
-                    .setOpacity(1); // Mostrar todos los marcadores al inicio
-            });
-        } else {
-            console.error("No se encontraron marcadores");
-        }
+        if (!window.marcadores) return console.error("No se encontraron marcadores");
+        allMarkers = window.marcadores.map(({ latitud, longitud, nombre, descripcion }) =>
+            L.marker([latitud, longitud]).addTo(map).bindPopup(`<strong>${nombre}</strong><br>${descripcion}`)
+        );
     }
 
-    // Filtrar los marcadores según la etiqueta seleccionada
+    // Filtra los marcadores según una etiqueta
     function filterMarkers(tag) {
         allMarkers.forEach((marker, index) => {
             const marcador = window.marcadores[index];
-
-            if (marcador.etiqueta === tag || tag === "all") {
-                marker.addTo(map); // Mostrar marcador
-            } else {
-                map.removeLayer(marker); // Ocultar marcador
-            }
+            marcador.etiqueta === tag || tag === "all" ? marker.addTo(map) : map.removeLayer(marker);
         });
     }
 
-    // Función para actualizar la clase "active" de las etiquetas
-    function updateActiveTag(selectedTag) {
-        // Eliminar la clase 'active' de todos los botones
-        document.querySelectorAll('.btn-tag').forEach(button => {
-            button.classList.remove('active');
-        });
-
-        // Añadir la clase 'active' solo al botón seleccionado
-        const selectedButton = document.querySelector(`.btn-tag[data-tag="${selectedTag}"]`);
-        if (selectedButton) {
-            selectedButton.classList.add('active');
-        }
-    }
-
-    // Añadir eventos a los botones para filtrar y actualizar la clase "active"
+    // Evento para filtrar los marcadores con los botones de etiquetas
     document.querySelectorAll('.filter-tag').forEach(button => {
         button.addEventListener('click', function () {
-            const selectedTag = this.dataset.tag;
-            filterMarkers(selectedTag);
-            updateActiveTag(selectedTag);
+            filterMarkers(this.dataset.tag);
+            document.querySelectorAll('.btn-tag').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
         });
     });
 
-    // Función para manejar el botón "Todos" y mostrar todos los marcadores
-    document.querySelector('.btn-tag[data-tag="all"]').addEventListener('click', function () {
-        filterMarkers('all');
-        updateActiveTag('all');
-    });
-
-    // Funcionalidades del panel de controles
-    document.getElementById('centerUser').addEventListener('click', centerLocation);
-
-    document.getElementById('zoomIn').addEventListener('click', () => {
-        if (map) map.setZoom(map.getZoom() + 1);
-    });
-
-    document.getElementById('zoomOut').addEventListener('click', () => {
-        if (map) map.setZoom(map.getZoom() - 1);
-    });
-
+    // Controles del mapa: centrar usuario, zoom in/out y alternar satélite
+    document.getElementById('centerUser').addEventListener('click', getLocation);
+    document.getElementById('zoomIn').addEventListener('click', () => map?.setZoom(map.getZoom() + 1));
+    document.getElementById('zoomOut').addEventListener('click', () => map?.setZoom(map.getZoom() - 1));
     document.getElementById('toggleSatellite').addEventListener('click', () => {
         if (!map) return;
         map.removeLayer(baseLayers[currentLayer]);
@@ -157,9 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
         baseLayers[currentLayer].addTo(map);
     });
 
-    // Iniciar con la ubicación del usuario
-    if (getLocation()) {
-        // Actualizar la ubicación cada 2 segundos
-        setInterval(getLocation, 2000);
-    }
+    // Obtiene la ubicación del usuario al cargar la página y la actualiza cada 2 segundos
+    getLocation();
+    setInterval(getLocation, 2000);
 });
