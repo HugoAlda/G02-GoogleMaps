@@ -1,20 +1,49 @@
-// Listener para cuando cargue la página
-document.addEventListener("DOMContentLoaded", function(){
-    muestraModal();
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("btn-responder").addEventListener("click", enviarRespuesta);
+
+    mostrarMapa();
+    cargarPunto(window.juegoId, window.indicePunto);
 });
 
-// Mostrar el modal para la primera pista
-function muestraModal(){
-    Swal.fire({
-        title: 'Primera Pista',
-        text: '¿Dónde le dijeron al Alejandro que te pongo?',
-        icon: 'info',
-        confirmButtonText: 'Cerrar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            mostrarMapa();
-        }
-    });
+function cargarPunto(juegoId, indice = 0) {
+    fetch(`/api/punto-control/${juegoId}/${indice}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("No hay más puntos. ¡Has terminado la gimcana!");
+                document.getElementById("popup-pista").style.display = 'none';
+                return;
+            }
+
+            document.getElementById("titulo-pista").textContent = data.nombre;
+            document.getElementById("acertijo-pista").textContent = data.acertijo;
+            window.respuestaCorrecta = data.respuesta.toLowerCase().trim();
+        })
+        .catch(error => console.error('Error al cargar el punto:', error));
+}
+
+// Función cuando el usuario envía su respuesta
+function enviarRespuesta() {
+    const respuesta = document.getElementById('respuesta').value.trim().toLowerCase();
+
+    if (respuesta === window.respuestaCorrecta) {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Correcto!',
+            text: 'Avanzas al siguiente punto',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        window.indicePunto++;
+        document.getElementById('respuesta').value = "";
+        cargarPunto(window.juegoId, window.indicePunto);
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Incorrecto',
+            text: 'Intenta de nuevo'
+        });
+    }
 }
 
 // Función para mostrar el mapa de Leaflet con la ubicación del usuario y actualizar cada 5 segundos

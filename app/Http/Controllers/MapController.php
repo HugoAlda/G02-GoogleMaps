@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Marcador;
 use App\Models\Etiqueta;
 use App\Models\Usuario;
+use App\Models\Juego;
 
 class MapController extends Controller
 {
@@ -33,9 +34,16 @@ class MapController extends Controller
         return view('mapa.index', compact('etiquetas', 'marcadores', 'admin'));
     }
 
-    public function juego()
+    /*public function juego()
     {
-        return view('mapa.juego');
+        $juego = Juego::first(); // o cualquier lógica para obtener el juego actual
+        return view('mapa.juego', compact('juego'));
+    }*/
+
+    public function juego($id)
+    {
+        $juego = Juego::findOrFail($id); // Lanza 404 si no existe
+        return view('mapa.juego', compact('juego'));
     }
 
     public function partida()
