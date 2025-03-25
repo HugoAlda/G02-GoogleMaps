@@ -71,6 +71,22 @@
             <button id="zoomOut" class="btn btn-primary" title="Alejar">
                 <i class="fas fa-minus"></i>
             </button>
+            <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
+                <i class="fas fa-map"></i>
+            </button>
+            <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
+                <i class="fas fa-play"></i>
+            </a>
+            <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
+                <i class="fas fa-gamepad"></i>
+            </a>
+            <!-- Botones de ADMIN -->
+            @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+                <button id="centerUser" class="btn btn-primary" title="Crear nuevo punto">
+                    <i class="fa-solid fa-plus fa-xs me-1"></i>
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>
+            @endif
             <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>      
