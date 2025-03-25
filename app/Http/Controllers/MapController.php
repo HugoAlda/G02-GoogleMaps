@@ -15,6 +15,8 @@ class MapController extends Controller
     {
         // Obtener las etiquetas públicas
         $etiquetas = Etiqueta::where('es_privado', false)->get();
+
+        // Obteneres 
         
         // Obtener los marcadores con sus etiquetas
         $marcadores = Marcador::with('etiquetas')->get()->map(function ($marcador) {

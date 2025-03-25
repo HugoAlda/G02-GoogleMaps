@@ -1,116 +1,46 @@
-/* Fondo con degradado en el header */
-.modal-content.custom-modal {
+/* Estilos personalizados para el modal */
+.custom-modal {
     border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-    animation: fadeIn 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     border: none;
-    overflow: hidden; /* Para evitar que el contenido sobresalga */
+    background-color: #fff;
 }
 
-/* Encabezado con degradado */
-.modal-header {
-    background: linear-gradient(135deg, #0045c5 0%, #0066CC 100%);
+/* Estilos para el encabezado del modal */
+.custom-modal .modal-header {
+    background-color: #007bff;
     color: white;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 15px;
 }
 
-/* Botón de cierre blanco */
-.modal-header .btn-close {
-    filter: invert(1);
-    opacity: 0.8;
-}
-
-.modal-header .btn-close:hover {
-    opacity: 1;
-}
-
-/* Cuerpo del modal en blanco */
-.modal-body {
-    background: white;
-    color: #333;
-    padding: 20px;
-}
-
-/* Pie del modal con fondo blanco */
-.modal-footer {
-    background: white;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+/* Estilos para los botones del modal */
+.custom-modal .modal-footer {
+    background-color: #f8f9fa;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
+    padding: 10px;
 }
 
-/* Suavizado en la animación del modal */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Mejor apariencia para los botones */
-.btn-outline-secondary {
-    border-color: rgba(0, 0, 0, 0.3);
-    color: #333;
-    transition: all 0.3s ease-in-out;
-}
-
-.btn-outline-secondary:hover {
-    border-color: #0045c5;
-    background-color: #0066CC;
-    color: white;
-}
-
-/* Estilos para el select */
-.custom-select {
-    appearance: none; /* Oculta el diseño por defecto */
-    background: white;
-    border: 2px solid #0066CC;
+/* Estilos para los inputs y selects */
+.custom-modal .form-control,
+.custom-modal .custom-select {
     border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 16px;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    position: relative;
+    border: 1px solid #ced4da;
 }
 
-/* Cambia el borde y fondo al enfocar */
-.custom-select:focus {
-    border-color: #0045c5;
-    box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
-    outline: none;
+.custom-modal .form-control:focus,
+.custom-modal .custom-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Agrega un icono de flecha personalizada */
-.custom-select {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M7 10l5 5 5-5H7z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
+/* Estilos para los botones */
+.custom-modal .btn-outline-secondary {
+    border-radius: 8px;
 }
 
-/* Hover para dar mejor experiencia */
-.custom-select:hover {
-    border-color: #0045c5;
-}
-
-/* Opciones del select */
-.custom-select option {
-    background: white;
-    color: #333;
-}
-
-/* Mejorar la apariencia en dispositivos móviles */
-@media (max-width: 768px) {
-    .custom-select {
-        font-size: 14px;
-        padding: 8px 10px;
-    }
+.custom-modal .btn-outline-primary {
+    border-radius: 8px;
 }
