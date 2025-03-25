@@ -21,8 +21,12 @@ class AuthController extends Controller
     }
 
     // Método para renderizar la vista del registro
-    public function showRegisterView()
-    {
+    public function showRegisterView() {
+        // Si el usuario está autenticado, redirigir al mapa
+        if (Auth::check()) {
+            return redirect()->route('mapa.index');
+        }
+
         return view('auth.register');
     }
 
@@ -69,17 +73,18 @@ class AuthController extends Controller
     
                 // Si el rol no es válido, cerrar sesión y mostrar error
                 Auth::logout();
-                return redirect()->route('login')->withErrors(['invalid' => 'No tienes permiso para acceder'])->withInput();
+                return redirect()->route('login')->withErrors([
+                    'invalid' => 'No tienes permiso para acceder'
+                ])->withInput();
             }
-
+    
+            // Credenciales incorrectas
             $errorResponse = ['invalid' => 'Credenciales incorrectas, introduce tus datos nuevamente.'];
-
-            // Si la solicitud es una solicitud JSON, devolver un error 401
+    
             if ($request->expectsJson()) {
                 return response()->json(['errors' => $errorResponse], 401);
             }
-
-            // En caso de que no sea una solicitud JSON, redirigir al usuario a la página de login con los errores y los datos del formulario
+    
             return redirect()->route('login')->withErrors($errorResponse)->withInput();
         } catch (ValidationException $e) {
             // Manejo de errores de validación
@@ -95,10 +100,13 @@ class AuthController extends Controller
                     'error' => 'Ocurrió un error en el servidor, intenta nuevamente: ' . $e->getMessage()
                 ], 500);
             }
-
-            return redirect()->route('login')->withErrors(['server' => 'Ocurrió un error en el servidor, intenta nuevamente.'])->withInput();
+    
+            return redirect()->route('login')->withErrors([
+                'server' => 'Ocurrió un error en el servidor, intenta nuevamente.'
+            ])->withInput();
         }
     }
+    
 
     // Método para cerrar sesión
     public function logout()

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LobbyController;
 use App\Http\Controllers\JuegoController;
 
 // Ruta principal redirige al login
@@ -26,11 +27,18 @@ Route::controller(AuthController::class)->group(function () {
  */
 
 // Rutas del mapa protegidas por autenticación
+
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
     Route::get('/', 'index')->name('mapa.index');
     //Route::get('/juego', 'juego')->name('mapa.juego');
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
+
+    // Rutas para la administración de partidas (crear/buscar/partidas creadas)
+    Route::controller(LobbyController::class)->group(function () {  
+        Route::get('/partida', 'index')->name('mapa.lobby');  // Cambiado el nombre para evitar conflictos
+        Route::post('/partida', 'creaPartida')->name('mapa.creaPartida'); 
+    });
 });
 
 // Ruta API protegida para obtener un punto de control de un juego según el índice
