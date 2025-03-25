@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('marcador_id')->constrained('marcadores');
             $table->foreignId('etiqueta_id')->constrained('etiquetas');
             $table->primary(['marcador_id', 'etiqueta_id']);
+            $table->timestamps();
         });
     }
 

@@ -10,6 +10,7 @@ use Database\Seeders\GrupoSeeder;
 use Database\Seeders\MarcadorSeeder;
 use Database\Seeders\EtiquetaSeeder;
 use Database\Seeders\PuntoControlSeeder;
+use Database\Seeders\MarcadoresEtiquetasSeeder;
 
 class DatabaseSeeder extends Seeder
 {

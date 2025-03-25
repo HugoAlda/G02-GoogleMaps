@@ -5,59 +5,66 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Marcador;
 use App\Models\Etiqueta;
+use App\Models\MarcadoresEtiquetas;
 
 class MarcadoresEtiquetasSeeder extends Seeder
 {
     public function run(): void
     {
-        // Obtener las etiquetas
-        $etiquetaMonumentos = Etiqueta::where('nombre', 'Monumentos')->first();
-        $etiquetaHoteles = Etiqueta::where('nombre', 'Hoteles')->first();
-        $etiquetaInteres = Etiqueta::where('nombre', 'Puntos de interés')->first();
+        $relaciones = [
+            [
+                'marcador_id' => 1, // Parroquia de Bellvitge
+                'etiqueta_id' => 1, // Monumentos
+            ],
+            [
+                'marcador_id' => 2, // Ermita de Bellvige
+                'etiqueta_id' => 1, // Monumentos
+            ],
+            [
+                'marcador_id' => 3, // Hotel Esperia
+                'etiqueta_id' => 2, // Hoteles
+            ],
+            [
+                'marcador_id' => 4, // Hospital de Bellvitge
+                'etiqueta_id' => 3, // Punto de interes
+            ],
+            [
+                'marcador_id' => 5, // Parque de Bellvitge
+                'etiqueta_id' => 6, // Parques
+            ],
+            [
+                'marcador_id' => 6, // Metro de Bellvitge
+                'etiqueta_id' => 3, // Punto de interes
+            ],
+            [
+                'marcador_id' => 7, // Sergio Manzano
+                'etiqueta_id' => 3, // Punto de interes
+            ],
+            [
+                'marcador_id' => 8, // Unificación Bellvitge
+                'etiqueta_id' => 4, // Estadios
+            ],
+            [
+                'marcador_id' => 9, // Campo de futbol del Hospitalet
+                'etiqueta_id' => 4, // Estadios
+            ],
+            [
+                'marcador_id' => 10, // Hospital odontologico
+                'etiqueta_id' => 3, // Punto de interes
+            ],
+            [
+                'marcador_id' => 11, // Metropolitan
+                'etiqueta_id' => 3, // Punto de interes
+            ],
+            [
+                'marcador_id' => 12, // La Flama
+                'etiqueta_id' => 3, // Punto de interes
+            ]
 
-        if (!$etiquetaMonumentos || !$etiquetaHoteles || !$etiquetaInteres) {
-            throw new \Exception('Las etiquetas necesarias no existen. Por favor, ejecuta primero el EtiquetaSeeder.');
-        }
+        ];
 
-        // Relacionar monumentos
-        $iglesiaBellvitge = Marcador::where('nombre', 'Iglesia de Bellvitge')->first();
-        $ermitaBellvitge = Marcador::where('nombre', 'Ermita de Bellvitge')->first();
-        
-        if ($iglesiaBellvitge) {
-            $iglesiaBellvitge->etiquetas()->syncWithoutDetaching([$etiquetaMonumentos->id]);
-        }
-        if ($ermitaBellvitge) {
-            $ermitaBellvitge->etiquetas()->syncWithoutDetaching([$etiquetaMonumentos->id]);
-        }
-
-        // Relacionar hoteles
-        $hotelPlaza = Marcador::where('nombre', 'Hotel SB Plaza Europa')->first();
-        $hotelTravelodge = Marcador::where('nombre', 'Hotel Travelodge L\'Hospitalet')->first();
-        
-        if ($hotelPlaza) {
-            $hotelPlaza->etiquetas()->syncWithoutDetaching([$etiquetaHoteles->id]);
-        }
-        if ($hotelTravelodge) {
-            $hotelTravelodge->etiquetas()->syncWithoutDetaching([$etiquetaHoteles->id]);
-        }
-
-        // Relacionar puntos de interés
-        $hospital = Marcador::where('nombre', 'Hospital Universitario de Bellvitge')->first();
-        $centroComercial = Marcador::where('nombre', 'Centro Comercial Gran Via 2')->first();
-        $parque = Marcador::where('nombre', 'Parc de Bellvitge')->first();
-        $metro = Marcador::where('nombre', 'Estación de Metro Bellvitge')->first();
-        
-        if ($hospital) {
-            $hospital->etiquetas()->syncWithoutDetaching([$etiquetaInteres->id]);
-        }
-        if ($centroComercial) {
-            $centroComercial->etiquetas()->syncWithoutDetaching([$etiquetaInteres->id]);
-        }
-        if ($parque) {
-            $parque->etiquetas()->syncWithoutDetaching([$etiquetaInteres->id]);
-        }
-        if ($metro) {
-            $metro->etiquetas()->syncWithoutDetaching([$etiquetaInteres->id]);
+        foreach ($relaciones as $relacion){
+            $relacion = MarcadoresEtiquetas::create($relacion);
         }
     }
 }
