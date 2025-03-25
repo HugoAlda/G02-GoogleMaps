@@ -86,7 +86,7 @@
                 </div>
 
                 {{-- Formulario para crear un nuevo punto --}}
-                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="modal-body">
