@@ -55,7 +55,7 @@
             <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
                 <i class="fas fa-map"></i>
             </button>
-            <a href="{{ route('mapa.partida') }}" class="btn btn-primary" title="Iniciar partida">
+            <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
                 <i class="fas fa-play"></i>
             </a>
             <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
