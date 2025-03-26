@@ -1,16 +1,35 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Elementos del DOM para la carga y vista previa de imágenes
+document.addEventListener("DOMContentLoaded", () => {
+    // Elementos del DOM
     const imageInput = document.getElementById("imagen");
     const imagePreview = document.getElementById("image-preview");
     const imagePreviewContainer = document.getElementById("image-preview-container");
     const removeImageButton = document.getElementById("remove-image");
+    const buttonAddPoint = document.getElementById("button-add-point");
+    const form = document.getElementById("form-add-point");
 
-    // Evento para mostrar la vista previa de la imagen seleccionada
-    imageInput.addEventListener("change", (event) => {
+    let map, currentMarker = null, currentLocationMarker, allMarkers = [], currentLayer = "normal";
+    
+    // Ícono de ubicación del usuario
+    const userLocationIcon = L.divIcon({
+        className: "custom-user-icon",
+        html: '<i class="fa-solid fa-map-pin"></i>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });
+
+    // Capas base del mapa
+    const baseLayers = {
+        normal: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }),
+        satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: "&copy; Esri" })
+    };
+
+    /*** Función para previsualizar imagen ***/
+    imageInput.addEventListener("change", event => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = e => {
                 imagePreview.src = e.target.result;
                 imagePreviewContainer.classList.remove("d-none");
             };
@@ -18,17 +37,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Evento para eliminar la imagen seleccionada
+    /*** Función para eliminar imagen seleccionada ***/
     removeImageButton.addEventListener("click", () => {
         imageInput.value = "";
         imagePreview.src = "";
         imagePreviewContainer.classList.add("d-none");
     });
 
-    // Botón para añadir un punto en el mapa
-    const buttonAddPoint = document.getElementById("button-add-point");
+    /*** Función para inicializar el mapa ***/
+    function initializeMap(coords) {
+        map = L.map("map", { zoomControl: false }).setView(coords, 16);
+        baseLayers[currentLayer].addTo(map);
+        loadMarkers();
+    }
+
+    /*** Función para actualizar la ubicación del usuario ***/
+    function updateLocation(coords) {
+        if (!map) initializeMap(coords);
+        if (currentLocationMarker) map.removeLayer(currentLocationMarker);
+        currentLocationMarker = L.marker(coords, { icon: userLocationIcon }).addTo(map);
+    }
+
+    /*** Obtener ubicación del usuario ***/
+    function getLocation() {
+        if (!navigator.geolocation) return alert("Tu navegador no soporta geolocalización");
+        navigator.geolocation.getCurrentPosition(
+            ({ coords }) => updateLocation([coords.latitude, coords.longitude]),
+            () => alert("No se pudo obtener tu ubicación. Verifica los permisos.")
+        );
+    }
+
+    /*** Función para crear un marcador ***/
+    function createMarker(coords) {
+        const redIcon = L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34]
+        });
+        return L.marker(coords, { icon: redIcon }).addTo(map);
+    }
+
+    /*** Función para eliminar un marcador ***/
+    function removeMarker(marker) {
+        if (marker) map.removeLayer(marker);
+    }
+
+    /*** Cargar los marcadores guardados ***/
+    function loadMarkers() {
+        if (!window.marcadores) return console.error("No se encontraron marcadores");
+        allMarkers = window.marcadores.map(({ latitud, longitud, nombre, descripcion }) =>
+            L.marker([latitud, longitud]).addTo(map).bindPopup(`<strong>${nombre}</strong><br>${descripcion}`)
+        );
+    }
+
+    /*** Filtrar los marcadores por etiqueta ***/
+    function filterMarkers(tag) {
+        allMarkers.forEach((marker, index) => {
+            const marcador = window.marcadores[index];
+            marcador.etiqueta === tag || tag === "all" ? marker.addTo(map) : map.removeLayer(marker);
+        });
+    }
+
+    /*** Manejar la adición de un nuevo punto ***/
     buttonAddPoint.addEventListener("click", () => {
-        let modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
+        const modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
         modal.hide();
 
         const pointControls = document.getElementById("point-controls");
@@ -38,168 +111,83 @@ document.addEventListener('DOMContentLoaded', () => {
         pointControls.style.display = "block";
         confirmButton.disabled = true;
 
-        // Manejador de eventos para capturar coordenadas en el mapa
-        const mapClickHandler = (e) => console.log("Coordenadas del clic:", e.latlng);
+        const mapClickHandler = e => {
+            if (currentMarker) removeMarker(currentMarker);
+            currentMarker = createMarker(e.latlng);
+            confirmButton.textContent = "Confirmar";
+            confirmButton.disabled = false;
+        };
+
         map.on("click", mapClickHandler);
 
-        // Evento para cancelar la adición de un punto
         cancelButton.addEventListener("click", () => {
+            if (currentMarker) removeMarker(currentMarker);
             pointControls.style.display = "none";
+
+            // Cambiamos el color del botón a rojo
+            buttonAddPoint.style.backgroundColor = "#ff0000";
+            buttonAddPoint.style.color = "#fff";
+            
             map.off("click", mapClickHandler);
             modal.show();
         }, { once: true });
+
+        confirmButton.addEventListener("click", () => {
+            if (!currentMarker) return;
+            const savedMarker = currentMarker.getLatLng();
+            removeMarker(currentMarker);
+            pointControls.style.display = "none";
+            map.off("click", mapClickHandler);
+            modal.show();
+            buttonAddPoint.style.backgroundColor = "#008000";
+            buttonAddPoint.style.color = "#fff";
+
+            form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
+        }, { once: true });
     });
 
-    // Variables del mapa y marcador de ubicación actual
-    let map, currentLocationMarker, currentLayer = 'normal', allMarkers = [];
-    const userLocationIcon = L.divIcon({
-        className: 'custom-user-icon',
-        html: '<i class="fa-solid fa-map-pin"></i>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 30],
-        popupAnchor: [0, -30]
-    });
+    /*** Enviar formulario con marcador ***/
+    function submitForm(event, savedMarker) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        formData.append("latitud", savedMarker.lat);
+        formData.append("longitud", savedMarker.lng);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
-    // Capas base del mapa (Normal y Satélite)
-    const baseLayers = {
-        normal: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }),
-        satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' })
-    };
-
-    // Inicializa el mapa con coordenadas dadas
-    function initializeMap(coords) {
-        map = L.map('map', { zoomControl: false }).setView(coords, 16);
-        baseLayers[currentLayer].addTo(map);
-        loadMarkers();
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRF-TOKEN": csrfToken }
+        })
+        .then(response => response.json())
+        .then(() => {
+            loadMarkers();
+            bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
+        })
+        .catch(error => console.error("Error al enviar los datos:", error));
     }
 
-    // Actualiza la ubicación del usuario en el mapa
-    function updateLocation(coords) {
-        if (!map) initializeMap(coords);
-        if (currentLocationMarker) map.removeLayer(currentLocationMarker);
-        currentLocationMarker = L.marker(coords, { icon: userLocationIcon }).addTo(map);
-    }
-
-    // Obtiene la ubicación actual del usuario
-    function getLocation() {
-        if (!navigator.geolocation) return alert('Tu navegador no soporta geolocalización');
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => updateLocation([coords.latitude, coords.longitude]),
-            () => alert('No se pudo obtener tu ubicación. Verifica los permisos.')
-        );
-    }
-
-    // Carga los marcadores predefinidos en el mapa
-    function loadMarkers() {
-        if (!window.marcadores) return console.error("No se encontraron marcadores");
-        allMarkers = window.marcadores.map(marcador => {
-            const marker = L.marker([marcador.latitud, marcador.longitud])
-                .addTo(map)
-                .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`);
-            
-            // Añadir la etiqueta como propiedad del marcador
-            marker.etiqueta = marcador.etiqueta;
-            return marker;
-        });
-    }
-
-    // Filtra los marcadores según una etiqueta
-    function filterMarkers(tag) {
-        allMarkers.forEach(marker => {
-            tag === "all" || marker.etiqueta === tag ? 
-                marker.addTo(map) : 
-                map.removeLayer(marker);
-        });
-    }
-
-    // Evento para filtrar los marcadores con los botones de etiquetas
-    document.querySelectorAll('.filter-tag').forEach(button => {
-        button.addEventListener('click', function () {
-            filterMarkers(this.dataset.tag);
-            document.querySelectorAll('.btn-tag').forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // Controles del mapa: centrar usuario, zoom in/out y alternar satélite
-    document.getElementById('centerUser').addEventListener('click', getLocation);
-    document.getElementById('zoomIn').addEventListener('click', () => map?.setZoom(map.getZoom() + 1));
-    document.getElementById('zoomOut').addEventListener('click', () => map?.setZoom(map.getZoom() - 1));
-    document.getElementById('toggleSatellite').addEventListener('click', () => {
+    /*** Controles del mapa ***/
+    document.getElementById("centerUser").addEventListener("click", () => map?.setView(currentLocationMarker.getLatLng(), 16));
+    document.getElementById("zoomIn").addEventListener("click", () => map?.setZoom(map.getZoom() + 1));
+    document.getElementById("zoomOut").addEventListener("click", () => map?.setZoom(map.getZoom() - 1));
+    document.getElementById("toggleSatellite").addEventListener("click", () => {
         if (!map) return;
         map.removeLayer(baseLayers[currentLayer]);
-        currentLayer = currentLayer === 'normal' ? 'satellite' : 'normal';
+        currentLayer = currentLayer === "normal" ? "satellite" : "normal";
         baseLayers[currentLayer].addTo(map);
     });
-    
-    // Paginación de etiquetas
-    const tagsContainer = document.querySelector('.tags-container');
-    const tagsBar = document.querySelector('.tags-bar');
-    const prevBtn = document.querySelector('.btn-pagination.prev');
-    const nextBtn = document.querySelector('.btn-pagination.next');
-    const pageIndicator = document.querySelector('.page-indicator');
-    
-    if (tagsContainer && tagsBar && prevBtn && nextBtn && pageIndicator) {
-        const allTags = Array.from(document.querySelectorAll('.filter-tag'));
-        const tagsPerPage = 2; // Mostrar 2 etiquetas por página (además de "Todos")
-        let currentPage = 1;
-        const totalPages = Math.ceil((allTags.length) / tagsPerPage);
 
-        // Separar el botón "Todos" de las demás etiquetas
-        const allButton = document.querySelector('.btn-tag[data-tag="all"]');
-        const filterButtons = allTags.filter(btn => btn.dataset.tag !== "all");
-
-        // Función para actualizar la visualización de etiquetas
-        function updateTagsDisplay() {
-            // Ocultar todas las etiquetas de filtro primero
-            filterButtons.forEach(btn => {
-                btn.style.display = 'none';
-            });
-
-            // Mostrar siempre el botón "Todos"
-            allButton.style.display = 'flex';
-
-            // Calcular qué etiquetas mostrar para la página actual
-            const startIdx = (currentPage - 1) * tagsPerPage;
-            const endIdx = startIdx + tagsPerPage;
-            const tagsToShow = filterButtons.slice(startIdx, endIdx);
-
-            // Mostrar las etiquetas correspondientes a la página actual
-            tagsToShow.forEach(btn => {
-                btn.style.display = 'flex';
-            });
-
-            // Actualizar estado de los botones de paginación
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            // Actualizar indicador de página
-            pageIndicator.textContent = `${currentPage}/${totalPages}`;
-        }
-
-        // Eventos para los botones de paginación
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updateTagsDisplay();
-            }
+    /*** Filtrar marcadores con botones ***/
+    document.querySelectorAll(".filter-tag").forEach(button => {
+        button.addEventListener("click", function () {
+            filterMarkers(this.dataset.tag);
+            document.querySelectorAll(".btn-tag").forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
         });
+    });
 
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateTagsDisplay();
-            }
-        });
-
-        // Inicializar la visualización
-        updateTagsDisplay();
-
-        // Asegurar que el scroll se mantenga visible al cambiar páginas
-        tagsBar.scrollTo(0, 0);
-    }
-
-    // Obtiene la ubicación del usuario al cargar la página y la actualiza cada 2 segundos
+    // Obtener ubicación inicial y actualizar cada 2 segundos
     getLocation();
     setInterval(getLocation, 2000);
 });

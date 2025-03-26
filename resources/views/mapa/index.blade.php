@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {{-- Añadir el CSRF Token --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
         <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
@@ -90,14 +92,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
-                {{-- Formulario para crear un nuevo punto --}}
-                <form action="" method="POST" enctype="multipart/form-data">
+                <!-- Formulario para agregar un punto -->
+                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="modal-body">
                         <div class="row g-3">
 
-                            <!-- Etiqueta y Nombre -->
+                            {{-- Nombre --}}
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-bold">Nombre</label>
+                                <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
+                            </div>
+
+
+                            
+                            <!-- Dirección y Icono -->
+                            <div class="col-md-6">
+                                <label for="direccion" class="form-label fw-bold">Dirección</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control custom-input w-75" id="direccion" name="direccion" placeholder="Ej: Mirador de la ciudad">
+                                    <button class="btn btn-outline-secondary px-3" id="button-add-point" type="button" title="Añadir marcador">
+                                        <i class="fas fa-location-dot"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Etiqueta -->
                             <div class="col-md-6">
                                 <label for="etiqueta-select" class="form-label fw-bold">Etiqueta</label>
                                 <div class="input-group">
@@ -109,21 +130,6 @@
                                     </select>
                                     <button type="button" class="btn btn-outline-secondary" id="btn-create-etiqueta" title="Crear nueva etiqueta">
                                         <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="nombre" class="form-label fw-bold">Nombre</label>
-                                <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
-                            </div>
-
-                            <!-- Dirección y Icono -->
-                            <div class="col-md-6">
-                                <label for="direccion" class="form-label fw-bold">Dirección</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control custom-input w-75" id="direccion" name="direccion" placeholder="Ej: Mirador de la ciudad">
-                                    <button class="btn btn-outline-secondary px-3" id="button-add-point" type="button" title="Añadir marcador">
-                                        <i class="fas fa-location-dot"></i>
                                     </button>
                                 </div>
                             </div>
@@ -199,7 +205,7 @@
         window.marcadores = @json($marcadores);
         window.etiquetas = @json($etiquetas);
     </script>
-    
+
     <script src="{{ asset('js/mapa/mapa.js') }}"></script>
 
     {{-- Interfaz flotante para Confirmar/Cancelar --}}
