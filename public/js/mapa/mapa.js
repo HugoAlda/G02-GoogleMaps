@@ -92,16 +92,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carga los marcadores predefinidos en el mapa
     function loadMarkers() {
         if (!window.marcadores) return console.error("No se encontraron marcadores");
-        allMarkers = window.marcadores.map(({ latitud, longitud, nombre, descripcion }) =>
-            L.marker([latitud, longitud]).addTo(map).bindPopup(`<strong>${nombre}</strong><br>${descripcion}`)
-        );
+        allMarkers = window.marcadores.map(marcador => {
+            const marker = L.marker([marcador.latitud, marcador.longitud])
+                .addTo(map)
+                .bindPopup(`<strong>${marcador.nombre}</strong><br>${marcador.descripcion}`);
+            
+            // Añadir la etiqueta como propiedad del marcador
+            marker.etiqueta = marcador.etiqueta;
+            return marker;
+        });
     }
 
     // Filtra los marcadores según una etiqueta
     function filterMarkers(tag) {
-        allMarkers.forEach((marker, index) => {
-            const marcador = window.marcadores[index];
-            marcador.etiqueta === tag || tag === "all" ? marker.addTo(map) : map.removeLayer(marker);
+        allMarkers.forEach(marker => {
+            tag === "all" || marker.etiqueta === tag ? 
+                marker.addTo(map) : 
+                map.removeLayer(marker);
         });
     }
 
@@ -124,6 +131,73 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLayer = currentLayer === 'normal' ? 'satellite' : 'normal';
         baseLayers[currentLayer].addTo(map);
     });
+    
+    // Paginación de etiquetas
+    const tagsContainer = document.querySelector('.tags-container');
+    const tagsBar = document.querySelector('.tags-bar');
+    const prevBtn = document.querySelector('.btn-pagination.prev');
+    const nextBtn = document.querySelector('.btn-pagination.next');
+    const pageIndicator = document.querySelector('.page-indicator');
+    
+    if (tagsContainer && tagsBar && prevBtn && nextBtn && pageIndicator) {
+        const allTags = Array.from(document.querySelectorAll('.filter-tag'));
+        const tagsPerPage = 2; // Mostrar 2 etiquetas por página (además de "Todos")
+        let currentPage = 1;
+        const totalPages = Math.ceil((allTags.length) / tagsPerPage);
+
+        // Separar el botón "Todos" de las demás etiquetas
+        const allButton = document.querySelector('.btn-tag[data-tag="all"]');
+        const filterButtons = allTags.filter(btn => btn.dataset.tag !== "all");
+
+        // Función para actualizar la visualización de etiquetas
+        function updateTagsDisplay() {
+            // Ocultar todas las etiquetas de filtro primero
+            filterButtons.forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // Mostrar siempre el botón "Todos"
+            allButton.style.display = 'flex';
+
+            // Calcular qué etiquetas mostrar para la página actual
+            const startIdx = (currentPage - 1) * tagsPerPage;
+            const endIdx = startIdx + tagsPerPage;
+            const tagsToShow = filterButtons.slice(startIdx, endIdx);
+
+            // Mostrar las etiquetas correspondientes a la página actual
+            tagsToShow.forEach(btn => {
+                btn.style.display = 'flex';
+            });
+
+            // Actualizar estado de los botones de paginación
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            // Actualizar indicador de página
+            pageIndicator.textContent = `${currentPage}/${totalPages}`;
+        }
+
+        // Eventos para los botones de paginación
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateTagsDisplay();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateTagsDisplay();
+            }
+        });
+
+        // Inicializar la visualización
+        updateTagsDisplay();
+
+        // Asegurar que el scroll se mantenga visible al cambiar páginas
+        tagsBar.scrollTo(0, 0);
+    }
 
     // Obtiene la ubicación del usuario al cargar la página y la actualiza cada 2 segundos
     getLocation();

@@ -2,6 +2,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 .navbar {
@@ -289,4 +290,63 @@ html, body {
         display: flex;
         justify-content: center;
     }
+}
+/* Estilos para la paginación de etiquetas */
+.tags-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.tags-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+}
+
+.paged-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.tags-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-pagination {
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-pagination:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Ocultar scrollbar pero permitir scroll */
+.tags-bar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tags-bar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
 }

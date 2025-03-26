@@ -14,30 +14,33 @@
 </head>
 <body>
     <div class="container">
-        <!-- Barra de navegación -->
-        <nav class="navbar">
-            <div class="container-fluid">
-                <div class="search-container">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar en el mapa...">
-                        <button class="btn-search">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
 
-        <!-- Barra de etiquetas -->
-        <div class="tags-bar">
-            <button class="btn-tag active" data-tag="all">
-            <i class="fas fa-globe"></i> Todos
-            </button>
-            @foreach($etiquetas as $etiqueta)
-                <button class="btn-tag filter-tag" data-tag="{{ $etiqueta->nombre }}">
-                    {!! $etiqueta->icono !!} {{ ucfirst($etiqueta->nombre) }}
+        <!-- Paginación etiquetas -->
+        <div class="tags-container">
+            <div class="tags-bar">
+                <!-- Botón "Todos" - siempre visible -->
+                <button class="btn-tag active" data-tag="all">
+                    <i class="fas fa-globe"></i> Todos
                 </button>
-            @endforeach
+                
+                <!-- Etiquetas de filtro (se mostrarán según paginación) -->
+                @foreach($etiquetas as $etiqueta)
+                    <button class="btn-tag filter-tag" data-tag="{{ $etiqueta->nombre }}">
+                        {!! $etiqueta->icono !!} {{ $etiqueta->nombre }}
+                    </button>
+                @endforeach
+            </div>
+        
+            <!-- Controles de paginación -->
+            <div class="tags-pagination">
+                <button class="btn-pagination prev" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-indicator">1/X</span>
+                <button class="btn-pagination next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
 
         <div id="map"></div>
@@ -87,7 +90,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
-                <!-- Formulario para agregar un punto -->
+                {{-- Formulario para crear un nuevo punto --}}
                 <form action="" method="POST" enctype="multipart/form-data">
                     @csrf
 
