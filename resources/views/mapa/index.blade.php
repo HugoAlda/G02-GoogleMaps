@@ -74,28 +74,31 @@
         </div>
     </div>
 
-    {{-- Modal para el admin: Referencia a button-add-point --}}
+    <!-- Modal para el admin: Agregar un nuevo punto -->
     <div class="modal fade" id="modal-add-point" tabindex="-1" aria-labelledby="modal-add-point-label" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content custom-modal">
+            <div class="modal-content">
 
-                {{-- Header del modal --}}
+                <!-- Encabezado del modal -->
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modal-add-point-label"><i class="fas fa-map-marker-alt me-2"></i> Crear nuevo punto</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="modal-add-point-label">
+                        <i class="fas fa-map-marker-alt me-2"></i> Crear nuevo punto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
-                {{-- Formulario para crear un nuevo punto --}}
-                <form action="" method="POST" enctype="multipart/form-data">
+                <!-- Formulario para agregar un punto -->
+                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="modal-body">
-                        {{-- Fila 1: Etiqueta y Nombre --}}
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                        <div class="row g-3">
+
+                            <!-- Etiqueta y Nombre -->
+                            <div class="col-md-6">
                                 <label for="etiqueta-select" class="form-label fw-bold">Etiqueta</label>
-                                <div class="d-flex">
-                                    <select class="form-control custom-select me-2" id="etiqueta-select" name="etiqueta_id">
+                                <div class="input-group">
+                                    <select class="form-select custom-select" id="etiqueta-select" name="etiqueta_id">
                                         <option value="" disabled selected>Selecciona una etiqueta</option>
                                         @foreach($etiquetas as $etiqueta)
                                             <option value="{{ $etiqueta->id }}">{{ $etiqueta->nombre }}</option>
@@ -106,71 +109,86 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="nombre" class="form-label fw-bold">Nombre del punto</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-bold">Nombre</label>
+                                <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
                             </div>
-                        </div>
 
-                        {{-- Fila 2: Dirección --}}
-                        <div class="row">
-                            <div class="col-12 mb-3">
+                            <!-- Dirección y Icono -->
+                            <div class="col-md-6">
                                 <label for="direccion" class="form-label fw-bold">Dirección</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control w-50" id="direccion" name="direccion" placeholder="Buscar dirección...">
-                                    <button class="btn btn-outline-secondary" id="button-add-point" type="button" title="Añadir marcador">
+                                    <input type="text" class="form-control custom-input w-75" id="direccion" name="direccion" placeholder="Ej: Mirador de la ciudad">
+                                    <button class="btn btn-outline-secondary px-3" id="button-add-point" type="button" title="Añadir marcador">
                                         <i class="fas fa-location-dot"></i>
                                     </button>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Fila 3: Icono e Imagen --}}
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="icono" class="form-label fw-bold">Icono del marcador</label>
-                                <select class="form-control custom-select" id="icono" name="icono">
+                            <!-- Icono -->
+                            <div class="col-md-6">
+                                <label for="icono" class="form-label fw-bold">Icono</label>
+                                <select class="form-select custom-select" id="icono" name="icono">
                                     <option value="" disabled selected>Selecciona un icono</option>
-                                    <option value="map-marker">📍 Ubicación</option>
-                                    <option value="map-pin">📌 Marcador</option>
-                                    <option value="flag">🚩 Bandera</option>
-                                    <option value="thumbtack">📍 Chincheta</option>
-                                    <option value="star">⭐ Estrella</option>
-                                    <option value="heart">❤️ Corazón</option>
-                                    <option value="home">🏠 Casa</option>
-                                    <option value="tree">🌳 Árbol</option>
-                                    <option value="mountain">⛰️ Montaña</option>
-                                    <option value="bicycle">🚲 Bicicleta</option>
-                                    <option value="bus">🚌 Autobús</option>
-                                    <option value="train">🚆 Tren</option>
-                                    <option value="car">🚗 Coche</option>
+                                    <option value="monumentos">&#xf19c; Monumentos</option>
+                                    <option value="hoteles">&#xf594; Hoteles</option>
+                                    <option value="puntos-interes">&#xf3c5; Puntos de interés</option>
+                                    <option value="estadios">&#xf1e3; Estadios</option>
+                                    <option value="vacaciones-2024">&#xf072; Vacaciones 2024</option>
+                                    <option value="parques">&#xf1bb; Parques</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="imagen" class="form-label fw-bold">Imagen del punto</label>
-                                <input type="file" class="form-control" id="imagen" name="imagen" accept="image/png, image/jpeg, image/jpg, image/webp">
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Formatos: PNG, JPEG, JPG, WEBP</small>
-                            </div>
-                        </div>
 
-                        {{-- Fila 4: Descripción --}}
-                        <div class="row">
-                            <div class="col-12 mb-2">
+                            <!-- Descripción (12 columnas) -->
+                            <div class="col-12">
                                 <label for="descripcion" class="form-label fw-bold">Descripción</label>
-                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Añade una descripción detallada del punto..."></textarea>
+                                <textarea class="form-control custom-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Añade una descripción detallada del punto..."></textarea>
+                            </div>
+
+                            <!-- Imagen (12 columnas) -->
+                            <div class="col-12">
+                                <label for="imagen" class="form-label fw-bold">Imagen</label>
+                                <div class="image-upload-container">
+                                    <!-- Input de archivo oculto -->
+                                    <input type="file" class="form-control d-none" id="imagen" name="imagen" accept="image/png, image/jpeg, image/jpg, image/webp">
+
+                                    <!-- Botón para subir imagen -->
+                                    <label for="imagen" class="upload-box">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Seleccionar imagen</span>
+                                    </label>
+
+                                    <!-- Contenedor de previsualización de imagen -->
+                                    <div id="image-preview-container" class="d-none position-relative mt-2">
+                                        <img id="image-preview" class="img-thumbnail" style="max-width: 200px;">
+                                        <button id="remove-image" type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Información de formatos admitidos -->
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i> Formatos: PNG, JPEG, JPG, WEBP
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Footer del modal --}}
+                    <!-- Pie del modal -->
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancelar</button>
-                        <button type="submit" class="btn btn-outline-primary"><i class="fas fa-save me-2"></i>Guardar punto</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-save me-2"></i> Guardar punto
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -178,11 +196,16 @@
         window.marcadores = @json($marcadores);
         window.etiquetas = @json($etiquetas);
     </script>
+    
     <script src="{{ asset('js/mapa/mapa.js') }}"></script>
 
-    {{-- Script para el admin --}}
-    @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-        <script src="{{ asset('js/admin/admin.js') }}"></script>
-    @endif
+    {{-- Interfaz flotante para Confirmar/Cancelar --}}
+    <div id="point-controls" style="display: none; position: absolute; top: 10px; left: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; box-shadow: 0px 2px 5px rgba(0,0,0,0.2); text-align: center;">
+        <p id="select-point-text" style="margin: 0; font-size: 14px; font-weight: bold; color: #333;">Selecciona un punto en el mapa</p>
+        <div style="margin-top: 5px;">
+            <button id="cancel-add-point" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+            <button id="confirm-add-point" class="btn btn-outline-primary btn-sm" disabled>Confirmar</button>
+        </div>
+    </div>
 </body>
 </html>
