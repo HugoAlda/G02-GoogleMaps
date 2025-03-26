@@ -16,8 +16,6 @@ class MapController extends Controller
         // Obtener las etiquetas públicas
         $etiquetas = Etiqueta::where('es_privado', false)->get();
 
-        // Obteneres 
-        
         // Obtener los marcadores con sus etiquetas
         $marcadores = Marcador::with('etiquetas')->get()->map(function ($marcador) {
             return [
@@ -56,32 +54,49 @@ class MapController extends Controller
     public function guardarPunto(Request $request)
     {
         try {
-        // Validar los datos
-        $request->validate([
-            'nombre' => 'required|string|max:255', // Nombre del marcador
-            'latitud' => 'required|numeric', // Latitud del marcador
-            'longitud' => 'required|numeric', // Longitud del marcador
-            'descripcion' => 'nullable|string|max:255', // Descripción del marcador
-            'etiqueta' => 'required|integer', // Etiqueta del marcador
-            'imagen' => 'nullable|image|max:2048', // Imagen del marcador
-            'icono' => 'nullable|string|max:255', // Icono del marcador
-            'color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'], // Color del marcador
-        ], [
-            'etiqueta.required' => 'La etiqueta es obligatoria',
-            'nombre.required' => 'El nombre es obligatorio',
-            'latitud.required' => 'La latitud es obligatoria',
-            'longitud.required' => 'La longitud es obligatoria',
-            'descripcion.max' => 'La descripción debe tener menos de 255 caracteres',
-            'imagen.max' => 'La imagen debe tener menos de 2048KB',
-            'color.regex' => 'El color debe ser un valor hexadecimal válido (por ejemplo, #FFF o #FFFFFF)',
-        ]);
+            // Validar los datos
+            $request->validate([
+                'nombre' => 'required|string|max:255', // Nombre del marcador
+                'latitud' => 'required|numeric', // Latitud del marcador
+                'longitud' => 'required|numeric', // Longitud del marcador
+                'descripcion' => 'nullable|string|max:255', // Descripción del marcador
+                'etiqueta' => 'required|integer', // Etiqueta del marcador
+                'imagen' => 'nullable|image|max:2048', // Imagen del marcador
+                'icono' => 'nullable|string|max:255', // Icono del marcador
+                'color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/'], // Color del marcador
+            ], [
+                'etiqueta.required' => 'La etiqueta es obligatoria',
+                'nombre.required' => 'El nombre es obligatorio',
+                'latitud.required' => 'La latitud es obligatoria',
+                'longitud.required' => 'La longitud es obligatoria',
+                'descripcion.max' => 'La descripción debe tener menos de 255 caracteres',
+                'imagen.max' => 'La imagen debe tener menos de 2048KB',
+                'color.regex' => 'El color debe ser un valor hexadecimal válido (por ejemplo, #FFF o #FFFFFF)',
+            ]);
 
-        
+            // Guardar la imagen si se sube
+            $imagenPath = null;
+            if ($request->hasFile('imagen')) {
+                $imagenPath = $request->file('imagen')->store('marcadores', 'public');
+            }
 
+            // Crear el marcador
+            $marcador = Marcador::create([
+                'nombre' => $request->nombre,
+                'latitud' => $request->latitud,
+                'longitud' => $request->longitud,
+                'descripcion' => $request->descripcion,
+                'imagen' => $imagenPath,
+                'icono' => $request->icono,
+                'color' => $request->color,
+            ]);
 
+            // Asociar la etiqueta al marcador
+            $marcador->etiquetas()->attach($request->etiqueta);
+
+            return response()->json(['mensaje' => 'Marcador guardado con éxito', 'marcador' => $marcador], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        
     }
 }
