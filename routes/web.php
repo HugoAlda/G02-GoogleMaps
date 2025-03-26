@@ -35,5 +35,7 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     Route::controller(LobbyController::class)->group(function () {  
         Route::get('/partida', 'index')->name('mapa.lobby');  // Cambiado el nombre para evitar conflictos
         Route::post('/partida', 'creaPartida')->name('mapa.creaPartida'); 
+        Route::get('/partidas', 'getPartidas')->name('mapa.getPartidas');
+        Route::get('/check-in-game', 'checkUserInGame')->name('mapa.checkInGame');
     });
 });

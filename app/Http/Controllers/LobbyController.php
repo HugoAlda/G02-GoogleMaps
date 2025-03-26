@@ -77,4 +77,65 @@ class LobbyController extends Controller
         }
     }
     
+    public function getPartidas(Request $request)
+    {
+        try {
+            $query = Partida::with(['juego', 'grupos.jugadores.usuario'])
+                ->where('estado', 'pendiente');
+
+            // Filtro por fecha
+            if ($request->has('fecha')) {
+                $fecha = $request->input('fecha');
+                $query->whereDate('fecha_inicio', $fecha);
+            }
+
+            // Filtro por tipo de juego
+            if ($request->has('tipo_juego') && $request->input('tipo_juego') !== '') {
+                $query->where('juego_id', $request->input('tipo_juego'));
+            }
+
+            $partidas = $query->get()
+                ->map(function ($partida) {
+                    $grupo = $partida->grupos->first();
+                    $propietario = $grupo ? $grupo->jugadores->where('is_owner', true)->first() : null;
+                    $nombreCreador = $propietario && $propietario->usuario ? $propietario->usuario->name : 'Desconocido';
+                    $emailCreador = $propietario && $propietario->usuario ? $propietario->usuario->email : 'N/A';
+
+                    return [
+                        'id' => $partida->id,
+                        'juego' => $partida->juego ? $partida->juego->nombre : 'Juego no disponible',
+                        'fecha_inicio' => $partida->fecha_inicio,
+                        'creador' => [
+                            'nombre' => $nombreCreador,
+                            'email' => $emailCreador
+                        ],
+                        'estado' => $partida->estado
+                    ];
+                });
+
+            return response()->json(['partidas' => $partidas]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener las partidas: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function checkUserInGame()
+    {
+        try {
+            $user = Auth::user();
+            $jugador = Jugador::where('usuario_id', $user->id)->first();
+
+            if (!$jugador) {
+                return response()->json(['inGame' => false]);
+            }
+
+            $enPartida = Partida::whereHas('grupos.jugadores', function ($query) use ($jugador) {
+                $query->where('jugador_id', $jugador->id);
+            })->where('estado', 'pendiente')->exists();
+
+            return response()->json(['inGame' => $enPartida]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al verificar el estado del jugador: ' . $e->getMessage()], 500);
+        }
+    }
 }
