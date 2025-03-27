@@ -37,5 +37,21 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
         Route::post('/partida', 'creaPartida')->name('mapa.creaPartida'); 
         Route::get('/partidas', 'getPartidas')->name('mapa.getPartidas');
         Route::get('/check-in-game', 'checkUserInGame')->name('mapa.checkInGame');
+        
+        // Nuevas rutas para grupos
+        Route::get('/grupos/{partidaId}', 'getGruposPartida')->name('mapa.getGruposPartida');
+        Route::post('/unirse-grupo', 'unirseGrupo')->name('mapa.unirseGrupo');
+        
+        // Nueva ruta para empezar partida
+        Route::post('/empezar-partida/{partidaId}', 'empezarPartida')->name('mapa.empezarPartida');
     });
+});
+
+// Rutas para el lobby y partidas
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mapa/partidas', [LobbyController::class, 'getPartidas']);
+    Route::post('/mapa/partida', [LobbyController::class, 'creaPartida']);
+    Route::post('/mapa/unirse-grupo', [LobbyController::class, 'unirseGrupo']);
+    Route::get('/mapa/grupos/{partida}', [LobbyController::class, 'getGruposPartida']);
+    Route::post('/mapa/empezar-partida/{partida}', [LobbyController::class, 'empezarPartida']);
 });
