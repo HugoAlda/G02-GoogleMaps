@@ -145,6 +145,27 @@ document.addEventListener("DOMContentLoaded", () => {
             form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
         }, { once: true });
     });
+    
+    
+    // Función para validar el formulario
+    function isValidForm(formData) {
+        // Validar que los campos requeridos estén llenos
+        const requiredFields = ["nombre", "descripcion", "latitud", "longitud", "direccion", "icono"];
+        return requiredFields.every(field => formData.get(field));
+    }
+
+    // Función para mostrar mensaje de error
+    function showError(formData) {
+        // Obtenemos los campos requeridos
+        const fields = ["nombre", "descripcion", "latitud", "longitud", "direccion", "icono"];
+
+        // Recorremos los campos requeridos y mostramos el mensaje de error
+        fields.forEach(field => {
+            const errorMessage = document.getElementById(`error-${field}`);
+            errorMessage.textContent = formData.get(field);
+            errorMessage.classList.remove("d-none");
+        });
+    }
 
     /*** Enviar formulario con marcador ***/
     function submitForm(event, savedMarker) {
@@ -154,17 +175,21 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("longitud", savedMarker.lng);
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
-        fetch(form.action, {
-            method: "POST",
-            body: formData,
-            headers: { "X-CSRF-TOKEN": csrfToken }
-        })
+        if (isValidForm(formData)) {
+            fetch(form.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-CSRF-TOKEN": csrfToken }
+            })
         .then(response => response.json())
         .then(() => {
             loadMarkers();
             bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
-        })
-        .catch(error => console.error("Error al enviar los datos:", error));
+        }).catch(error => 
+            console.error("Error al enviar los datos:", error));
+        } else {
+            showError(formData);
+        }
     }
 
     /*** Controles del mapa ***/
