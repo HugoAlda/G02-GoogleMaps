@@ -1,4 +1,6 @@
-
+// =====================
+// Calculo de distancia
+// =====================
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
     const rad = Math.PI / 180;
@@ -13,6 +15,9 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+// =====================
+// Al cargar la página
+// =====================
 document.addEventListener("DOMContentLoaded", function () {
     const guardado = localStorage.getItem('indicePunto');
     window.indicePunto = guardado ? parseInt(guardado) : 0;
@@ -21,15 +26,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("btn-responder").addEventListener("click", enviarRespuesta);
 
     fetch(`/api/todos-puntos/${window.juegoId}`)
-    .then(res => res.json())
-    .then(data => {
-        window.puntosJuego = data;
-        mostrarMapa();
-    });
+        .then(res => res.json())
+        .then(data => {
+            window.puntosJuego = data;
+            mostrarMapa();
+        });
 
     cargarPunto(window.juegoId, window.indicePunto);
 });
 
+// =====================
+// Cargar Punto
+// =====================
 function cargarPunto(juegoId, indice = 0) {
     fetch(`/api/punto-control/${juegoId}/${indice}`)
         .then(response => response.json())
@@ -62,6 +70,10 @@ function cargarPunto(juegoId, indice = 0) {
         .catch(error => console.error('Error al cargar el punto:', error));
 }
 
+// =====================
+// Validar respuesta
+// =====================
+let rutaControl = null;
 function enviarRespuesta() {
     const respuestaUsuario = normalizarTexto(document.getElementById('respuesta').value);
     const respuestaCorrecta = normalizarTexto(window.respuestaCorrecta);
@@ -74,10 +86,31 @@ function enviarRespuesta() {
             timer: 1500,
             showConfirmButton: false
         });
-        L.marker([window.ubicacionPunto.lat, window.ubicacionPunto.lng])
-        .addTo(map)
-        .bindPopup("¡Punto superado!")
-        .openPopup();
+
+        const puntoActual = [window.ubicacionPunto.lat, window.ubicacionPunto.lng];
+
+        L.marker(puntoActual)
+            .addTo(map)
+            .bindPopup("¡Punto superado!")
+            .openPopup();
+
+        // Ruta desde ubicación actual del jugador al punto superado
+        if (window.ubicacionJugador) {
+            if (rutaControl) {
+                map.removeControl(rutaControl);
+            }
+
+            rutaControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(window.ubicacionJugador[0], window.ubicacionJugador[1]),
+                    L.latLng(puntoActual[0], puntoActual[1])
+                ],
+                routeWhileDragging: false,
+                draggableWaypoints: false,
+                addWaypoints: false,
+                show: false
+            }).addTo(map);
+        }
 
         window.indicePunto++;
         localStorage.setItem('indicePunto', window.indicePunto);
@@ -97,9 +130,12 @@ function normalizarTexto(texto) {
         .toLowerCase()
         .trim()
         .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "");
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
+// =====================
+// Mostrar el mapa
+// =====================
 let map, currentLocationMarker, pistaCircle;
 function mostrarMapa() {
     let currentLayer = 'normal';
@@ -120,6 +156,7 @@ function mostrarMapa() {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const userCoords = [position.coords.latitude, position.coords.longitude];
+                window.ubicacionJugador = userCoords;
                 map.panTo(userCoords);
 
                 if (currentLocationMarker) {
