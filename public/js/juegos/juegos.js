@@ -1,6 +1,3 @@
-// =====================
-// Calculo de distancia
-// =====================
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
     const rad = Math.PI / 180;
@@ -15,9 +12,6 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// =====================
-// Al cargar la página
-// =====================
 document.addEventListener("DOMContentLoaded", function () {
     const guardado = localStorage.getItem('indicePunto');
     window.indicePunto = guardado ? parseInt(guardado) : 0;
@@ -35,9 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cargarPunto(window.juegoId, window.indicePunto);
 });
 
-// =====================
-// Cargar Punto
-// =====================
 function cargarPunto(juegoId, indice = 0) {
     fetch(`/api/punto-control/${juegoId}/${indice}`)
         .then(response => response.json())
@@ -66,14 +57,15 @@ function cargarPunto(juegoId, indice = 0) {
                 lat: data.latitud,
                 lng: data.longitud
             };
+
+            // Actualizar círculo solo si ya se conoce la ubicación del jugador
+            if (window.ubicacionJugador) {
+                actualizarRango(window.ubicacionJugador);
+            }
         })
         .catch(error => console.error('Error al cargar el punto:', error));
 }
 
-// =====================
-// Validar respuesta
-// =====================
-let rutaControl = null;
 function enviarRespuesta() {
     const respuestaUsuario = normalizarTexto(document.getElementById('respuesta').value);
     const respuestaCorrecta = normalizarTexto(window.respuestaCorrecta);
@@ -88,19 +80,16 @@ function enviarRespuesta() {
         });
 
         const puntoActual = [window.ubicacionPunto.lat, window.ubicacionPunto.lng];
-
         L.marker(puntoActual)
             .addTo(map)
-            .bindPopup("¡Punto superado!")
-            .openPopup();
+            .bindPopup("¡Punto superado!").openPopup();
 
-        // Ruta desde ubicación actual del jugador al punto superado
         if (window.ubicacionJugador) {
-            if (rutaControl) {
-                map.removeControl(rutaControl);
+            if (window.rutaControl) {
+                map.removeControl(window.rutaControl);
             }
 
-            rutaControl = L.Routing.control({
+            window.rutaControl = L.Routing.control({
                 waypoints: [
                     L.latLng(window.ubicacionJugador[0], window.ubicacionJugador[1]),
                     L.latLng(puntoActual[0], puntoActual[1])
@@ -133,10 +122,8 @@ function normalizarTexto(texto) {
         .replace(/[\u0300-\u036f]/g, "");
 }
 
-// =====================
-// Mostrar el mapa
-// =====================
 let map, currentLocationMarker, pistaCircle;
+
 function mostrarMapa() {
     let currentLayer = 'normal';
 
@@ -166,22 +153,7 @@ function mostrarMapa() {
                         .bindPopup("¡Estás aquí!").openPopup();
                 }
 
-                let maxDist = 0;
-                window.puntosJuego.forEach(p => {
-                    const dist = calcularDistancia(userCoords[0], userCoords[1], p.latitud, p.longitud);
-                    if (dist > maxDist) maxDist = dist;
-                });
-
-                if (pistaCircle) {
-                    pistaCircle.setLatLng(userCoords).setRadius(maxDist + 100);
-                } else {
-                    pistaCircle = L.circle(userCoords, {
-                        color: 'blue',
-                        fillColor: 'blue',
-                        fillOpacity: 0.2,
-                        radius: maxDist + 100
-                    }).addTo(map);
-                }
+                actualizarRango(userCoords);
             },
             (error) => {
                 console.error('Error:', error);
@@ -194,5 +166,57 @@ function mostrarMapa() {
         );
     } else {
         alert('Tu navegador no soporta geolocalización.');
+    }
+
+    configurarControlesPersonalizados();
+}
+
+function actualizarRango(ubicacionJugador) {
+    if (!window.ubicacionPunto) return;
+
+    const dist = calcularDistancia(
+        ubicacionJugador[0],
+        ubicacionJugador[1],
+        window.ubicacionPunto.lat,
+        window.ubicacionPunto.lng
+    );
+
+    if (pistaCircle) {
+        pistaCircle.setLatLng(ubicacionJugador).setRadius(dist + 50);
+    } else {
+        pistaCircle = L.circle(ubicacionJugador, {
+            color: 'blue',
+            fillColor: 'blue',
+            fillOpacity: 0.2,
+            radius: dist + 50
+        }).addTo(map);
+    }    
+}
+
+function configurarControlesPersonalizados() {
+    const zoomInBtn = document.getElementById("zoomIn");
+    const zoomOutBtn = document.getElementById("zoomOut");
+    const centerUserBtn = document.getElementById("centerUser");
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener("click", () => {
+            if (map) map.setZoom(map.getZoom() + 1);
+        });
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener("click", () => {
+            if (map) map.setZoom(map.getZoom() - 1);
+        });
+    }
+
+    if (centerUserBtn) {
+        centerUserBtn.addEventListener("click", () => {
+            if (window.ubicacionJugador && map) {
+                map.setView(window.ubicacionJugador, 17);
+            } else {
+                alert("Ubicación del jugador no disponible todavía.");
+            }
+        });
     }
 }

@@ -17,6 +17,18 @@
     <!-- Mapa -->
     <div id="map"></div>
 
+    <div class="controls-panel">
+        <button id="zoomOut" class="btn btn-primary iconos" title="Alejar">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button id="zoomIn" class="btn btn-primary iconos" title="Acercar">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button id="centerUser" class="btn btn-primary iconos" title="Centrar en mi ubicación">
+            <i class="fas fa-location-crosshairs"></i>
+        </button>
+    </div>
+
     <!-- Popup de pista dinámico -->
     <div id="popup-pista" class="popup-pista">
         <h5 id="titulo-pista"></h5>
