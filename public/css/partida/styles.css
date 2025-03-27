@@ -1,2 +1,221 @@
+/* Variables y estilos base */
+:root {
+    --primary-color: #0066CC;
+    --accent-color: #2196F3;
+    --danger-color: #f44336;
+    --success-color: #4CAF50;
+    --warning-color: #ff9800;
+    --background-start: #1a1a1a;
+    --background-end: #4a4a4a;
+}
 
+/* Animación del fondo */
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
 
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(120deg, #2980b9, #6dd5fa, #ffffff);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+main {
+    padding: 2rem 0;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.538);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Sección de crear partida */
+.crear_partida {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.crear_partida h4 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Sección de partidas creadas */
+.partidas_creadas {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.partidas_creadas h4 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Estilos para la tabla */
+.table {
+    width: 100%;
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    font-weight: 500;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos para los botones */
+.btn {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), #45a049);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, var(--accent-color), #1976D2);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Estilos para los formularios */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.97);  
+    color: black;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
+}
+
+/* Títulos y texto */
+h2, h4 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Badges */
+.badge {
+    padding: 0.35em 0.65em;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bg-info {
+    background: linear-gradient(45deg, #03a9f4, #00bcd4);
+}
+
+.bg-warning {
+    background: linear-gradient(45deg, var(--warning-color), #f57c00);
+}
+
+/* Modal */
+.modal-content {
+    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: white;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        margin: 1rem;
+    }
+
+    .crear_partida, .partidas_creadas {
+        padding: 1rem;
+    }
+
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+}
