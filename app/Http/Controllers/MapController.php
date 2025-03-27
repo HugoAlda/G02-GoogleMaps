@@ -8,6 +8,7 @@ use App\Models\Etiqueta;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Juego;
 
 class MapController extends Controller
 {
@@ -36,10 +37,12 @@ class MapController extends Controller
         // Retornar la vista con las etiquetas y marcadores
         return view('mapa.index', compact('etiquetas', 'marcadores', 'admin'));
     }
-
-    public function juego()
+    
+    public function juego($id)
     {
-        return view('mapa.juego');
+        $juego = Juego::findOrFail($id); // Lanza 404 si no existe
+        // $juego = $partida->juego;
+        return view('mapa.juego', compact('juego'));
     }
 
     public function partida()

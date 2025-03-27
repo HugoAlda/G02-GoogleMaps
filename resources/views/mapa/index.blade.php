@@ -63,7 +63,7 @@
             <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
                 <i class="fas fa-play"></i>
             </a>
-            <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
+            <a href="{{ route('mapa.juego', ['id' => 1]) }}" class="btn btn-primary" title="Iniciar juego">
                 <i class="fas fa-gamepad"></i>
             </a>
             <!-- Botones de ADMIN -->
