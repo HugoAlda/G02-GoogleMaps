@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LobbyController;
 
 // Ruta principal redirige al login
 Route::get('/', [AuthController::class, 'showLoginView'])->name('login');
@@ -25,6 +26,7 @@ Route::controller(AuthController::class)->group(function () {
  */
 
 // Rutas del mapa protegidas por autenticación
+
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
     // Métodos GET
     Route::get('/', 'index')->name('mapa.index'); // Mostrar el mapa
@@ -33,4 +35,28 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
 
     // Métodos POST
     Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
+
+    // Rutas para la administración de partidas (crear/buscar/partidas creadas)
+    Route::controller(LobbyController::class)->group(function () {  
+        Route::get('/partida', 'index')->name('mapa.lobby');  // Cambiado el nombre para evitar conflictos
+        Route::post('/partida', 'creaPartida')->name('mapa.creaPartida'); 
+        Route::get('/partidas', 'getPartidas')->name('mapa.getPartidas');
+        Route::get('/check-in-game', 'checkUserInGame')->name('mapa.checkInGame');
+        
+        // Nuevas rutas para grupos
+        Route::get('/grupos/{partidaId}', 'getGruposPartida')->name('mapa.getGruposPartida');
+        Route::post('/unirse-grupo', 'unirseGrupo')->name('mapa.unirseGrupo');
+        
+        // Nueva ruta para empezar partida
+        Route::post('/empezar-partida/{partidaId}', 'empezarPartida')->name('mapa.empezarPartida');
+    });
+});
+
+// Rutas para el lobby y partidas
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mapa/partidas', [LobbyController::class, 'getPartidas']);
+    Route::post('/mapa/partida', [LobbyController::class, 'creaPartida']);
+    Route::post('/mapa/unirse-grupo', [LobbyController::class, 'unirseGrupo']);
+    Route::get('/mapa/grupos/{partida}', [LobbyController::class, 'getGruposPartida']);
+    Route::post('/mapa/empezar-partida/{partida}', [LobbyController::class, 'empezarPartida']);
 });

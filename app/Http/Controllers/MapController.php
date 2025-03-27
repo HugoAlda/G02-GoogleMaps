@@ -44,7 +44,7 @@ class MapController extends Controller
 
     public function partida()
     {
-        return view('mapa.partida');
+        return redirect()->route('mapa.lobby');
     }
 
     public function store(Request $request)

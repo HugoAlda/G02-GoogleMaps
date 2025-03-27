@@ -1,38 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modo Juego - Google Maps</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <!-- Contenedor del mapa -->
-    <div id="map"></div>
+@extends('layout.lobby')
 
-    <!-- Panel de controles -->
-    <div class="controls-panel">
-        <button id="zoomOut" class="btn btn-primary" title="Alejar">
-            <i class="fas fa-minus"></i>
-        </button>
-        <button id="zoomIn" class="btn btn-primary" title="Acercar">
-            <i class="fas fa-plus"></i>
-        </button>
-        <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
-            <i class="fas fa-location-crosshairs"></i>
-        </button>
-        <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
-            <i class="fas fa-map"></i>
-        </button>
-        <a href="" class="btn btn-primary" title="Volver al mapa">
-            <i class="fas fa-map-marked-alt"></i>
-        </a>
-    </div>
+@section('title', 'Lobby Inicial')
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-</body>
-</html>
+@section('content')
+    <!-- Añadir meta tag con el email del usuario -->
+    <meta name="user-email" content="{{ Auth::user()->email }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <main>
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Lobby de Partidas</h2>
+                <a href="{{ route('mapa.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+            <div class="crear_partida">
+                <h4>Empieza una partida</h4>
+                <form id="form_crear_partida" onsubmit="return false;"> {{-- Prevent default form submission --}}
+                    @csrf
+                    <div class="form-group">
+                        <label for="juego_id">Selecciona un juego:</label>
+                        <select name="juego_id" id="juego_id" class="form-control" required>
+                            <option value="">-- Selecciona un juego --</option> 
+                            @foreach($juegos as $juego)
+                                <option value="{{ $juego->id }}">{{ $juego->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" id="crear_partida" onclick="crearPartida(); return false;">Crear Partida</button>
+                </form>
+            </div>
+            <div class="partidas_creadas">
+                <h4>Partidas Creadas</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="filtroFecha">Fecha:</label>
+                            <input type="date" id="filtroFecha" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="filtroTipoJuego">Tipo de Juego:</label>
+                            <select id="filtroTipoJuego" class="form-control">
+                                <option value="">Todos</option>
+                                @foreach($juegos as $juego)
+                                    <option value="{{ $juego->id }}">{{ $juego->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button id="limpiarFiltros" class="btn btn-secondary form-control">Limpiar Filtros</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="column-id">ID</th>
+                        <th scope="col">Fecha de Inicio</th>
+                        <th scope="col">Juego</th>
+                        <th scope="col">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="table_partidasCreadas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal para unirse a un grupo -->
+        <div class="modal fade" id="modalUnirseGrupo" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Unirse a un grupo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label for="select-grupo">Selecciona un grupo:</label>
+                            <select id="select-grupo" class="form-select">
+                                <option value="">Selecciona un grupo...</option>
+                            </select>
+                        </div>
+                        <div id="usuarios-grupo" class="usuarios-container">
+                            <!-- Aquí se mostrarán los usuarios del grupo seleccionado -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-unirse-grupo">Unirse al grupo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/lobby/lobby.js') }}"></script>
+@endsection
