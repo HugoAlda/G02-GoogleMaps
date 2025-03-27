@@ -35,6 +35,9 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
 
+        // Métodos POST
+        Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
+
     // Rutas para la administración de partidas (crear/buscar/partidas creadas)
     Route::controller(LobbyController::class)->group(function () {  
         Route::get('/partida', 'index')->name('mapa.lobby');  // Cambiado el nombre para evitar conflictos

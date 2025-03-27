@@ -20,6 +20,8 @@ main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
 }
 
 /* Sección de crear partida */
@@ -120,11 +122,17 @@ main {
 .btn-secondary {
     background-color: var(--accent-color);
     color: white;
+    transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
     background-color: #2c3e50;
-    transform: translateY(-1px);
+    transform: translateX(-5px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-secondary i {
+    margin-right: 5px;
 }
 
 .btn-sm {
@@ -213,6 +221,13 @@ main {
 option:disabled {
     background-color: #e9ecef;
     color: #6c757d;
+}
+
+/* Título de la página */
+h2 {
+    margin: 0;
+    color: #333;
+    font-weight: 500;
 }
 
 /* Responsive */

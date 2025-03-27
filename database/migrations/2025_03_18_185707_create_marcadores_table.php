@@ -14,14 +14,12 @@ return new class extends Migration
         Schema::create('marcadores', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
-            // $table->foreignId('usuario_id')->constrained('usuarios');
             $table->decimal('latitud', 10, 8);
             $table->decimal('longitud', 11, 8);
-            $table->string('direccion', 100);
+            $table->string('direccion', 300);
             $table->text('descripcion');
             $table->string('imagen', 255)->nullable();
-            $table->string('color', 20)->nullable();
-            $table->string('icono', 50)->nullable();
+            $table->enum('icono', ['fa-solid fa-monument', 'fa-solid fa-globe', 'fa-solid fa-hotel', 'fa-solid fa-circle-info', 'fa-solid fa-futbol', 'fa-solid fa-tree', 'fa-solid fa-umbrella-beach','fa-solid fa-star'])->nullable();
             $table->timestamps();
         });
     }

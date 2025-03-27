@@ -9,6 +9,12 @@
     
     <main>
         <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Lobby de Partidas</h2>
+                <a href="{{ route('mapa.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
             <div class="crear_partida">
                 <h4>Empieza una partida</h4>
                 <form id="form_crear_partida" onsubmit="return false;"> {{-- Prevent default form submission --}}
