@@ -1,5 +1,19 @@
+
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const rad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * rad;
+    const dLon = (lon2 - lon1) * rad;
+
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
+              Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-    // Leer el índice guardado desde localStorage, o iniciar en 0
     const guardado = localStorage.getItem('indicePunto');
     window.indicePunto = guardado ? parseInt(guardado) : 0;
     window.puntosJuego = [];
@@ -21,9 +35,7 @@ function cargarPunto(juegoId, indice = 0) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                // Aquí el usuario ha terminado el juego
-                localStorage.removeItem('indicePunto'); // Borramos el progreso guardado
-
+                localStorage.removeItem('indicePunto');
                 Swal.fire({
                     icon: 'success',
                     title: '¡Has completado el juego! 🎉',
@@ -32,7 +44,7 @@ function cargarPunto(juegoId, indice = 0) {
                     allowOutsideClick: false,
                     allowEscapeKey: false
                 }).then(() => {
-                    window.location.href = "/mapa"; // o donde tú quieras
+                    window.location.href = "/mapa";
                 });
 
                 document.getElementById("popup-pista").style.display = 'none';
@@ -66,10 +78,9 @@ function enviarRespuesta() {
         .addTo(map)
         .bindPopup("¡Punto superado!")
         .openPopup();
-    
-        window.indicePunto++;
-        localStorage.setItem('indicePunto', window.indicePunto); // Guardamos progreso
 
+        window.indicePunto++;
+        localStorage.setItem('indicePunto', window.indicePunto);
         document.getElementById('respuesta').value = "";
         cargarPunto(window.juegoId, window.indicePunto);
     } else {
@@ -86,11 +97,11 @@ function normalizarTexto(texto) {
         .toLowerCase()
         .trim()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+        .replace(/[̀-ͯ]/g, "");
 }
 
+let map, currentLocationMarker, pistaCircle;
 function mostrarMapa() {
-    let map, currentLocationMarker, pistaCircle;
     let currentLayer = 'normal';
 
     const baseLayers = {
@@ -102,71 +113,49 @@ function mostrarMapa() {
         })
     };
 
-    if (!map) {
-        map = L.map('map', { zoomControl: false }).setView([0, 0], 17);
-        baseLayers[currentLayer].addTo(map);
+    map = L.map('map', { zoomControl: false }).setView([0, 0], 17);
+    baseLayers[currentLayer].addTo(map);
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userCoords = [position.coords.latitude, position.coords.longitude];
+                map.panTo(userCoords);
+
+                if (currentLocationMarker) {
+                    currentLocationMarker.setLatLng(userCoords);
+                } else {
+                    currentLocationMarker = L.marker(userCoords).addTo(map)
+                        .bindPopup("¡Estás aquí!").openPopup();
+                }
+
+                let maxDist = 0;
+                window.puntosJuego.forEach(p => {
+                    const dist = calcularDistancia(userCoords[0], userCoords[1], p.latitud, p.longitud);
+                    if (dist > maxDist) maxDist = dist;
+                });
+
+                if (pistaCircle) {
+                    pistaCircle.setLatLng(userCoords).setRadius(maxDist + 100);
+                } else {
+                    pistaCircle = L.circle(userCoords, {
+                        color: 'blue',
+                        fillColor: 'blue',
+                        fillOpacity: 0.2,
+                        radius: maxDist + 100
+                    }).addTo(map);
+                }
+            },
+            (error) => {
+                console.error('Error:', error);
+                alert('No se pudo obtener tu ubicación.');
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0
+            }
+        );
+    } else {
+        alert('Tu navegador no soporta geolocalización.');
     }
-
-    function trackLocation() {
-        if (navigator.geolocation) {
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userCoords = [position.coords.latitude, position.coords.longitude];
-                        map.panTo(userCoords);
-
-                        if (currentLocationMarker) {
-                            currentLocationMarker.setLatLng(userCoords);
-                        } else {
-                            currentLocationMarker = L.marker(userCoords).addTo(map)
-                                .bindPopup("¡Estás aquí!").openPopup();
-                        }
-
-                        let maxDist = 0;
-                        window.puntosJuego.forEach(p => {
-                            const dist = calcularDistancia(userCoords[0], userCoords[1], p.latitud, p.longitud);
-                            if (dist > maxDist) maxDist = dist;
-                        });  
-
-                        if (pistaCircle) {
-                            pistaCircle.setLatLng(userCoords);
-                        } else {
-                            pistaCircle = L.circle(userCoords, {
-                                color: 'blue',
-                                fillColor: 'blue',
-                                fillOpacity: 0.2,
-                                radius: 800
-                            }).addTo(map);
-                        }
-                    },
-                    (error) => {
-                        console.error('Error:', error);
-                        alert('No se pudo obtener tu ubicación.');
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        maximumAge: 0
-                    }
-                );
-            }, 5000);
-        } else {
-            alert('Tu navegador no soporta geolocalización.');
-        }
-    }
-
-    trackLocation();
-}
-
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const rad = Math.PI / 180;
-    const dLat = (lat2 - lat1) * rad;
-    const dLon = (lon2 - lon1) * rad;
-
-    const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-              Math.sin(dLon / 2) ** 2;
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
 }
