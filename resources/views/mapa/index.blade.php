@@ -54,12 +54,6 @@
                     <div class="modal-body" id="markerModalBody">
                         <!-- Contenido dinámico se insertará aquí -->
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" id="getDirectionsBtn" class="btn btn-primary">
-                            <i class="fas fa-route"></i> Cómo llegar
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
                 </div>
             </div>
         </div>

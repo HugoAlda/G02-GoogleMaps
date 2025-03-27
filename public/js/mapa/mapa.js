@@ -141,6 +141,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Configurar el contenido del modal
         markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
         
+        // Procesar la descripción para mantener saltos de línea y espacios
+        const descripcion = markerData.descripcion 
+            ? markerData.descripcion.replace(/\n/g, '<br>').replace(/\s\s/g, ' &nbsp;')
+            : 'Sin descripción';
+        
         markerModalBody.innerHTML = `
             <div class="row">
                 <div class="col-md-6">
@@ -148,17 +153,23 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">${markerData.etiqueta || 'Sin etiqueta'}</span>
                     </div>
                     <div class="marker-info-body">
-                        <p><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
-                        ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3">` : ''}
-                        <p><strong>Ubicación:</strong> Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</p>
-                        ${markerData.created_at ? `<p><strong>Creado:</strong> ${new Date(markerData.created_at).toLocaleString()}</p>` : ''}
+                        <p class="mt-2"><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
+                        ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3 mt-2">` : ''}
+                        <p class="mt-2"><strong>Dirección:</strong> ${markerData.direccion || 'Sin dirección especificada'}</p>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div id="miniMap" style="height: 300px; width: 100%;"></div>
-                    <div id="directionsPanel" class="mt-3" style="display: none;">
-                        <h5>Indicaciones:</h5>
-                        <div id="directionsInstructions"></div>
+                    <div id="miniMap" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #ddd;"></div>
+                    <div id="directionsPanel" class="mt-3">
+                        <h5>Cómo llegar desde tu ubicación:</h5>
+                        <div id="directionsInstructions" class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p>Calculando ruta...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,7 +178,24 @@ document.addEventListener("DOMContentLoaded", () => {
         // Inicializar el mini mapa en el modal
         const miniMap = L.map('miniMap').setView([lat, lng], 15);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
-        L.marker([lat, lng]).addTo(miniMap);
+        
+        // Iconos personalizados
+        const redIcon = L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34]
+        });
+        
+        const blueIcon = L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34]
+        });
+        
+        // Marcador de destino en el mini mapa
+        L.marker([lat, lng], {icon: redIcon}).addTo(miniMap);
         
         // Mostrar el modal
         markerModal.show();
@@ -175,65 +203,119 @@ document.addEventListener("DOMContentLoaded", () => {
         // Centrar el mapa principal en el marcador seleccionado
         map.setView([lat, lng], 16);
         
-        // Configurar el botón de direcciones
-        const directionsBtn = document.getElementById('getDirectionsBtn');
-        if (directionsBtn) {
-            // Eliminar event listeners anteriores para evitar duplicados
-            directionsBtn.replaceWith(directionsBtn.cloneNode(true));
-            document.getElementById('getDirectionsBtn').addEventListener('click', () => {
-                calculateRoute([lat, lng]);
-            });
-        }
+        // Calcular ruta automáticamente y mostrarla en ambos mapas
+        calculateRoute([lat, lng], miniMap);
     }
-
-    /*** Función para calcular la ruta ***/
-    function calculateRoute(destination) {
+    
+    /*** Función para calcular y mostrar la ruta ***/
+    function calculateRoute(destination, miniMap = null) {
+        // Limpiar ruta anterior si existe
         if (routingControl) {
             map.removeControl(routingControl);
+            routingControl = null;
         }
         
-        const directionsPanel = document.getElementById('directionsPanel');
-        if (directionsPanel) {
-            directionsPanel.style.display = 'block';
-        }
-        
-        const directionsInstructions = document.getElementById('directionsInstructions');
-        if (directionsInstructions) {
-            directionsInstructions.innerHTML = '<p>Calculando ruta...</p>';
-        }
-        
+        // Obtener ubicación actual y calcular ruta
         getLocation().then(userLocation => {
+            // Iconos personalizados
+            const redIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            const blueIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            // Configurar el control de ruta para el mapa principal
             routingControl = L.Routing.control({
                 waypoints: [
                     L.latLng(userLocation[0], userLocation[1]),
                     L.latLng(destination[0], destination[1])
                 ],
-                routeWhileDragging: true,
-                showAlternatives: true,
-                collapsible: true,
+                routeWhileDragging: false,
+                showAlternatives: false,
+                collapsible: false,
                 addWaypoints: false,
-                draggableWaypoints: false
+                draggableWaypoints: false,
+                lineOptions: {
+                    styles: [{color: '#3388ff', opacity: 0.7, weight: 5}]
+                },
+                createMarker: function(i, wp) {
+                    return i === 0 ? 
+                        L.marker(wp.latLng, {icon: blueIcon}) : 
+                        L.marker(wp.latLng, {icon: redIcon});
+                }
             }).addTo(map);
             
+            // Configurar la ruta para el minimapa si existe
+            if (miniMap) {
+                // Añadir marcadores de origen y destino al minimapa
+                L.marker([userLocation[0], userLocation[1]], {icon: blueIcon}).addTo(miniMap);
+                L.marker([destination[0], destination[1]], {icon: redIcon}).addTo(miniMap);
+                
+                // Crear control de ruta para el minimapa
+                const miniMapRoute = L.Routing.control({
+                    waypoints: [
+                        L.latLng(userLocation[0], userLocation[1]),
+                        L.latLng(destination[0], destination[1])
+                    ],
+                    show: false, // No mostrar instrucciones en el minimapa
+                    lineOptions: {
+                        styles: [{color: '#ff0000', opacity: 0.7, weight: 4}]
+                    },
+                    createMarker: function() { return null; } // No mostrar marcadores (ya los añadimos antes)
+                }).addTo(miniMap);
+                
+                // Ajustar vista del minimapa para mostrar toda la ruta
+                miniMapRoute.on('routesfound', function(e) {
+                    const routes = e.routes;
+                    if (routes && routes.length > 0) {
+                        miniMap.fitBounds(routes[0].coordinates);
+                    }
+                });
+            }
+            
+            // Evento cuando se encuentra la ruta
             routingControl.on('routesfound', function(e) {
                 const routes = e.routes;
-                const instructions = routes[0].instructions;
-                let html = '<ol class="list-group">';
-                
-                instructions.forEach(instruction => {
-                    html += `<li class="list-group-item">${instruction.text}</li>`;
-                });
-                
-                html += '</ol>';
-                if (directionsInstructions) {
-                    directionsInstructions.innerHTML = html;
+                if (routes && routes.length > 0) {
+                    const instructions = routes[0].instructions;
+                    let html = '<ol class="list-group list-group-numbered">';
+                    
+                    instructions.forEach(instruction => {
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">${instruction.text}</div>
+                                    <small>Distancia: ${instruction.distance} m</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">${Math.round(instruction.time/60)} min</span>
+                            </li>
+                        `;
+                    });
+                    
+                    html += '</ol>';
+                    document.getElementById('directionsInstructions').innerHTML = html;
+                    
+                    // Ajustar el mapa principal para mostrar toda la ruta
+                    map.fitBounds(routes[0].coordinates);
                 }
             });
+            
+            // Evento para errores
+            routingControl.on('routingerror', function(e) {
+                document.getElementById('directionsInstructions').innerHTML = 
+                    '<div class="alert alert-danger">No se pudo calcular la ruta. Inténtalo de nuevo más tarde.</div>';
+            });
         }).catch(error => {
-            if (directionsInstructions) {
-                directionsInstructions.innerHTML = 
-                    '<div class="alert alert-warning">No se pudo obtener tu ubicación para calcular la ruta.</div>';
-            }
+            document.getElementById('directionsInstructions').innerHTML = 
+                '<div class="alert alert-warning">No se pudo obtener tu ubicación para calcular la ruta. Asegúrate de haber permitido el acceso a tu ubicación.</div>';
         });
     }
 

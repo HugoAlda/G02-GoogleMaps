@@ -24,6 +24,7 @@ class MapController extends Controller
                 'id' => $marcador->id,
                 'nombre' => $marcador->nombre,
                 'descripcion' => $marcador->descripcion,
+                'direccion' => $marcador->direccion,
                 'latitud' => $marcador->latitud,
                 'longitud' => $marcador->longitud,
                 'etiqueta' => $marcador->etiquetas->first()->nombre ?? 'sin-etiqueta',
