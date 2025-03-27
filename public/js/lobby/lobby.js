@@ -122,6 +122,53 @@ function mostrarGruposPartida(partidaId) {
 
             modalBody.appendChild(grupoElement);
         });
+
+        const modalFooter = document.querySelector('#modalUnirseGrupo .modal-footer');
+        if (modalFooter) {
+            modalFooter.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-empezar-partida" disabled>Empezar partida</button>
+            `;
+
+            // Verificar si hay 4 usuarios en ambos grupos
+            const btnEmpezarPartida = document.getElementById('btn-empezar-partida');
+            const gruposCompletos = data.grupos.every(grupo => grupo.usuarios.length >= 4);
+
+            if (gruposCompletos) {
+                btnEmpezarPartida.disabled = false;
+                btnEmpezarPartida.title = 'Ambos grupos están completos, puedes empezar la partida';
+            } else {
+                btnEmpezarPartida.disabled = true;
+                // Contar cuántos jugadores faltan en cada grupo
+                const faltanJugadores = data.grupos.map(grupo => {
+                    const jugadoresFaltantes = 4 - grupo.usuarios.length;
+                    return jugadoresFaltantes > 0 ? `${jugadoresFaltantes} en ${grupo.nombre}` : null;
+                }).filter(x => x).join(' y ');
+                btnEmpezarPartida.title = `Faltan ${faltanJugadores} jugadores`;
+            }
+
+            // Capturar el evento onclick del botón empezar partida
+            btnEmpezarPartida.onclick = function() {
+                if (gruposCompletos) {
+                    // Aquí puedes agregar la lógica para empezar la partida
+                    Swal.fire({
+                        title: '¡Grupos completos!',
+                        text: 'La partida puede comenzar',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                    // Cerrar el modal
+                    modalUnirseGrupo.hide();
+                } else {
+                    Swal.fire({
+                        title: 'No se puede empezar',
+                        text: 'Se necesitan 4 usuarios en cada grupo para empezar la partida',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            };
+        }
     })
     .catch(error => {
         console.error('Error:', error);
