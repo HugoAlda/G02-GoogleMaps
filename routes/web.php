@@ -31,6 +31,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
     Route::get('/', 'index')->name('mapa.index');
     //Route::get('/juego', 'juego')->name('mapa.juego');
+    // Route::get('/juego/partida/{id}', 'juegoDesdePartida')->name('mapa.juego.desdePartida');
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
 
@@ -43,3 +44,6 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
 
 // Ruta API protegida para obtener un punto de control de un juego según el índice
 Route::middleware('auth')->get('/api/punto-control/{juegoId}/{indice}', [JuegoController::class, 'obtenerPuntoControl']);
+Route::middleware('auth')->post('/api/comprobar-respuesta', [JuegoController::class, 'comprobarRespuesta']);
+Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoController::class, 'marcadoresJuego']);
+Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);

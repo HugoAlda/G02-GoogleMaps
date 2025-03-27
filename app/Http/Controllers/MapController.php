@@ -43,6 +43,7 @@ class MapController extends Controller
     public function juego($id)
     {
         $juego = Juego::findOrFail($id); // Lanza 404 si no existe
+        // $juego = $partida->juego;
         return view('mapa.juego', compact('juego'));
     }
 

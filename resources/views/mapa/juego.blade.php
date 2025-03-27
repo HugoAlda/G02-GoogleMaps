@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/juegos/juegos.css') }}">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
 
@@ -22,6 +22,7 @@
         <input type="text" id="respuesta" class="form-control mb-2" placeholder="Escribe tu respuesta">
         <button class="btn btn-primary w-100" id="btn-responder">Responder</button>
     </div>
+    
 
     <!-- Variable desde el backend -->
     <script>

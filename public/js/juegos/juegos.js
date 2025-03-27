@@ -1,7 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Leer el índice guardado desde localStorage, o iniciar en 0
+    const guardado = localStorage.getItem('indicePunto');
+    window.indicePunto = guardado ? parseInt(guardado) : 0;
+    window.puntosJuego = [];
+
     document.getElementById("btn-responder").addEventListener("click", enviarRespuesta);
 
-    mostrarMapa();
+    fetch(`/api/todos-puntos/${window.juegoId}`)
+    .then(res => res.json())
+    .then(data => {
+        window.puntosJuego = data;
+        mostrarMapa();
+    });
+
     cargarPunto(window.juegoId, window.indicePunto);
 });
 
@@ -10,23 +21,40 @@ function cargarPunto(juegoId, indice = 0) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                alert("No hay más puntos. ¡Has terminado la gimcana!");
+                // Aquí el usuario ha terminado el juego
+                localStorage.removeItem('indicePunto'); // Borramos el progreso guardado
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Has completado el juego! 🎉',
+                    text: '¡Felicidades por llegar al final!',
+                    confirmButtonText: 'Salir',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    window.location.href = "/mapa"; // o donde tú quieras
+                });
+
                 document.getElementById("popup-pista").style.display = 'none';
                 return;
             }
 
             document.getElementById("titulo-pista").textContent = data.nombre;
             document.getElementById("acertijo-pista").textContent = data.acertijo;
-            window.respuestaCorrecta = data.respuesta.toLowerCase().trim();
+            window.respuestaCorrecta = data.respuesta;
+            window.ubicacionPunto = {
+                lat: data.latitud,
+                lng: data.longitud
+            };
         })
         .catch(error => console.error('Error al cargar el punto:', error));
 }
 
-// Función cuando el usuario envía su respuesta
 function enviarRespuesta() {
-    const respuesta = document.getElementById('respuesta').value.trim().toLowerCase();
+    const respuestaUsuario = normalizarTexto(document.getElementById('respuesta').value);
+    const respuestaCorrecta = normalizarTexto(window.respuestaCorrecta);
 
-    if (respuesta === window.respuestaCorrecta) {
+    if (respuestaUsuario === respuestaCorrecta) {
         Swal.fire({
             icon: 'success',
             title: '¡Correcto!',
@@ -34,7 +62,14 @@ function enviarRespuesta() {
             timer: 1500,
             showConfirmButton: false
         });
+        L.marker([window.ubicacionPunto.lat, window.ubicacionPunto.lng])
+        .addTo(map)
+        .bindPopup("¡Punto superado!")
+        .openPopup();
+    
         window.indicePunto++;
+        localStorage.setItem('indicePunto', window.indicePunto); // Guardamos progreso
+
         document.getElementById('respuesta').value = "";
         cargarPunto(window.juegoId, window.indicePunto);
     } else {
@@ -46,36 +81,39 @@ function enviarRespuesta() {
     }
 }
 
-// Función para mostrar el mapa de Leaflet con la ubicación del usuario y actualizar cada 5 segundos
-function mostrarMapa(){
+function normalizarTexto(texto) {
+    return texto
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function mostrarMapa() {
     let map, currentLocationMarker, pistaCircle;
     let currentLayer = 'normal';
 
-    // Capas base disponibles
-    let baseLayers = {
+    const baseLayers = {
         "normal": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }),
         "satellite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            attribution: '&copy; Esri, USGS, etc.'
         })
     };
 
-    // Inicializar el mapa solo si no existe
     if (!map) {
-        map = L.map('map', { zoomControl: false }).setView([0, 0], 17); // Vista inicial (hasta obtener la ubicación)
+        map = L.map('map', { zoomControl: false }).setView([0, 0], 17);
         baseLayers[currentLayer].addTo(map);
     }
 
-    // Función para obtener y actualizar la ubicación del usuario cada 5 segundos
     function trackLocation() {
         if (navigator.geolocation) {
             setInterval(() => {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const userCoords = [position.coords.latitude, position.coords.longitude];
-                        
-                        map.setView(userCoords, 17); // Centrar el mapa en la ubicación del usuario
+                        map.panTo(userCoords);
 
                         if (currentLocationMarker) {
                             currentLocationMarker.setLatLng(userCoords);
@@ -83,8 +121,13 @@ function mostrarMapa(){
                             currentLocationMarker = L.marker(userCoords).addTo(map)
                                 .bindPopup("¡Estás aquí!").openPopup();
                         }
-                        
-                        // Actualizar el círculo con un radio de 800m
+
+                        let maxDist = 0;
+                        window.puntosJuego.forEach(p => {
+                            const dist = calcularDistancia(userCoords[0], userCoords[1], p.latitud, p.longitud);
+                            if (dist > maxDist) maxDist = dist;
+                        });  
+
                         if (pistaCircle) {
                             pistaCircle.setLatLng(userCoords);
                         } else {
@@ -92,25 +135,38 @@ function mostrarMapa(){
                                 color: 'blue',
                                 fillColor: 'blue',
                                 fillOpacity: 0.2,
-                                radius: 800 // Radio de 800m
+                                radius: 800
                             }).addTo(map);
                         }
                     },
                     (error) => {
                         console.error('Error:', error);
-                        alert('No se pudo obtener tu ubicación. Verifica los permisos de ubicación.');
+                        alert('No se pudo obtener tu ubicación.');
                     },
                     {
-                        enableHighAccuracy: true, // Mejor precisión
-                        maximumAge: 0 // No usar ubicaciones almacenadas
+                        enableHighAccuracy: true,
+                        maximumAge: 0
                     }
                 );
-            }, 5000); // Actualiza cada 5 segundos
+            }, 5000);
         } else {
-            alert('Tu navegador no soporta geolocalización en tiempo real');
+            alert('Tu navegador no soporta geolocalización.');
         }
     }
 
-    // Iniciar el seguimiento de ubicación
     trackLocation();
-} 
+}
+
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const rad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * rad;
+    const dLon = (lon2 - lon1) * rad;
+
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
+              Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
