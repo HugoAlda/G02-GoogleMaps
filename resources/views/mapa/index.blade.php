@@ -16,23 +16,21 @@
 </head>
 <body>
     <div class="container">
-
-        <!-- Paginación etiquetas -->
         <div class="tags-container">
             <div class="tags-bar">
                 <!-- Botón "Todos" - siempre visible -->
-                <button class="btn-tag active" data-tag="all">
+                <button class="btn-tag" data-tag="all">
                     <i class="fas fa-globe"></i> Todos
                 </button>
                 
-                <!-- Etiquetas de filtro (se mostrarán según paginación) -->
+                <!-- Botones de etiquetas (se muestran según paginación) -->
                 @foreach($etiquetas as $etiqueta)
-                    <button class="btn-tag filter-tag" data-tag="{{ $etiqueta->nombre }}">
+                    <button class="btn-tag" data-tag="{{ $etiqueta->nombre }}">
                         {!! $etiqueta->icono !!} {{ $etiqueta->nombre }}
                     </button>
                 @endforeach
             </div>
-        
+            
             <!-- Controles de paginación -->
             <div class="tags-pagination">
                 <button class="btn-pagination prev" disabled>
