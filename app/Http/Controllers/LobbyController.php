@@ -63,14 +63,19 @@ class LobbyController extends Controller
                 return response()->json(['error' => 'El juego seleccionado no existe.'], 400);
             }
     
-            // Crear un nuevo grupo
-            $grupo = Grupo::create([
-                'nombre' => 'Grupo de ' . $user->nombre,
+            // Crear dos grupos
+            $grupo1 = Grupo::create([
+                'nombre' => 'Grupo 1 de ' . $user->nombre,
                 'estado' => 'abierto'
             ]);
-    
-            // Asociar el usuario como propietario del grupo
-            $grupo->jugadores()->attach($jugador->id, ['is_owner' => true]);
+
+            $grupo2 = Grupo::create([
+                'nombre' => 'Grupo 2 de ' . $user->nombre,
+                'estado' => 'abierto'
+            ]);
+
+            // Asociar el usuario como propietario del primer grupo
+            $grupo1->jugadores()->attach($jugador->id, ['is_owner' => true]);
     
             // Crear la partida
             $partida = Partida::create([
@@ -80,8 +85,9 @@ class LobbyController extends Controller
                 'fecha_fin' => null
             ]);
     
-            // Asociar el grupo con la partida
-            $grupo->partidas()->attach($partida->id);
+            // Asociar ambos grupos con la partida
+            $grupo1->partidas()->attach($partida->id);
+            $grupo2->partidas()->attach($partida->id);
     
             DB::commit();
     
