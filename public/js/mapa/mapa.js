@@ -6,8 +6,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const removeImageButton = document.getElementById("remove-image");
     const buttonAddPoint = document.getElementById("button-add-point");
     const form = document.getElementById("form-add-point");
+    
+    // Elementos para el modal de información
+    const markerModal = new bootstrap.Modal(document.getElementById('markerModal'));
+    const markerModalTitle = document.getElementById('markerModalTitle');
+    const markerModalBody = document.getElementById('markerModalBody');
+    const getDirectionsBtn = document.getElementById('getDirectionsBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Elementos de paginación
+    const tagsContainer = document.querySelector('.tags-container');
+    const tagsBar = document.querySelector('.tags-bar');
+    const prevBtn = document.querySelector('.btn-pagination.prev');
+    const nextBtn = document.querySelector('.btn-pagination.next');
+    const pageIndicator = document.querySelector('.page-indicator');
 
     let map, currentMarker = null, currentLocationMarker, allMarkers = [], currentLayer = "normal";
+    let selectedMarker = null;
+    let routingControl = null;
+    let currentPage = 1;
+    const tagsPerPage = 2;
+    let allTagButtons = [];
     
     // Ícono de ubicación del usuario
     const userLocationIcon = L.divIcon({
@@ -52,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function initializeMap(coords) {
         map = L.map("map", { 
             zoomControl: false,
-            preferCanvas: true // Mejor rendimiento para muchos marcadores
+            preferCanvas: true
         }).setView(coords, 16);
         baseLayers[currentLayer].addTo(map);
         loadMarkers();
@@ -64,22 +83,33 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentLocationMarker) map.removeLayer(currentLocationMarker);
         currentLocationMarker = L.marker(coords, { 
             icon: userLocationIcon,
-            zIndexOffset: 1000 // Asegurar que siempre esté encima
+            zIndexOffset: 1000
         }).addTo(map);
+        return coords;
     }
 
     /*** Obtener ubicación del usuario ***/
     function getLocation() {
-        if (!navigator.geolocation) return alert("Tu navegador no soporta geolocalización");
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => updateLocation([coords.latitude, coords.longitude]),
-            () => alert("No se pudo obtener tu ubicación. Verifica los permisos."),
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                alert("Tu navegador no soporta geolocalización");
+                reject("Geolocation not supported");
+                return;
             }
-        );
+            
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => resolve(updateLocation([coords.latitude, coords.longitude])),
+                () => {
+                    alert("No se pudo obtener tu ubicación. Verifica los permisos.");
+                    reject("Could not get location");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        });
     }
 
     /*** Función para crear un marcador ***/
@@ -100,32 +130,230 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /*** Función para mostrar información del marcador en el modal ***/
+    function showMarkerInfo(markerData) {
+        // Convertir coordenadas a números si son strings
+        const lat = typeof markerData.latitud === 'string' ? parseFloat(markerData.latitud) : markerData.latitud;
+        const lng = typeof markerData.longitud === 'string' ? parseFloat(markerData.longitud) : markerData.longitud;
+        
+        selectedMarker = markerData;
+        
+        // Configurar el contenido del modal
+        markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
+        
+        markerModalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="marker-info-header mb-3">
+                        <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">${markerData.etiqueta || 'Sin etiqueta'}</span>
+                    </div>
+                    <div class="marker-info-body">
+                        <p><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
+                        ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3">` : ''}
+                        <p><strong>Ubicación:</strong> Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</p>
+                        ${markerData.created_at ? `<p><strong>Creado:</strong> ${new Date(markerData.created_at).toLocaleString()}</p>` : ''}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="miniMap" style="height: 300px; width: 100%;"></div>
+                    <div id="directionsPanel" class="mt-3" style="display: none;">
+                        <h5>Indicaciones:</h5>
+                        <div id="directionsInstructions"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Inicializar el mini mapa en el modal
+        const miniMap = L.map('miniMap').setView([lat, lng], 15);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
+        L.marker([lat, lng]).addTo(miniMap);
+        
+        // Mostrar el modal
+        markerModal.show();
+        
+        // Centrar el mapa principal en el marcador seleccionado
+        map.setView([lat, lng], 16);
+        
+        // Configurar el botón de direcciones
+        const directionsBtn = document.getElementById('getDirectionsBtn');
+        if (directionsBtn) {
+            // Eliminar event listeners anteriores para evitar duplicados
+            directionsBtn.replaceWith(directionsBtn.cloneNode(true));
+            document.getElementById('getDirectionsBtn').addEventListener('click', () => {
+                calculateRoute([lat, lng]);
+            });
+        }
+    }
+
+    /*** Función para calcular la ruta ***/
+    function calculateRoute(destination) {
+        if (routingControl) {
+            map.removeControl(routingControl);
+        }
+        
+        const directionsPanel = document.getElementById('directionsPanel');
+        if (directionsPanel) {
+            directionsPanel.style.display = 'block';
+        }
+        
+        const directionsInstructions = document.getElementById('directionsInstructions');
+        if (directionsInstructions) {
+            directionsInstructions.innerHTML = '<p>Calculando ruta...</p>';
+        }
+        
+        getLocation().then(userLocation => {
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLocation[0], userLocation[1]),
+                    L.latLng(destination[0], destination[1])
+                ],
+                routeWhileDragging: true,
+                showAlternatives: true,
+                collapsible: true,
+                addWaypoints: false,
+                draggableWaypoints: false
+            }).addTo(map);
+            
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const instructions = routes[0].instructions;
+                let html = '<ol class="list-group">';
+                
+                instructions.forEach(instruction => {
+                    html += `<li class="list-group-item">${instruction.text}</li>`;
+                });
+                
+                html += '</ol>';
+                if (directionsInstructions) {
+                    directionsInstructions.innerHTML = html;
+                }
+            });
+        }).catch(error => {
+            if (directionsInstructions) {
+                directionsInstructions.innerHTML = 
+                    '<div class="alert alert-warning">No se pudo obtener tu ubicación para calcular la ruta.</div>';
+            }
+        });
+    }
+
+    /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
+    function getTagColorClass(tag) {
+        const tagColors = {
+            'restaurante': 'danger',
+            'hotel': 'primary',
+            'monumento': 'warning',
+            'naturaleza': 'success',
+            'otros': 'secondary'
+        };
+        return tagColors[tag.toLowerCase()] || 'info';
+    }
+
     /*** Cargar los marcadores guardados ***/
     function loadMarkers() {
-        if (!window.marcadores) return console.error("No se encontraron marcadores");
+        if (!window.marcadores) {
+            console.error("No se encontraron marcadores");
+            return;
+        }
         
-        // Limpiar marcadores existentes
         allMarkers.forEach(marker => map.removeLayer(marker));
         allMarkers = [];
         
-        // Crear nuevos marcadores
         allMarkers = window.marcadores.map(marcador => {
-            const marker = L.marker([marcador.latitud, marcador.longitud], {
+            // Convertir coordenadas a números si son strings
+            const lat = typeof marcador.latitud === 'string' ? parseFloat(marcador.latitud) : marcador.latitud;
+            const lng = typeof marcador.longitud === 'string' ? parseFloat(marcador.longitud) : marcador.longitud;
+            
+            const marker = L.marker([lat, lng], {
                 title: marcador.nombre,
                 alt: marcador.descripcion,
                 riseOnHover: true
             }).addTo(map);
             
-            marker.bindPopup(`
-                <div class="marker-popup">
-                    <h4>${marcador.nombre}</h4>
-                    <p>${marcador.descripcion}</p>
-                </div>
-            `);
+            // Almacenar todos los datos del marcador
+            marker.markerData = marcador;
             
-            // Almacenar la etiqueta como propiedad del marcador
+            // Evento para hacer clic en el marcador
+            marker.on('click', () => {
+                showMarkerInfo(marcador);
+            });
+            
             marker.etiqueta = marcador.etiqueta;
             return marker;
+        });
+    }
+
+    /*** Configurar paginación de etiquetas ***/
+    function setupTagPagination() {
+        if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
+        
+        allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
+        
+        // Separar el botón "Todos" de las demás etiquetas
+        const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
+        const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
+        
+        const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
+
+        function updateTagsDisplay() {
+            // 1. Mostrar siempre el botón "Todos"
+            if (allButton) allButton.style.display = 'flex';
+            
+            // 2. Ocultar todas las etiquetas de filtro primero
+            filterButtons.forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // 3. Calcular qué etiquetas mostrar para la página actual
+            const startIdx = (currentPage - 1) * tagsPerPage;
+            const endIdx = startIdx + tagsPerPage;
+            const tagsToShow = filterButtons.slice(startIdx, endIdx);
+
+            // 4. Mostrar las etiquetas correspondientes a la página actual
+            tagsToShow.forEach(btn => {
+                btn.style.display = 'flex';
+            });
+
+            // 5. Actualizar estado de los botones de paginación
+            if (prevBtn) prevBtn.disabled = currentPage === 1;
+            if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+            // 6. Actualizar indicador de página
+            if (pageIndicator) pageIndicator.textContent = `${currentPage}/${totalPages}`;
+            
+            // 7. Asegurar que el scroll se mantenga visible al cambiar páginas
+            if (tagsBar) tagsBar.scrollTo(0, 0);
+        }
+
+        // Eventos para los botones de paginación
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        // Inicializar la visualización
+        updateTagsDisplay();
+    }
+
+    /*** Configurar eventos de los botones de etiquetas ***/
+    function setupTagButtons() {
+        document.querySelectorAll('.btn-tag').forEach(button => {
+            button.addEventListener('click', function() {
+                filterMarkers(this.dataset.tag);
+            });
         });
     }
 
@@ -174,85 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error al obtener el filtro:', e);
             return 'all';
         }
-    }
-
-    /*** Configurar paginación de etiquetas ***/
-    function setupTagPagination() {
-        const tagsContainer = document.querySelector('.tags-container');
-        const tagsBar = document.querySelector('.tags-bar');
-        const prevBtn = document.querySelector('.btn-pagination.prev');
-        const nextBtn = document.querySelector('.btn-pagination.next');
-        const pageIndicator = document.querySelector('.page-indicator');
-        
-        if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
-        
-        const allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
-        const tagsPerPage = 2; // Mostrar 2 etiquetas por página (además de "Todos")
-        let currentPage = 1;
-        
-        // Separar el botón "Todos" de las demás etiquetas
-        const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
-        const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
-        
-        const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
-
-        // Función para actualizar la visualización de etiquetas
-        function updateTagsDisplay() {
-            // 1. Mostrar siempre el botón "Todos"
-            allButton.style.display = 'flex';
-            
-            // 2. Ocultar todas las etiquetas de filtro primero
-            filterButtons.forEach(btn => {
-                btn.style.display = 'none';
-            });
-
-            // 3. Calcular qué etiquetas mostrar para la página actual
-            const startIdx = (currentPage - 1) * tagsPerPage;
-            const endIdx = startIdx + tagsPerPage;
-            const tagsToShow = filterButtons.slice(startIdx, endIdx);
-
-            // 4. Mostrar las etiquetas correspondientes a la página actual
-            tagsToShow.forEach(btn => {
-                btn.style.display = 'flex';
-            });
-
-            // 5. Actualizar estado de los botones de paginación
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage >= totalPages;
-
-            // 6. Actualizar indicador de página
-            pageIndicator.textContent = `${currentPage}/${totalPages}`;
-            
-            // 7. Asegurar que el scroll se mantenga visible al cambiar páginas
-            tagsBar.scrollTo(0, 0);
-        }
-
-        // Eventos para los botones de paginación
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updateTagsDisplay();
-            }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateTagsDisplay();
-            }
-        });
-
-        // Inicializar la visualización
-        updateTagsDisplay();
-    }
-
-    /*** Configurar eventos de los botones de etiquetas ***/
-    function setupTagButtons() {
-        document.querySelectorAll('.btn-tag').forEach(button => {
-            button.addEventListener('click', function() {
-                filterMarkers(this.dataset.tag);
-            });
-        });
     }
 
     /*** Manejar la adición de un nuevo punto ***/
@@ -348,7 +497,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentLayer = currentLayer === "normal" ? "satellite" : "normal";
                 baseLayers[currentLayer].addTo(map);
                 
-                // Actualizar icono del botón
                 const icon = toggleSatelliteBtn.querySelector("i");
                 if (icon) {
                     if (currentLayer === "satellite") {
@@ -371,9 +519,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // Obtener ubicación inicial
         getLocation();
         
-        // Aplicar filtro guardado o 'all' por defecto
+        // Aplicar filtro guardado
         filterMarkers(getActiveFilter());
         
+        // Configurar evento para cerrar el modal
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                markerModal.hide();
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+            });
+        }
+
         // Actualizar ubicación periódicamente
         setInterval(getLocation, 2000);
     }
