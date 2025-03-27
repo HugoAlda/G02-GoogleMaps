@@ -6,8 +6,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const removeImageButton = document.getElementById("remove-image");
     const buttonAddPoint = document.getElementById("button-add-point");
     const form = document.getElementById("form-add-point");
+    
+    // Elementos para el modal de información
+    const markerModal = new bootstrap.Modal(document.getElementById('markerModal'));
+    const markerModalTitle = document.getElementById('markerModalTitle');
+    const markerModalBody = document.getElementById('markerModalBody');
+    const getDirectionsBtn = document.getElementById('getDirectionsBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Elementos de paginación
+    const tagsContainer = document.querySelector('.tags-container');
+    const tagsBar = document.querySelector('.tags-bar');
+    const prevBtn = document.querySelector('.btn-pagination.prev');
+    const nextBtn = document.querySelector('.btn-pagination.next');
+    const pageIndicator = document.querySelector('.page-indicator');
 
     let map, currentMarker = null, currentLocationMarker, allMarkers = [], currentLayer = "normal";
+    let selectedMarker = null;
+    let routingControl = null;
+    let currentPage = 1;
+    const tagsPerPage = 2;
+    let allTagButtons = [];
     
     // Ícono de ubicación del usuario
     const userLocationIcon = L.divIcon({
@@ -25,28 +44,35 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /*** Función para previsualizar imagen ***/
-    imageInput.addEventListener("change", event => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                imagePreview.src = e.target.result;
-                imagePreviewContainer.classList.remove("d-none");
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    if (imageInput) {
+        imageInput.addEventListener("change", event => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
     /*** Función para eliminar imagen seleccionada ***/
-    removeImageButton.addEventListener("click", () => {
-        imageInput.value = "";
-        imagePreview.src = "";
-        imagePreviewContainer.classList.add("d-none");
-    });
+    if (removeImageButton) {
+        removeImageButton.addEventListener("click", () => {
+            imageInput.value = "";
+            imagePreview.src = "";
+            imagePreviewContainer.classList.add("d-none");
+        });
+    }
 
     /*** Función para inicializar el mapa ***/
     function initializeMap(coords) {
-        map = L.map("map", { zoomControl: false }).setView(coords, 16);
+        map = L.map("map", { 
+            zoomControl: false,
+            preferCanvas: true
+        }).setView(coords, 16);
         baseLayers[currentLayer].addTo(map);
         loadMarkers();
     }
@@ -55,16 +81,35 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateLocation(coords) {
         if (!map) initializeMap(coords);
         if (currentLocationMarker) map.removeLayer(currentLocationMarker);
-        currentLocationMarker = L.marker(coords, { icon: userLocationIcon }).addTo(map);
+        currentLocationMarker = L.marker(coords, { 
+            icon: userLocationIcon,
+            zIndexOffset: 1000
+        }).addTo(map);
+        return coords;
     }
 
     /*** Obtener ubicación del usuario ***/
     function getLocation() {
-        if (!navigator.geolocation) return alert("Tu navegador no soporta geolocalización");
-        navigator.geolocation.getCurrentPosition(
-            ({ coords }) => updateLocation([coords.latitude, coords.longitude]),
-            () => alert("No se pudo obtener tu ubicación. Verifica los permisos.")
-        );
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                alert("Tu navegador no soporta geolocalización");
+                reject("Geolocation not supported");
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => resolve(updateLocation([coords.latitude, coords.longitude])),
+                () => {
+                    alert("No se pudo obtener tu ubicación. Verifica los permisos.");
+                    reject("Could not get location");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        });
     }
 
     /*** Función para crear un marcador ***/
@@ -80,90 +125,328 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /*** Función para eliminar un marcador ***/
     function removeMarker(marker) {
-        if (marker) map.removeLayer(marker);
+        if (marker && map.hasLayer(marker)) {
+            map.removeLayer(marker);
+        }
+    }
+
+    /*** Función para mostrar información del marcador en el modal ***/
+    function showMarkerInfo(markerData) {
+        // Convertir coordenadas a números si son strings
+        const lat = typeof markerData.latitud === 'string' ? parseFloat(markerData.latitud) : markerData.latitud;
+        const lng = typeof markerData.longitud === 'string' ? parseFloat(markerData.longitud) : markerData.longitud;
+        
+        selectedMarker = markerData;
+        
+        // Configurar el contenido del modal
+        markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
+        
+        markerModalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="marker-info-header mb-3">
+                        <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">${markerData.etiqueta || 'Sin etiqueta'}</span>
+                    </div>
+                    <div class="marker-info-body">
+                        <p><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
+                        ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3">` : ''}
+                        <p><strong>Ubicación:</strong> Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</p>
+                        ${markerData.created_at ? `<p><strong>Creado:</strong> ${new Date(markerData.created_at).toLocaleString()}</p>` : ''}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="miniMap" style="height: 300px; width: 100%;"></div>
+                    <div id="directionsPanel" class="mt-3" style="display: none;">
+                        <h5>Indicaciones:</h5>
+                        <div id="directionsInstructions"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Inicializar el mini mapa en el modal
+        const miniMap = L.map('miniMap').setView([lat, lng], 15);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
+        L.marker([lat, lng]).addTo(miniMap);
+        
+        // Mostrar el modal
+        markerModal.show();
+        
+        // Centrar el mapa principal en el marcador seleccionado
+        map.setView([lat, lng], 16);
+        
+        // Configurar el botón de direcciones
+        const directionsBtn = document.getElementById('getDirectionsBtn');
+        if (directionsBtn) {
+            // Eliminar event listeners anteriores para evitar duplicados
+            directionsBtn.replaceWith(directionsBtn.cloneNode(true));
+            document.getElementById('getDirectionsBtn').addEventListener('click', () => {
+                calculateRoute([lat, lng]);
+            });
+        }
+    }
+
+    /*** Función para calcular la ruta ***/
+    function calculateRoute(destination) {
+        if (routingControl) {
+            map.removeControl(routingControl);
+        }
+        
+        const directionsPanel = document.getElementById('directionsPanel');
+        if (directionsPanel) {
+            directionsPanel.style.display = 'block';
+        }
+        
+        const directionsInstructions = document.getElementById('directionsInstructions');
+        if (directionsInstructions) {
+            directionsInstructions.innerHTML = '<p>Calculando ruta...</p>';
+        }
+        
+        getLocation().then(userLocation => {
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLocation[0], userLocation[1]),
+                    L.latLng(destination[0], destination[1])
+                ],
+                routeWhileDragging: true,
+                showAlternatives: true,
+                collapsible: true,
+                addWaypoints: false,
+                draggableWaypoints: false
+            }).addTo(map);
+            
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const instructions = routes[0].instructions;
+                let html = '<ol class="list-group">';
+                
+                instructions.forEach(instruction => {
+                    html += `<li class="list-group-item">${instruction.text}</li>`;
+                });
+                
+                html += '</ol>';
+                if (directionsInstructions) {
+                    directionsInstructions.innerHTML = html;
+                }
+            });
+        }).catch(error => {
+            if (directionsInstructions) {
+                directionsInstructions.innerHTML = 
+                    '<div class="alert alert-warning">No se pudo obtener tu ubicación para calcular la ruta.</div>';
+            }
+        });
+    }
+
+    /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
+    function getTagColorClass(tag) {
+        const tagColors = {
+            'restaurante': 'danger',
+            'hotel': 'primary',
+            'monumento': 'warning',
+            'naturaleza': 'success',
+            'otros': 'secondary'
+        };
+        return tagColors[tag.toLowerCase()] || 'info';
     }
 
     /*** Cargar los marcadores guardados ***/
     function loadMarkers() {
-        if (!window.marcadores) return console.error("No se encontraron marcadores");
-        allMarkers = window.marcadores.map(({ latitud, longitud, nombre, descripcion }) =>
-            L.marker([latitud, longitud]).addTo(map).bindPopup(`<strong>${nombre}</strong><br>${descripcion}`)
-        );
+        if (!window.marcadores) {
+            console.error("No se encontraron marcadores");
+            return;
+        }
+        
+        allMarkers.forEach(marker => map.removeLayer(marker));
+        allMarkers = [];
+        
+        allMarkers = window.marcadores.map(marcador => {
+            // Convertir coordenadas a números si son strings
+            const lat = typeof marcador.latitud === 'string' ? parseFloat(marcador.latitud) : marcador.latitud;
+            const lng = typeof marcador.longitud === 'string' ? parseFloat(marcador.longitud) : marcador.longitud;
+            
+            const marker = L.marker([lat, lng], {
+                title: marcador.nombre,
+                alt: marcador.descripcion,
+                riseOnHover: true
+            }).addTo(map);
+            
+            // Almacenar todos los datos del marcador
+            marker.markerData = marcador;
+            
+            // Evento para hacer clic en el marcador
+            marker.on('click', () => {
+                showMarkerInfo(marcador);
+            });
+            
+            marker.etiqueta = marcador.etiqueta;
+            return marker;
+        });
+    }
+
+    /*** Configurar paginación de etiquetas ***/
+    function setupTagPagination() {
+        if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
+        
+        allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
+        
+        // Separar el botón "Todos" de las demás etiquetas
+        const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
+        const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
+        
+        const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
+
+        function updateTagsDisplay() {
+            // 1. Mostrar siempre el botón "Todos"
+            if (allButton) allButton.style.display = 'flex';
+            
+            // 2. Ocultar todas las etiquetas de filtro primero
+            filterButtons.forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // 3. Calcular qué etiquetas mostrar para la página actual
+            const startIdx = (currentPage - 1) * tagsPerPage;
+            const endIdx = startIdx + tagsPerPage;
+            const tagsToShow = filterButtons.slice(startIdx, endIdx);
+
+            // 4. Mostrar las etiquetas correspondientes a la página actual
+            tagsToShow.forEach(btn => {
+                btn.style.display = 'flex';
+            });
+
+            // 5. Actualizar estado de los botones de paginación
+            if (prevBtn) prevBtn.disabled = currentPage === 1;
+            if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+            // 6. Actualizar indicador de página
+            if (pageIndicator) pageIndicator.textContent = `${currentPage}/${totalPages}`;
+            
+            // 7. Asegurar que el scroll se mantenga visible al cambiar páginas
+            if (tagsBar) tagsBar.scrollTo(0, 0);
+        }
+
+        // Eventos para los botones de paginación
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        // Inicializar la visualización
+        updateTagsDisplay();
+    }
+
+    /*** Configurar eventos de los botones de etiquetas ***/
+    function setupTagButtons() {
+        document.querySelectorAll('.btn-tag').forEach(button => {
+            button.addEventListener('click', function() {
+                filterMarkers(this.dataset.tag);
+            });
+        });
     }
 
     /*** Filtrar los marcadores por etiqueta ***/
     function filterMarkers(tag) {
-        allMarkers.forEach((marker, index) => {
-            const marcador = window.marcadores[index];
-            marcador.etiqueta === tag || tag === "all" ? marker.addTo(map) : map.removeLayer(marker);
+        allMarkers.forEach(marker => {
+            if (tag === "all" || marker.etiqueta === tag) {
+                if (!map.hasLayer(marker)) {
+                    marker.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            }
+        });
+        
+        updateActiveButton(tag);
+        saveActiveFilter(tag);
+    }
+
+    /*** Actualizar el botón activo ***/
+    function updateActiveButton(activeTag) {
+        document.querySelectorAll('.btn-tag').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.tag === activeTag) {
+                btn.classList.add('active');
+            }
         });
     }
 
-    /*** Manejar la adición de un nuevo punto ***/
-    buttonAddPoint.addEventListener("click", () => {
-        const modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
-        modal.hide();
-
-        const pointControls = document.getElementById("point-controls");
-        const confirmButton = document.getElementById("confirm-add-point");
-        const cancelButton = document.getElementById("cancel-add-point");
-
-        pointControls.style.display = "block";
-        confirmButton.disabled = true;
-
-        const mapClickHandler = e => {
-            if (currentMarker) removeMarker(currentMarker);
-            currentMarker = createMarker(e.latlng);
-            confirmButton.textContent = "Confirmar";
-            confirmButton.disabled = false;
-        };
-
-        map.on("click", mapClickHandler);
-
-        cancelButton.addEventListener("click", () => {
-            if (currentMarker) removeMarker(currentMarker);
-            pointControls.style.display = "none";
-
-            // Cambiamos el color del botón a rojo
-            buttonAddPoint.style.backgroundColor = "#ff0000";
-            buttonAddPoint.style.color = "#fff";
-            
-            map.off("click", mapClickHandler);
-            modal.show();
-        }, { once: true });
-
-        confirmButton.addEventListener("click", () => {
-            if (!currentMarker) return;
-            const savedMarker = currentMarker.getLatLng();
-            removeMarker(currentMarker);
-            pointControls.style.display = "none";
-            map.off("click", mapClickHandler);
-            modal.show();
-            buttonAddPoint.style.backgroundColor = "#008000";
-            buttonAddPoint.style.color = "#fff";
-
-            form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
-        }, { once: true });
-    });
-    
-    
-    // Función para validar el formulario
-    function isValidForm(formData) {
-        // Validar que los campos requeridos estén llenos
-        const requiredFields = ["nombre", "descripcion", "latitud", "longitud", "direccion", "icono"];
-        return requiredFields.every(field => formData.get(field));
+    /*** Guardar filtro activo en sessionStorage ***/
+    function saveActiveFilter(tag) {
+        try {
+            sessionStorage.setItem('activeFilter', tag);
+        } catch (e) {
+            console.error('Error al guardar el filtro:', e);
+        }
     }
 
-    // Función para mostrar mensaje de error
-    function showError(formData) {
-        // Obtenemos los campos requeridos
-        const fields = ["nombre", "descripcion", "latitud", "longitud", "direccion", "icono"];
+    /*** Obtener filtro activo de sessionStorage ***/
+    function getActiveFilter() {
+        try {
+            return sessionStorage.getItem('activeFilter') || 'all';
+        } catch (e) {
+            console.error('Error al obtener el filtro:', e);
+            return 'all';
+        }
+    }
 
-        // Recorremos los campos requeridos y mostramos el mensaje de error
-        fields.forEach(field => {
-            const errorMessage = document.getElementById(`error-${field}`);
-            errorMessage.textContent = formData.get(field);
-            errorMessage.classList.remove("d-none");
+    /*** Manejar la adición de un nuevo punto ***/
+    if (buttonAddPoint) {
+        buttonAddPoint.addEventListener("click", () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
+            modal.hide();
+
+            const pointControls = document.getElementById("point-controls");
+            const confirmButton = document.getElementById("confirm-add-point");
+            const cancelButton = document.getElementById("cancel-add-point");
+
+            pointControls.style.display = "block";
+            confirmButton.disabled = true;
+
+            const mapClickHandler = e => {
+                if (currentMarker) removeMarker(currentMarker);
+                currentMarker = createMarker(e.latlng);
+                confirmButton.textContent = "Confirmar";
+                confirmButton.disabled = false;
+            };
+
+            map.on("click", mapClickHandler);
+
+            cancelButton.addEventListener("click", () => {
+                if (currentMarker) removeMarker(currentMarker);
+                pointControls.style.display = "none";
+                buttonAddPoint.style.backgroundColor = "#ff0000";
+                buttonAddPoint.style.color = "#fff";
+                map.off("click", mapClickHandler);
+                modal.show();
+            }, { once: true });
+
+            confirmButton.addEventListener("click", () => {
+                if (!currentMarker) return;
+                const savedMarker = currentMarker.getLatLng();
+                removeMarker(currentMarker);
+                pointControls.style.display = "none";
+                map.off("click", mapClickHandler);
+                modal.show();
+                buttonAddPoint.style.backgroundColor = "#008000";
+                buttonAddPoint.style.color = "#fff";
+
+                form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
+            }, { once: true });
         });
     }
 
@@ -175,44 +458,85 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("longitud", savedMarker.lng);
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
-        if (isValidForm(formData)) {
-            fetch(form.action, {
-                method: "POST",
-                body: formData,
-                headers: { "X-CSRF-TOKEN": csrfToken }
-            })
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRF-TOKEN": csrfToken }
+        })
         .then(response => response.json())
         .then(() => {
             loadMarkers();
             bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
-        }).catch(error => 
-            console.error("Error al enviar los datos:", error));
-        } else {
-            showError(formData);
+        })
+        .catch(error => console.error("Error al enviar los datos:", error));
+    }
+
+    /*** Configurar controles del mapa ***/
+    function setupMapControls() {
+        const centerUserBtn = document.getElementById("centerUser");
+        const zoomInBtn = document.getElementById("zoomIn");
+        const zoomOutBtn = document.getElementById("zoomOut");
+        const toggleSatelliteBtn = document.getElementById("toggleSatellite");
+
+        if (centerUserBtn) centerUserBtn.addEventListener("click", () => {
+            if (currentLocationMarker) {
+                map.setView(currentLocationMarker.getLatLng(), 16);
+            } else {
+                getLocation();
+            }
+        });
+
+        if (zoomInBtn) zoomInBtn.addEventListener("click", () => map?.setZoom(map.getZoom() + 1));
+        if (zoomOutBtn) zoomOutBtn.addEventListener("click", () => map?.setZoom(map.getZoom() - 1));
+        
+        if (toggleSatelliteBtn) {
+            toggleSatelliteBtn.addEventListener("click", () => {
+                if (!map) return;
+                
+                map.removeLayer(baseLayers[currentLayer]);
+                currentLayer = currentLayer === "normal" ? "satellite" : "normal";
+                baseLayers[currentLayer].addTo(map);
+                
+                const icon = toggleSatelliteBtn.querySelector("i");
+                if (icon) {
+                    if (currentLayer === "satellite") {
+                        icon.classList.replace("fa-map", "fa-globe");
+                    } else {
+                        icon.classList.replace("fa-globe", "fa-map");
+                    }
+                }
+            });
         }
     }
 
-    /*** Controles del mapa ***/
-    document.getElementById("centerUser").addEventListener("click", () => map?.setView(currentLocationMarker.getLatLng(), 16));
-    document.getElementById("zoomIn").addEventListener("click", () => map?.setZoom(map.getZoom() + 1));
-    document.getElementById("zoomOut").addEventListener("click", () => map?.setZoom(map.getZoom() - 1));
-    document.getElementById("toggleSatellite").addEventListener("click", () => {
-        if (!map) return;
-        map.removeLayer(baseLayers[currentLayer]);
-        currentLayer = currentLayer === "normal" ? "satellite" : "normal";
-        baseLayers[currentLayer].addTo(map);
-    });
+    /*** Inicialización completa ***/
+    function init() {
+        // Configurar controles
+        setupTagButtons();
+        setupMapControls();
+        setupTagPagination();
+        
+        // Obtener ubicación inicial
+        getLocation();
+        
+        // Aplicar filtro guardado
+        filterMarkers(getActiveFilter());
+        
+        // Configurar evento para cerrar el modal
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => {
+                markerModal.hide();
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+            });
+        }
 
-    /*** Filtrar marcadores con botones ***/
-    document.querySelectorAll(".filter-tag").forEach(button => {
-        button.addEventListener("click", function () {
-            filterMarkers(this.dataset.tag);
-            document.querySelectorAll(".btn-tag").forEach(btn => btn.classList.remove("active"));
-            this.classList.add("active");
-        });
-    });
+        // Actualizar ubicación periódicamente
+        setInterval(getLocation, 2000);
+    }
 
-    // Obtener ubicación inicial y actualizar cada 2 segundos
-    getLocation();
-    setInterval(getLocation, 2000);
+    // Iniciar la aplicación
+    init();
 });

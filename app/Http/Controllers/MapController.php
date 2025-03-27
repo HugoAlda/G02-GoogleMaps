@@ -14,12 +14,12 @@ class MapController extends Controller
 {
     public function index()
     {
-        // Obtener las etiquetas públicas
-        $etiquetas = Etiqueta::where('es_privado', false)->get();
-
-        // Obteneres 
+        // Obtener las etiquetas públicas (limitamos a 2 para mostrar inicialmente)
+        $etiquetas = Etiqueta::where('es_privado', false)
+            ->orderBy('nombre')
+            ->get();
         
-        // Obtener los marcadores con sus etiquetas
+        // Obtener todos los marcadores con sus etiquetas
         $marcadores = Marcador::with('etiquetas')->get()->map(function ($marcador) {
             return [
                 'id' => $marcador->id,
@@ -27,15 +27,17 @@ class MapController extends Controller
                 'descripcion' => $marcador->descripcion,
                 'latitud' => $marcador->latitud,
                 'longitud' => $marcador->longitud,
-                'etiqueta' => $marcador->etiquetas->first()->nombre ?? 'sin-etiqueta' // Si no tiene etiquetas, usa 'sin-etiqueta'
+                'etiqueta' => $marcador->etiquetas->first()->nombre ?? 'sin-etiqueta',
+                'etiqueta_id' => $marcador->etiquetas->first()->id ?? null
             ];
         });
     
-        // Obtener el usuario administrador (opcional)
-        $admin = Usuario::where('email', 'admin@example.com')->first();
-    
-        // Retornar la vista con las etiquetas y marcadores
-        return view('mapa.index', compact('etiquetas', 'marcadores', 'admin'));
+        return view('mapa.index', [
+            'etiquetas' => $etiquetas,
+            'marcadores' => $marcadores,
+            'etiquetas_visibles' => $etiquetas->take(2), // Solo las 2 primeras para mostrar
+            'etiquetas_paginadas' => $etiquetas->slice(2) // El resto para paginación
+        ]);
     }
     
     public function juego($id)

@@ -24,37 +24,37 @@ class EtiquetaSeeder extends Seeder
         $etiquetas = [
             [
                 'nombre' => 'Monumentos',
-                'icono' => '<i class="fa-solid fa-monument"></i>',
+                'icono' => 'fa-solid fa-monument',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Hoteles',
-                'icono' => '<i class="fa-solid fa-hotel"></i>',
+                'icono' => 'fa-solid fa-hotel',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Puntos de interés',
-                'icono' => '<i class="fa-solid fa-circle-info"></i>',
+                'icono' => 'fa-solid fa-circle-info',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Estadios',
-                'icono' => '<i class="fa-solid fa-futbol"></i>',
+                'icono' => 'fa-solid fa-futbol',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Vacacion 2024',
-                'icono' => '<i class="fa-solid fa-umbrella-beach"></i>',
+                'icono' => 'fa-solid fa-umbrella-beach',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
                 'nombre' => 'Parques',
-                'icono' => '<i class="fa-solid fa-tree"></i>',
+                'icono' => 'fa-solid fa-tree',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ]

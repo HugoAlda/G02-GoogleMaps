@@ -16,30 +16,52 @@
 </head>
 <body>
     <div class="container">
-        <!-- Barra de navegación -->
-        <nav class="navbar">
-            <div class="container-fluid">
-                <div class="search-container">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar en el mapa...">
-                        <button class="btn-search">
-                            <i class="fas fa-search"></i>
+        <div class="tags-container">
+            <div class="tags-bar">
+                <!-- Botón "Todos" - siempre visible -->
+                <button class="btn-tag" data-tag="all">
+                    <i class="fas fa-globe"></i> Todos
+                </button>
+                
+                <!-- Botones de etiquetas (se muestran según paginación) -->
+                @foreach($etiquetas as $etiqueta)
+                    <button class="btn-tag" data-tag="{{ $etiqueta->nombre }}">
+                        {!! $etiqueta->icono !!} {{ $etiqueta->nombre }}
+                    </button>
+                @endforeach
+            </div>
+            
+            <!-- Controles de paginación -->
+            <div class="tags-pagination">
+                <button class="btn-pagination prev" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-indicator">1/X</span>
+                <button class="btn-pagination next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal para información del marcador -->
+        <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="markerModalTitle">Información del Marcador</h5>
+                        <button type="button" id="closeModalBtn" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="markerModalBody">
+                        <!-- Contenido dinámico se insertará aquí -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="getDirectionsBtn" class="btn btn-primary">
+                            <i class="fas fa-route"></i> Cómo llegar
                         </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
-        </nav>
-
-        <!-- Barra de etiquetas -->
-        <div class="tags-bar">
-            <button class="btn-tag filter-tag active" data-tag="all">
-            <i class="fas fa-globe"></i> Todos
-            </button>
-            @foreach($etiquetas as $etiqueta)
-                <button class="btn-tag filter-tag" data-tag="{{ $etiqueta->nombre }}">
-                    {!! $etiqueta->icono !!} {{ ucfirst($etiqueta->nombre) }}
-                </button>
-            @endforeach
         </div>
 
         <div id="map"></div>
@@ -56,9 +78,6 @@
             </button>
             <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
                 <i class="fas fa-location-crosshairs"></i>
-            </button>
-            <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
-                <i class="fas fa-map"></i>
             </button>
             <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
                 <i class="fas fa-play"></i>
@@ -90,7 +109,7 @@
                 </div>
 
                 <!-- Formulario para agregar un punto -->
-                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data" id="form-add-point" >
+                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="modal-body">
