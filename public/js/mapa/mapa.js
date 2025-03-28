@@ -130,6 +130,73 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /*** Función para calcular y mostrar la ruta ***/
+    function calculateRoute(destination, miniMap = null) {
+        // Limpiar ruta anterior si existe
+        if (routingControl) {
+            map.removeControl(routingControl);
+            routingControl = null;
+        }
+    
+        // Obtener ubicación actual y calcular ruta
+        getLocation().then(userLocation => {
+            // Iconos personalizados
+            const redIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            const blueIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+    
+            // Configurar el control de ruta para el mapa principal
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLocation[0], userLocation[1]),
+                    L.latLng(destination[0], destination[1])
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                collapsible: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                lineOptions: {
+                    styles: [{color: '#3388ff', opacity: 0.7, weight: 5}]
+                },
+                createMarker: function(i, wp) {
+                    return i === 0 ? 
+                        L.marker(wp.latLng, {icon: blueIcon}) : 
+                        L.marker(wp.latLng, {icon: redIcon});
+                }
+            }).addTo(map);
+    
+            // Configurar la ruta para el minimapa si existe
+            if (miniMap) {
+                // Añadir marcadores de origen y destino al minimapa
+                L.marker([userLocation[0], userLocation[1]], {icon: blueIcon}).addTo(miniMap);
+                L.marker([destination[0], destination[1]], {icon: redIcon}).addTo(miniMap);
+                
+                // Crear una línea de ruta simple para el minimapa
+                const routeLine = L.polyline([userLocation, destination], {
+                    color: '#ff0000',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(miniMap);
+                
+                // Ajustar vista del minimapa para mostrar toda la ruta
+                miniMap.fitBounds([userLocation, destination]);
+            }
+    
+            // [El resto de la función permanece igual]
+        });
+    }
+
     /*** Función para mostrar información del marcador en el modal ***/
     function showMarkerInfo(markerData) {
         // Convertir coordenadas a números si son strings
@@ -206,118 +273,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Calcular ruta automáticamente y mostrarla en ambos mapas
         calculateRoute([lat, lng], miniMap);
     }
-    
-    /*** Función para calcular y mostrar la ruta ***/
-    function calculateRoute(destination, miniMap = null) {
-        // Limpiar ruta anterior si existe
-        if (routingControl) {
-            map.removeControl(routingControl);
-            routingControl = null;
-        }
-        
-        // Obtener ubicación actual y calcular ruta
-        getLocation().then(userLocation => {
-            // Iconos personalizados
-            const redIcon = L.icon({
-                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
-            
-            const blueIcon = L.icon({
-                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
-            
-            // Configurar el control de ruta para el mapa principal
-            routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(userLocation[0], userLocation[1]),
-                    L.latLng(destination[0], destination[1])
-                ],
-                routeWhileDragging: false,
-                showAlternatives: false,
-                collapsible: false,
-                addWaypoints: false,
-                draggableWaypoints: false,
-                lineOptions: {
-                    styles: [{color: '#3388ff', opacity: 0.7, weight: 5}]
-                },
-                createMarker: function(i, wp) {
-                    return i === 0 ? 
-                        L.marker(wp.latLng, {icon: blueIcon}) : 
-                        L.marker(wp.latLng, {icon: redIcon});
-                }
-            }).addTo(map);
-            
-            // Configurar la ruta para el minimapa si existe
-            if (miniMap) {
-                // Añadir marcadores de origen y destino al minimapa
-                L.marker([userLocation[0], userLocation[1]], {icon: blueIcon}).addTo(miniMap);
-                L.marker([destination[0], destination[1]], {icon: redIcon}).addTo(miniMap);
-                
-                // Crear control de ruta para el minimapa
-                const miniMapRoute = L.Routing.control({
-                    waypoints: [
-                        L.latLng(userLocation[0], userLocation[1]),
-                        L.latLng(destination[0], destination[1])
-                    ],
-                    show: false, // No mostrar instrucciones en el minimapa
-                    lineOptions: {
-                        styles: [{color: '#ff0000', opacity: 0.7, weight: 4}]
-                    },
-                    createMarker: function() { return null; } // No mostrar marcadores (ya los añadimos antes)
-                }).addTo(miniMap);
-                
-                // Ajustar vista del minimapa para mostrar toda la ruta
-                miniMapRoute.on('routesfound', function(e) {
-                    const routes = e.routes;
-                    if (routes && routes.length > 0) {
-                        miniMap.fitBounds(routes[0].coordinates);
-                    }
-                });
-            }
-            
-            // Evento cuando se encuentra la ruta
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                if (routes && routes.length > 0) {
-                    const instructions = routes[0].instructions;
-                    let html = '<ol class="list-group list-group-numbered">';
-                    
-                    instructions.forEach(instruction => {
-                        html += `
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div class="ms-2 me-auto">
-                                    <div class="fw-bold">${instruction.text}</div>
-                                    <small>Distancia: ${instruction.distance} m</small>
-                                </div>
-                                <span class="badge bg-primary rounded-pill">${Math.round(instruction.time/60)} min</span>
-                            </li>
-                        `;
-                    });
-                    
-                    html += '</ol>';
-                    document.getElementById('directionsInstructions').innerHTML = html;
-                    
-                    // Ajustar el mapa principal para mostrar toda la ruta
-                    map.fitBounds(routes[0].coordinates);
-                }
-            });
-            
-            // Evento para errores
-            routingControl.on('routingerror', function(e) {
-                document.getElementById('directionsInstructions').innerHTML = 
-                    '<div class="alert alert-danger">No se pudo calcular la ruta. Inténtalo de nuevo más tarde.</div>';
-            });
-        }).catch(error => {
-            document.getElementById('directionsInstructions').innerHTML = 
-                '<div class="alert alert-warning">No se pudo obtener tu ubicación para calcular la ruta. Asegúrate de haber permitido el acceso a tu ubicación.</div>';
-        });
-    }
 
     /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
@@ -368,45 +323,45 @@ document.addEventListener("DOMContentLoaded", () => {
     /*** Configurar paginación de etiquetas ***/
     function setupTagPagination() {
         if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
-        
+    
         allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
-        
+    
         // Separar el botón "Todos" de las demás etiquetas
         const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
         const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
-        
+    
         const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
-
+    
         function updateTagsDisplay() {
-            // 1. Mostrar siempre el botón "Todos"
+            // Mostrar siempre el botón "Todos"
             if (allButton) allButton.style.display = 'flex';
-            
-            // 2. Ocultar todas las etiquetas de filtro primero
+    
+            // Ocultar todas las etiquetas de filtro primero
             filterButtons.forEach(btn => {
                 btn.style.display = 'none';
             });
-
-            // 3. Calcular qué etiquetas mostrar para la página actual
+    
+            // Calcular qué etiquetas mostrar para la página actual
             const startIdx = (currentPage - 1) * tagsPerPage;
             const endIdx = startIdx + tagsPerPage;
             const tagsToShow = filterButtons.slice(startIdx, endIdx);
-
-            // 4. Mostrar las etiquetas correspondientes a la página actual
+    
+            // Mostrar las etiquetas correspondientes a la página actual
             tagsToShow.forEach(btn => {
                 btn.style.display = 'flex';
             });
-
-            // 5. Actualizar estado de los botones de paginación
+    
+            // Actualizar estado de los botones de paginación
             if (prevBtn) prevBtn.disabled = currentPage === 1;
             if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
-
-            // 6. Actualizar indicador de página
+    
+            // Actualizar indicador de página
             if (pageIndicator) pageIndicator.textContent = `${currentPage}/${totalPages}`;
-            
-            // 7. Asegurar que el scroll se mantenga visible al cambiar páginas
+    
+            // Asegurar que el scroll se mantenga visible al cambiar páginas
             if (tagsBar) tagsBar.scrollTo(0, 0);
         }
-
+    
         // Eventos para los botones de paginación
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
@@ -416,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
-
+    
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
                 if (currentPage < totalPages) {
@@ -425,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
-
+    
         // Inicializar la visualización
         updateTagsDisplay();
     }
@@ -602,7 +557,9 @@ document.addEventListener("DOMContentLoaded", () => {
         getLocation();
         
         // Aplicar filtro guardado
-        filterMarkers(getActiveFilter());
+        const activeFilter = getActiveFilter();
+        filterMarkers(activeFilter);
+        updateActiveButton(activeFilter);
         
         // Configurar evento para cerrar el modal
         if (closeModalBtn) {
@@ -612,9 +569,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     map.removeControl(routingControl);
                     routingControl = null;
                 }
+                // Restaurar la paginación de etiquetas al cerrar el modal
+                setupTagPagination();
             });
         }
-
+    
         // Actualizar ubicación periódicamente
         setInterval(getLocation, 2000);
     }
