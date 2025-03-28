@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('etiquetas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 50);
-            $table->string('icono', 50);
+            $table->enum('icono', ['fa-solid fa-monument', 'fa-solid fa-globe', 'fa-solid fa-hotel', 'fa-solid fa-circle-info', 'fa-solid fa-futbol', 'fa-solid fa-tree', 'fa-solid fa-umbrella-beach','fa-solid fa-star'])->nullable();
             $table->boolean('es_privado')->default(false);
             $table->foreignId('usuario_id')->constrained('usuarios');
             $table->timestamps();

@@ -68,7 +68,7 @@ main::after {
 }
 
 .form__field:placeholder-shown ~ .form__label {
-    font-size: 1.3rem;
+    font-size: 0.9rem;
     cursor: text;
     top: 20px;
 }

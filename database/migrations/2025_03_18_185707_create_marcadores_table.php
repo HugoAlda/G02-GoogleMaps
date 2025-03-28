@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('direccion', 300);
             $table->text('descripcion');
             $table->string('imagen', 255)->nullable();
-            $table->string('color', 20)->nullable();
-            $table->string('icono', 50)->nullable();
+            $table->enum('icono', ['fa-solid fa-monument', 'fa-solid fa-globe', 'fa-solid fa-hotel', 'fa-solid fa-circle-info', 'fa-solid fa-futbol', 'fa-solid fa-tree', 'fa-solid fa-umbrella-beach','fa-solid fa-star'])->nullable();
             $table->timestamps();
         });
     }

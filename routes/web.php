@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LobbyController;
 
 // Ruta principal redirige al login
 Route::get('/', [AuthController::class, 'showLoginView'])->name('login');
@@ -25,12 +26,15 @@ Route::controller(AuthController::class)->group(function () {
  */
 
 // Rutas del mapa protegidas por autenticación
-Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
-    // Métodos GET
-    Route::get('/', 'index')->name('mapa.index'); // Mostrar el mapa
-    Route::get('/juego', 'juego')->name('mapa.juego'); // Mostrar el juego
-    Route::get('/partida', 'partida')->name('mapa.partida'); // Iniciar una nueva partida
 
-    // Métodos POST
+Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
+    Route::get('/', 'index')->name('mapa.index');
+    Route::get('/juego', 'juego')->name('mapa.juego');
     Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
+
+    // Rutas para la administración de partidas (crear/buscar/partidas creadas)
+    Route::controller(LobbyController::class)->group(function () {  
+        Route::get('/partida', 'index')->name('mapa.lobby');  // Cambiado el nombre para evitar conflictos
+        Route::post('/partida', 'creaPartida')->name('mapa.creaPartida'); 
+    });
 });
