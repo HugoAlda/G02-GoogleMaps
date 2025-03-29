@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
             : 'Sin descripción';
         
         markerModalBody.innerHTML = `
-            <div class="row">
+            <div class="row" style="z-index: 5000;">
                 <div class="col-md-6">
                     <div class="marker-info-header mb-3">
                         <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">${markerData.etiqueta || 'Sin etiqueta'}</span>
@@ -325,8 +325,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
     
         allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
-    
-        // Separar el botón "Todos" de las demás etiquetas
         const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
         const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
     
@@ -336,54 +334,53 @@ document.addEventListener("DOMContentLoaded", () => {
             // Mostrar siempre el botón "Todos"
             if (allButton) allButton.style.display = 'flex';
     
-            // Ocultar todas las etiquetas de filtro primero
+            // Ocultar todas las etiquetas primero
             filterButtons.forEach(btn => {
                 btn.style.display = 'none';
             });
     
-            // Calcular qué etiquetas mostrar para la página actual
+            // Calcular las etiquetas a mostrar en la página actual
             const startIdx = (currentPage - 1) * tagsPerPage;
             const endIdx = startIdx + tagsPerPage;
             const tagsToShow = filterButtons.slice(startIdx, endIdx);
     
-            // Mostrar las etiquetas correspondientes a la página actual
+            // Mostrar las etiquetas correspondientes
             tagsToShow.forEach(btn => {
                 btn.style.display = 'flex';
             });
     
-            // Actualizar estado de los botones de paginación
-            if (prevBtn) prevBtn.disabled = currentPage === 1;
-            if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+            // Actualizar estado de los botones y el indicador de página
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            pageIndicator.textContent = `${currentPage}/${totalPages}`;
     
-            // Actualizar indicador de página
-            if (pageIndicator) pageIndicator.textContent = `${currentPage}/${totalPages}`;
-    
-            // Asegurar que el scroll se mantenga visible al cambiar páginas
-            if (tagsBar) tagsBar.scrollTo(0, 0);
+            // Reiniciar el scroll de la barra
+            tagsBar.scrollTo(0, 0);
         }
     
-        // Eventos para los botones de paginación
-        if (prevBtn) {
+        // Agregar listeners una sola vez usando una bandera
+        if (!prevBtn.dataset.listenerAdded) {
             prevBtn.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage--;
                     updateTagsDisplay();
                 }
             });
+            prevBtn.dataset.listenerAdded = true;
         }
     
-        if (nextBtn) {
+        if (!nextBtn.dataset.listenerAdded) {
             nextBtn.addEventListener('click', () => {
                 if (currentPage < totalPages) {
                     currentPage++;
                     updateTagsDisplay();
                 }
             });
+            nextBtn.dataset.listenerAdded = true;
         }
     
-        // Inicializar la visualización
         updateTagsDisplay();
-    }
+    }    
 
     /*** Configurar eventos de los botones de etiquetas ***/
     function setupTagButtons() {
@@ -569,10 +566,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     map.removeControl(routingControl);
                     routingControl = null;
                 }
-                // Restaurar la paginación de etiquetas al cerrar el modal
+                // Reiniciamos la paginación a la página 1
+                currentPage = 1;
                 setupTagPagination();
             });
-        }
+        }        
     
         // Actualizar ubicación periódicamente
         setInterval(getLocation, 2000);

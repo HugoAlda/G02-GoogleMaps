@@ -110,18 +110,6 @@ html, body {
     background-color: rgba(0,0,0,0.05);
 }
 
-/* Barra de etiquetas */
-.tags-bar {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    display: flex;
-    gap: 8px;
-    padding: 8px;
-}
-
 .btn-tag {
     padding: 8px 16px;
     border: none;
@@ -293,22 +281,27 @@ html, body {
 }
 /* Estilos para la paginación de etiquetas */
 .tags-container {
-    position: relative;
-    margin-bottom: 15px;
+    position: fixed;  /* Fija el contenedor para que siempre esté visible */
+    top: 10px;        /* Ajusta según la distancia deseada */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;    /* Asegura que esté sobre el mapa y otros elementos */
+    width: 90%;       /* O el ancho que necesites */
 }
 
 .tags-bar {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000; /* Aumentamos el z-index para asegurarnos de que quede sobre otros elementos */
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 8px;
+    padding: 8px;
     padding-bottom: 10px;
     scroll-behavior: smooth;
-}
-
-.paged-tags {
-    display: flex;
-    gap: 8px;
 }
 
 .tags-pagination {
@@ -317,6 +310,11 @@ html, body {
     align-items: center;
     gap: 15px;
     margin-top: 10px;
+}
+
+.paged-tags {
+    display: flex;
+    gap: 8px;
 }
 
 .btn-pagination {
