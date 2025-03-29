@@ -13,13 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const markerModalBody = document.getElementById('markerModalBody');
     const getDirectionsBtn = document.getElementById('getDirectionsBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
-
-    // Elementos de paginación
+    
+    // Elementos de paginación y etiquetas
     const tagsContainer = document.querySelector('.tags-container');
     const tagsBar = document.querySelector('.tags-bar');
     const prevBtn = document.querySelector('.btn-pagination.prev');
     const nextBtn = document.querySelector('.btn-pagination.next');
     const pageIndicator = document.querySelector('.page-indicator');
+    
+    // Elemento para el filtro por radio (select)
+    const radiusSelect = document.getElementById("radiusSelect");
 
     let map, currentMarker = null, currentLocationMarker, allMarkers = [], currentLayer = "normal";
     let selectedMarker = null;
@@ -36,13 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
         iconAnchor: [15, 30],
         popupAnchor: [0, -30]
     });
-
+    
     // Capas base del mapa
     const baseLayers = {
         normal: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }),
         satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: "&copy; Esri" })
     };
-
+    
     /*** Función para previsualizar imagen ***/
     if (imageInput) {
         imageInput.addEventListener("change", event => {
@@ -57,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
+    
     /*** Función para eliminar imagen seleccionada ***/
     if (removeImageButton) {
         removeImageButton.addEventListener("click", () => {
@@ -66,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imagePreviewContainer.classList.add("d-none");
         });
     }
-
+    
     /*** Función para inicializar el mapa ***/
     function initializeMap(coords) {
         map = L.map("map", { 
@@ -76,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         baseLayers[currentLayer].addTo(map);
         loadMarkers();
     }
-
+    
     /*** Función para actualizar la ubicación del usuario ***/
     function updateLocation(coords) {
         if (!map) initializeMap(coords);
@@ -87,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).addTo(map);
         return coords;
     }
-
+    
     /*** Obtener ubicación del usuario ***/
     function getLocation() {
         return new Promise((resolve, reject) => {
@@ -96,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 reject("Geolocation not supported");
                 return;
             }
-            
             navigator.geolocation.getCurrentPosition(
                 ({ coords }) => resolve(updateLocation([coords.latitude, coords.longitude])),
                 () => {
@@ -111,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         });
     }
-
+    
     /*** Función para crear un marcador ***/
     function createMarker(coords) {
         const redIcon = L.icon({
@@ -122,24 +124,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return L.marker(coords, { icon: redIcon }).addTo(map);
     }
-
+    
     /*** Función para eliminar un marcador ***/
     function removeMarker(marker) {
         if (marker && map.hasLayer(marker)) {
             map.removeLayer(marker);
         }
-    }        
-
+    }
+    
     /*** Función para mostrar información del marcador en el modal ***/
     function showMarkerInfo(markerData) {
-        // Convertir coordenadas a números si son strings
         const lat = typeof markerData.latitud === 'string' ? parseFloat(markerData.latitud) : markerData.latitud;
         const lng = typeof markerData.longitud === 'string' ? parseFloat(markerData.longitud) : markerData.longitud;
         
         selectedMarker = markerData;
         markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
         
-        // Procesar la descripción manteniendo saltos de línea y espacios
         const descripcion = markerData.descripcion 
             ? markerData.descripcion.replace(/\n/g, '<br>').replace(/\s\s/g, ' &nbsp;')
             : 'Sin descripción';
@@ -164,19 +164,13 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
         
-        // Mostrar el modal
         markerModal.show();
-        
-        // Centrar el mapa principal en el marcador
         map.setView([lat, lng], 16);
         
-        // Una vez que el modal se muestre completamente, inicializamos el mini mapa
         document.getElementById('markerModal').addEventListener('shown.bs.modal', () => {
-            // Crear el mini mapa
             const miniMap = L.map('miniMap').setView([lat, lng], 15);
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
             
-            // Definir iconos personalizados
             const redIcon = L.icon({
                 iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
                 iconSize: [25, 41],
@@ -190,34 +184,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 popupAnchor: [1, -34]
             });
             
-            // Obtener la ubicación actual del usuario para el mini mapa
             getLocation().then(userLoc => {
                 const userPoint = L.latLng(userLoc[0], userLoc[1]);
                 const markerPoint = L.latLng(lat, lng);
                 
-                // Agregar marcadores en el mini mapa
                 L.marker(userPoint, { icon: blueIcon }).addTo(miniMap);
                 L.marker(markerPoint, { icon: redIcon }).addTo(miniMap);
                 
-                // Dibujar una línea simple entre ambos puntos
-                const line = L.polyline([userPoint, markerPoint], {
-                    color: '#ff0000',
-                    weight: 4,
-                    opacity: 0.7
-                }).addTo(miniMap);
-                
-                miniMap.fitBounds([userPoint, markerPoint]);
+                const osrm = L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1'
+                });
+                osrm.route([userPoint, markerPoint], (err, routes) => {
+                    if (err) {
+                        console.error("Error al calcular la ruta:", err);
+                        return;
+                    }
+                    if (routes && routes.length > 0) {
+                        const bestRoute = routes[0];
+                        const routeLine = L.Routing.line(bestRoute, {
+                            styles: [{ color: '#ff0000', weight: 4, opacity: 0.7 }]
+                        }).addTo(miniMap);
+                        miniMap.fitBounds(routeLine.getBounds());
+                    }
+                });
             }).catch(error => {
                 console.error("Error al obtener la ubicación para el mini mapa:", error);
             });
             
-            // Forzar el redimensionamiento del mini mapa
             setTimeout(() => {
                 miniMap.invalidateSize();
             }, 100);
         }, { once: true });
-    }        
-
+    }
+    
     /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
         const tagColors = {
@@ -229,103 +228,32 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         return tagColors[tag.toLowerCase()] || 'info';
     }
-
+    
     /*** Cargar los marcadores guardados ***/
     function loadMarkers() {
         if (!window.marcadores) {
             console.error("No se encontraron marcadores");
             return;
         }
-        
         allMarkers.forEach(marker => map.removeLayer(marker));
         allMarkers = [];
-        
         allMarkers = window.marcadores.map(marcador => {
-            // Convertir coordenadas a números si son strings
             const lat = typeof marcador.latitud === 'string' ? parseFloat(marcador.latitud) : marcador.latitud;
             const lng = typeof marcador.longitud === 'string' ? parseFloat(marcador.longitud) : marcador.longitud;
-            
             const marker = L.marker([lat, lng], {
                 title: marcador.nombre,
                 alt: marcador.descripcion,
                 riseOnHover: true
             }).addTo(map);
-            
-            // Almacenar todos los datos del marcador
             marker.markerData = marcador;
-            
-            // Evento para hacer clic en el marcador
             marker.on('click', () => {
                 showMarkerInfo(marcador);
             });
-            
             marker.etiqueta = marcador.etiqueta;
             return marker;
         });
     }
-
-    /*** Configurar paginación de etiquetas ***/
-    function setupTagPagination() {
-        if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
     
-        allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
-        const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
-        const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
-    
-        const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
-    
-        function updateTagsDisplay() {
-            // Mostrar siempre el botón "Todos"
-            if (allButton) allButton.style.display = 'flex';
-    
-            // Ocultar todas las etiquetas primero
-            filterButtons.forEach(btn => {
-                btn.style.display = 'none';
-            });
-    
-            // Calcular las etiquetas a mostrar en la página actual
-            const startIdx = (currentPage - 1) * tagsPerPage;
-            const endIdx = startIdx + tagsPerPage;
-            const tagsToShow = filterButtons.slice(startIdx, endIdx);
-    
-            // Mostrar las etiquetas correspondientes
-            tagsToShow.forEach(btn => {
-                btn.style.display = 'flex';
-            });
-    
-            // Actualizar estado de los botones y el indicador de página
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage >= totalPages;
-            pageIndicator.textContent = `${currentPage}/${totalPages}`;
-    
-            // Reiniciar el scroll de la barra
-            tagsBar.scrollTo(0, 0);
-        }
-    
-        // Agregar listeners una sola vez usando una bandera
-        if (!prevBtn.dataset.listenerAdded) {
-            prevBtn.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updateTagsDisplay();
-                }
-            });
-            prevBtn.dataset.listenerAdded = true;
-        }
-    
-        if (!nextBtn.dataset.listenerAdded) {
-            nextBtn.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updateTagsDisplay();
-                }
-            });
-            nextBtn.dataset.listenerAdded = true;
-        }
-    
-        updateTagsDisplay();
-    }    
-
     /*** Configurar eventos de los botones de etiquetas ***/
     function setupTagButtons() {
         document.querySelectorAll('.btn-tag').forEach(button => {
@@ -334,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     }
-
+    
     /*** Filtrar los marcadores por etiqueta ***/
     function filterMarkers(tag) {
         allMarkers.forEach(marker => {
@@ -348,11 +276,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
-        
         updateActiveButton(tag);
         saveActiveFilter(tag);
     }
-
+    
     /*** Actualizar el botón activo ***/
     function updateActiveButton(activeTag) {
         document.querySelectorAll('.btn-tag').forEach(btn => {
@@ -362,8 +289,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    /*** Guardar filtro activo en sessionStorage ***/
+    
+    /*** Guardar y obtener filtro activo en sessionStorage ***/
     function saveActiveFilter(tag) {
         try {
             sessionStorage.setItem('activeFilter', tag);
@@ -371,8 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error al guardar el filtro:', e);
         }
     }
-
-    /*** Obtener filtro activo de sessionStorage ***/
     function getActiveFilter() {
         try {
             return sessionStorage.getItem('activeFilter') || 'all';
@@ -381,29 +306,77 @@ document.addEventListener("DOMContentLoaded", () => {
             return 'all';
         }
     }
-
+    
+    /*** Filtrar marcadores por radio de búsqueda ***/
+    let radiusCircle = null;
+    function filterMarkersByRadius(radiusValue) {
+        if (radiusValue === "all" || radiusValue.trim() === "" || parseInt(radiusValue, 10) <= 0) {
+            allMarkers.forEach(marker => {
+                if (!map.hasLayer(marker)) {
+                    marker.addTo(map);
+                }
+            });
+            if (radiusCircle) {
+                map.removeLayer(radiusCircle);
+                radiusCircle = null;
+            }
+            return;
+        }
+        const radius = parseInt(radiusValue, 10);
+        getLocation().then(userLoc => {
+            const userLatLng = L.latLng(userLoc[0], userLoc[1]);
+            if (radiusCircle) {
+                map.removeLayer(radiusCircle);
+            }
+            radiusCircle = L.circle(userLatLng, {
+                radius: radius,
+                color: '#3388ff',
+                fillColor: '#3388ff',
+                fillOpacity: 0.2,
+                weight: 2
+            }).addTo(map);
+            allMarkers.forEach(marker => {
+                const markerLatLng = marker.getLatLng();
+                const distance = userLatLng.distanceTo(markerLatLng);
+                if (distance <= radius) {
+                    if (!map.hasLayer(marker)) {
+                        marker.addTo(map);
+                    }
+                } else {
+                    if (map.hasLayer(marker)) {
+                        map.removeLayer(marker);
+                    }
+                }
+            });
+        }).catch(error => {
+            console.error("Error al obtener la ubicación para el filtro de radio:", error);
+        });
+    }
+    
+    // Escuchar cambios en el select de radio (ya que tu HTML usa select)
+    if (radiusSelect) {
+        radiusSelect.addEventListener("change", function() {
+            filterMarkersByRadius(this.value);
+        });
+    }
+    
     /*** Manejar la adición de un nuevo punto ***/
     if (buttonAddPoint) {
         buttonAddPoint.addEventListener("click", () => {
             const modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
             modal.hide();
-
             const pointControls = document.getElementById("point-controls");
             const confirmButton = document.getElementById("confirm-add-point");
             const cancelButton = document.getElementById("cancel-add-point");
-
             pointControls.style.display = "block";
             confirmButton.disabled = true;
-
             const mapClickHandler = e => {
                 if (currentMarker) removeMarker(currentMarker);
                 currentMarker = createMarker(e.latlng);
                 confirmButton.textContent = "Confirmar";
                 confirmButton.disabled = false;
             };
-
             map.on("click", mapClickHandler);
-
             cancelButton.addEventListener("click", () => {
                 if (currentMarker) removeMarker(currentMarker);
                 pointControls.style.display = "none";
@@ -412,7 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 map.off("click", mapClickHandler);
                 modal.show();
             }, { once: true });
-
             confirmButton.addEventListener("click", () => {
                 if (!currentMarker) return;
                 const savedMarker = currentMarker.getLatLng();
@@ -422,12 +394,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 modal.show();
                 buttonAddPoint.style.backgroundColor = "#008000";
                 buttonAddPoint.style.color = "#fff";
-
                 form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
             }, { once: true });
         });
     }
-
+    
     /*** Enviar formulario con marcador ***/
     function submitForm(event, savedMarker) {
         event.preventDefault();
@@ -435,7 +406,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("latitud", savedMarker.lat);
         formData.append("longitud", savedMarker.lng);
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-
         fetch(form.action, {
             method: "POST",
             body: formData,
@@ -448,14 +418,13 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => console.error("Error al enviar los datos:", error));
     }
-
+    
     /*** Configurar controles del mapa ***/
     function setupMapControls() {
         const centerUserBtn = document.getElementById("centerUser");
         const zoomInBtn = document.getElementById("zoomIn");
         const zoomOutBtn = document.getElementById("zoomOut");
         const toggleSatelliteBtn = document.getElementById("toggleSatellite");
-
         if (centerUserBtn) centerUserBtn.addEventListener("click", () => {
             if (currentLocationMarker) {
                 map.setView(currentLocationMarker.getLatLng(), 16);
@@ -463,18 +432,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 getLocation();
             }
         });
-
         if (zoomInBtn) zoomInBtn.addEventListener("click", () => map?.setZoom(map.getZoom() + 1));
         if (zoomOutBtn) zoomOutBtn.addEventListener("click", () => map?.setZoom(map.getZoom() - 1));
-        
         if (toggleSatelliteBtn) {
             toggleSatelliteBtn.addEventListener("click", () => {
                 if (!map) return;
-                
                 map.removeLayer(baseLayers[currentLayer]);
                 currentLayer = currentLayer === "normal" ? "satellite" : "normal";
                 baseLayers[currentLayer].addTo(map);
-                
                 const icon = toggleSatelliteBtn.querySelector("i");
                 if (icon) {
                     if (currentLayer === "satellite") {
@@ -486,40 +451,21 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     }
-
+    
     /*** Inicialización completa ***/
     function init() {
-        // Configurar controles
         setupTagButtons();
         setupMapControls();
-        setupTagPagination();
-        
-        // Obtener ubicación inicial
         getLocation();
-        
-        // Aplicar filtro guardado
         const activeFilter = getActiveFilter();
         filterMarkers(activeFilter);
         updateActiveButton(activeFilter);
-        
-        // Configurar evento para cerrar el modal
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', () => {
-                markerModal.hide();
-                if (routingControl) {
-                    map.removeControl(routingControl);
-                    routingControl = null;
-                }
-                // Reiniciamos la paginación a la página 1
-                currentPage = 1;
-                setupTagPagination();
-            });
-        }        
-    
-        // Actualizar ubicación periódicamente
+        // Aplicar el filtro por radio usando el valor actual (por defecto "all")
+        if (radiusSelect) {
+            filterMarkersByRadius(radiusSelect.value);
+        }
         setInterval(getLocation, 2000);
     }
-
-    // Iniciar la aplicación
+    
     init();
 });

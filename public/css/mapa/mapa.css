@@ -158,21 +158,36 @@ html, body {
     border-radius: 8px;
     z-index: 1000;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    align-items: flex-end;  /* Alinea todos los elementos a la derecha */
     gap: 10px;
     max-height: calc(100vh - 96px);
     overflow-y: auto;
-    margin-top: 20px;
 }
 
-/* Ocultar scrollbar pero mantener funcionalidad */
-.controls-panel::-webkit-scrollbar {
-    display: none;
+
+/* Estilo para el filtro por radio dentro del panel */
+.controls-panel .radius-filter {
+    margin-top: auto;  /* Esto empuja el filtro al fondo */
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-.controls-panel {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.controls-panel .radius-filter label {
+    font-weight: bold;
+}
+
+.controls-panel .radius-filter select {
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: white;
 }
 
 .btn-primary {
