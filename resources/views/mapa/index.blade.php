@@ -25,26 +25,14 @@
                 <button class="btn-tag" data-tag="all">
                     <i class="fas fa-globe"></i> Todos
                 </button>
-                
-                <!-- Botones de etiquetas (se muestran según paginación) -->
+                <!-- Botones de etiquetas -->
                 @foreach($etiquetas as $etiqueta)
-                    <button class="btn-tag" data-tag="{{ $etiqueta->nombre }}">
-                        {!! $etiqueta->icono !!} {{ $etiqueta->nombre }}
+                    <button class="btn-tag {{ $etiqueta->icono }}" data-tag="{{ $etiqueta->nombre }}">
+                        {{ $etiqueta->nombre }}
                     </button>
                 @endforeach
             </div>
-            
-            <!-- Controles de paginación -->
-            <div class="tags-pagination">
-                <button class="btn-pagination prev" disabled>
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <span class="page-indicator">1/X</span>
-                <button class="btn-pagination next">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
+        </div>        
 
         <!-- Modal para información del marcador -->
         <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">

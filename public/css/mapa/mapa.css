@@ -111,16 +111,17 @@ html, body {
 }
 
 .btn-tag {
-    padding: 8px 16px;
+    padding: 8px 12px;            /* Espaciado interno */
     border: none;
     background: white;
     color: #5f6368;
     border-radius: 16px;
     font-size: 14px;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;         /* Se ajusta al contenido */
     align-items: center;
-    gap: 6px;
+    gap: 6px;                     /* Espacio entre icono y texto */
+    white-space: nowrap;          /* Evita que el texto se divida */
 }
 
 .btn-tag i {
@@ -271,18 +272,16 @@ html, body {
     }
 
     .btn-tag {
-        flex: 1 1 auto;
-        min-width: 80px;
-        padding: 6px 12px;
+        padding: 6px 10px;
         font-size: 13px;
-        display: flex;
+        display: inline-flex;
         justify-content: center;
+        white-space: nowrap;
     }
 }
 /* Estilos para la paginación de etiquetas */
 .tags-container {
     position: fixed;  /* Fija el contenedor para que siempre esté visible */
-    top: 10px;        /* Ajusta según la distancia deseada */
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;    /* Asegura que esté sobre el mapa y otros elementos */
@@ -291,7 +290,6 @@ html, body {
 
 .tags-bar {
     position: absolute;
-    top: 70px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000; /* Aumentamos el z-index para asegurarnos de que quede sobre otros elementos */

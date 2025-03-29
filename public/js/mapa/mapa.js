@@ -128,74 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (marker && map.hasLayer(marker)) {
             map.removeLayer(marker);
         }
-    }
-
-    /*** Función para calcular y mostrar la ruta ***/
-    function calculateRoute(destination, miniMap = null) {
-        // Eliminar control de ruta previo si existe
-        if (routingControl) {
-            map.removeControl(routingControl);
-            routingControl = null;
-        }
-        
-        // Obtener la ubicación actual del usuario
-        getLocation().then(userLocation => {
-            const startPoint = L.latLng(userLocation[0], userLocation[1]);
-            const endPoint = L.latLng(destination[0], destination[1]);
-            
-            console.log("Calculando ruta desde:", startPoint, "hasta:", endPoint);
-            
-            // Definir iconos personalizados para origen y destino
-            const redIcon = L.icon({
-                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
-            const blueIcon = L.icon({
-                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
-            
-            // Crear el control de ruta usando OSRM
-            routingControl = L.Routing.control({
-                waypoints: [startPoint, endPoint],
-                routeWhileDragging: false,
-                draggableWaypoints: false,
-                addWaypoints: false,
-                lineOptions: {
-                    styles: [{ color: '#3388ff', opacity: 0.7, weight: 5 }]
-                },
-                // Personalizar los marcadores de inicio y fin
-                createMarker: function(i, waypoint) {
-                    return i === 0 ? 
-                        L.marker(waypoint.latLng, { icon: blueIcon }) : 
-                        L.marker(waypoint.latLng, { icon: redIcon });
-                },
-                // Configurar el router OSRM (asegúrate de usar HTTPS)
-                router: L.Routing.osrmv1({
-                    serviceUrl: 'https://router.project-osrm.org/route/v1'
-                })
-            }).addTo(map);
-            
-            // Si se provee un mini mapa, dibujar una línea simple conectando origen y destino
-            if (miniMap) {
-                L.marker(startPoint, { icon: blueIcon }).addTo(miniMap);
-                L.marker(endPoint, { icon: redIcon }).addTo(miniMap);
-                
-                const polyline = L.polyline([startPoint, endPoint], {
-                    color: '#ff0000',
-                    weight: 4,
-                    opacity: 0.7
-                }).addTo(miniMap);
-                miniMap.fitBounds([startPoint, endPoint]);
-            }
-        }).catch(error => {
-            console.error("Error al obtener la ubicación del usuario:", error);
-        });
-    }            
+    }        
 
     /*** Función para mostrar información del marcador en el modal ***/
     function showMarkerInfo(markerData) {

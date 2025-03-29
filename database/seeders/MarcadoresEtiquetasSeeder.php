@@ -29,8 +29,12 @@ class MarcadoresEtiquetasSeeder extends Seeder
                 'etiqueta_id' => 3, // Punto de interes
             ],
             [
+                'marcador_id' => 4, // Hospital de Bellvitge
+                'etiqueta_id' => 6, // Favoritos
+            ],
+            [
                 'marcador_id' => 5, // Parque de Bellvitge
-                'etiqueta_id' => 6, // Parques
+                'etiqueta_id' => 5, // Parques
             ],
             [
                 'marcador_id' => 6, // Metro de Bellvitge
@@ -60,7 +64,6 @@ class MarcadoresEtiquetasSeeder extends Seeder
                 'marcador_id' => 12, // La Flama
                 'etiqueta_id' => 3, // Punto de interes
             ]
-
         ];
 
         foreach ($relaciones as $relacion){
