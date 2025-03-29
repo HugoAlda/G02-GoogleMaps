@@ -1,3 +1,31 @@
+/* Panel de indicaciones (debe estar POR ENCIMA) */
+.leaflet-routing-container {
+    position: fixed !important;
+    z-index: 1000 !important;  /* Mayor que el modal */
+    top: 20px;
+    right: 20px;
+    background: white;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 300px;
+}
+
+/* Modal del acertijo (debe estar POR DEBAJO) */
+#popup-pista {
+    position: fixed;
+    z-index: 900;  /* Menor que el panel de ruta */
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 250px;
+}
+
 #map {
     height: 100vh;
     width: 100%;
@@ -5,18 +33,6 @@
 
 #btn-responder {
     background-color: #0066CC;
-}
-
-#popup-pista {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    background: white;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    width: 250px;
 }
 
 /* Título del popup */

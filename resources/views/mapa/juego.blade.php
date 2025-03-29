@@ -14,6 +14,14 @@
 </head>
 <body>
 
+    <!-- Popup de pista dinámico -->
+    <div id="popup-pista" class="popup-pista">
+        <h5 id="titulo-pista"></h5>
+        <p id="acertijo-pista"></p>
+        <input type="text" id="respuesta" class="form-control mb-2" placeholder="Escribe tu respuesta">
+        <button class="btn btn-primary w-100" id="btn-responder">Responder</button>
+    </div>
+
     <!-- Mapa -->
     <div id="map"></div>
 
@@ -27,14 +35,9 @@
         <button id="centerUser" class="btn btn-primary iconos" title="Centrar en mi ubicación">
             <i class="fas fa-location-crosshairs"></i>
         </button>
-    </div>
-
-    <!-- Popup de pista dinámico -->
-    <div id="popup-pista" class="popup-pista">
-        <h5 id="titulo-pista"></h5>
-        <p id="acertijo-pista"></p>
-        <input type="text" id="respuesta" class="form-control mb-2" placeholder="Escribe tu respuesta">
-        <button class="btn btn-primary w-100" id="btn-responder">Responder</button>
+        <button id="toggleRoutePanel" class="btn btn-primary iconos" title="Mostrar indicaciones">
+            <i class="fas fa-route"></i>
+        </button>        
     </div>
     
 

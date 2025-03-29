@@ -5,13 +5,12 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     const dLon = (lon2 - lon1) * rad;
 
     const a = Math.sin(dLat / 2) ** 2 +
-              Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-              Math.sin(dLon / 2) ** 2;
+        Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
+        Math.sin(dLon / 2) ** 2;
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
-
 
 document.addEventListener("DOMContentLoaded", function () {
     const guardado = localStorage.getItem('indicePunto');
@@ -36,6 +35,7 @@ function cargarPunto(juegoId, indice = 0) {
         .then(data => {
             if (data.error) {
                 localStorage.removeItem('indicePunto');
+                localStorage.removeItem('puntosSuperados');
                 Swal.fire({
                     icon: 'success',
                     title: '¡Has completado el juego! 🎉',
@@ -59,7 +59,6 @@ function cargarPunto(juegoId, indice = 0) {
                 lng: data.longitud
             };
 
-            // Actualizar círculo solo si ya se conoce la ubicación del jugador
             if (window.ubicacionJugador) {
                 actualizarRango(window.ubicacionJugador);
             }
@@ -80,26 +79,21 @@ function enviarRespuesta() {
             showConfirmButton: false
         });
 
-        const puntoActual = [window.ubicacionPunto.lat, window.ubicacionPunto.lng];
-        L.marker(puntoActual)
+        const puntoActual = {
+            lat: window.ubicacionPunto.lat,
+            lng: window.ubicacionPunto.lng
+        };
+
+        const superados = JSON.parse(localStorage.getItem('puntosSuperados')) || [];
+        superados.push(puntoActual);
+        localStorage.setItem('puntosSuperados', JSON.stringify(superados));
+
+        L.marker([puntoActual.lat, puntoActual.lng])
             .addTo(map)
             .bindPopup("¡Punto superado!").openPopup();
 
         if (window.ubicacionJugador) {
-            if (window.rutaControl) {
-                map.removeControl(window.rutaControl);
-            }
-
-            window.rutaControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(window.ubicacionJugador[0], window.ubicacionJugador[1]),
-                    L.latLng(puntoActual[0], puntoActual[1])
-                ],
-                routeWhileDragging: false,
-                draggableWaypoints: false,
-                addWaypoints: false,
-                show: false
-            }).addTo(map);
+            mostrarRuta(window.ubicacionJugador, [puntoActual.lat, puntoActual.lng]);
         }
 
         window.indicePunto++;
@@ -123,7 +117,7 @@ function normalizarTexto(texto) {
         .replace(/[\u0300-\u036f]/g, "");
 }
 
-let map, currentLocationMarker, pistaCircle;
+let map, currentLocationMarker, pistaCircle, rutaPanel, rutaPanelVisible = false;
 
 function mostrarMapa() {
     let currentLayer = 'normal';
@@ -155,6 +149,7 @@ function mostrarMapa() {
                 }
 
                 actualizarRango(userCoords);
+                dibujarPuntosSuperados();
             },
             (error) => {
                 console.error('Error:', error);
@@ -170,6 +165,44 @@ function mostrarMapa() {
     }
 
     configurarControlesPersonalizados();
+}
+
+function dibujarPuntosSuperados() {
+    const superados = JSON.parse(localStorage.getItem('puntosSuperados')) || [];
+
+    superados.forEach(p => {
+        const coords = [p.lat, p.lng];
+        L.marker(coords).addTo(map).bindPopup("¡Punto superado!");
+
+        if (window.ubicacionJugador) {
+            mostrarRuta(window.ubicacionJugador, coords);
+        }
+    });
+}
+
+function mostrarRuta(origen, destino) {
+    if (window.rutaControl) {
+        map.removeControl(window.rutaControl);
+    }
+
+    window.rutaControl = L.Routing.control({
+        waypoints: [
+            L.latLng(origen[0], origen[1]),
+            L.latLng(destino[0], destino[1])
+        ],
+        routeWhileDragging: false,
+        draggableWaypoints: false,
+        addWaypoints: false,
+        show: true,
+        createMarker: () => null
+    }).addTo(map);
+
+    setTimeout(() => {
+        rutaPanel = document.querySelector('.leaflet-routing-container');
+        if (rutaPanel) {
+            rutaPanel.style.display = "none";
+        }
+    }, 300);
 }
 
 function actualizarRango(ubicacionJugador) {
@@ -198,6 +231,7 @@ function configurarControlesPersonalizados() {
     const zoomInBtn = document.getElementById("zoomIn");
     const zoomOutBtn = document.getElementById("zoomOut");
     const centerUserBtn = document.getElementById("centerUser");
+    const toggleRoutePanelBtn = document.getElementById("toggleRoutePanel");
 
     if (zoomInBtn) {
         zoomInBtn.addEventListener("click", () => {
@@ -217,6 +251,29 @@ function configurarControlesPersonalizados() {
                 map.setView(window.ubicacionJugador, 17);
             } else {
                 alert("Ubicación del jugador no disponible todavía.");
+            }
+        });
+    }
+
+    if (toggleRoutePanelBtn) {
+        toggleRoutePanelBtn.addEventListener("click", () => {
+            if (!rutaPanel) {
+                rutaPanel = document.querySelector('.leaflet-routing-container');
+            }
+    
+            if (rutaPanel) {
+                rutaPanelVisible = !rutaPanelVisible;
+                rutaPanel.style.display = rutaPanelVisible ? "block" : "none";
+    
+                // Estilos para asegurar que se muestre por encima de #popup-pista
+                rutaPanel.style.zIndex = "4000"; // Mayor que 1000
+                rutaPanel.style.position = "absolute"; // o "fixed" si prefieres
+                rutaPanel.style.top = "10px";
+                rutaPanel.style.right = "10px";
+                rutaPanel.style.background = "white";
+                rutaPanel.style.boxShadow = "0 0 10px rgba(0,0,0,0.2)";
+                rutaPanel.style.maxHeight = "90vh";
+                rutaPanel.style.overflowY = "auto";
             }
         });
     }
