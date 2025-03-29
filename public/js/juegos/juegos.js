@@ -190,7 +190,7 @@ function actualizarRango(ubicacionJugador) {
             fillOpacity: 0.2,
             radius: dist + 50
         }).addTo(map);
-    }    
+    }
 }
 
 function configurarControlesPersonalizados() {
