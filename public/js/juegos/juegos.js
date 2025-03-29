@@ -12,6 +12,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
     const guardado = localStorage.getItem('indicePunto');
     window.indicePunto = guardado ? parseInt(guardado) : 0;
