@@ -265,7 +265,6 @@ html, body {
     /* Barra de etiquetas */
     .tags-bar {
         position: absolute;
-        top: 60px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
