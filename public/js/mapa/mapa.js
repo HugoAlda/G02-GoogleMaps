@@ -132,70 +132,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /*** Función para calcular y mostrar la ruta ***/
     function calculateRoute(destination, miniMap = null) {
-        // Limpiar ruta anterior si existe
+        // Eliminar control de ruta previo si existe
         if (routingControl) {
             map.removeControl(routingControl);
             routingControl = null;
         }
-    
-        // Obtener ubicación actual y calcular ruta
+        
+        // Obtener la ubicación actual del usuario
         getLocation().then(userLocation => {
-            // Iconos personalizados
+            const startPoint = L.latLng(userLocation[0], userLocation[1]);
+            const endPoint = L.latLng(destination[0], destination[1]);
+            
+            console.log("Calculando ruta desde:", startPoint, "hasta:", endPoint);
+            
+            // Definir iconos personalizados para origen y destino
             const redIcon = L.icon({
                 iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
                 popupAnchor: [1, -34]
             });
-            
             const blueIcon = L.icon({
                 iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
                 iconSize: [25, 41],
                 iconAnchor: [12, 41],
                 popupAnchor: [1, -34]
             });
-    
-            // Configurar el control de ruta para el mapa principal
+            
+            // Crear el control de ruta usando OSRM
             routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(userLocation[0], userLocation[1]),
-                    L.latLng(destination[0], destination[1])
-                ],
+                waypoints: [startPoint, endPoint],
                 routeWhileDragging: false,
-                showAlternatives: false,
-                collapsible: false,
-                addWaypoints: false,
                 draggableWaypoints: false,
+                addWaypoints: false,
                 lineOptions: {
-                    styles: [{color: '#3388ff', opacity: 0.7, weight: 5}]
+                    styles: [{ color: '#3388ff', opacity: 0.7, weight: 5 }]
                 },
-                createMarker: function(i, wp) {
+                // Personalizar los marcadores de inicio y fin
+                createMarker: function(i, waypoint) {
                     return i === 0 ? 
-                        L.marker(wp.latLng, {icon: blueIcon}) : 
-                        L.marker(wp.latLng, {icon: redIcon});
-                }
+                        L.marker(waypoint.latLng, { icon: blueIcon }) : 
+                        L.marker(waypoint.latLng, { icon: redIcon });
+                },
+                // Configurar el router OSRM (asegúrate de usar HTTPS)
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1'
+                })
             }).addTo(map);
-    
-            // Configurar la ruta para el minimapa si existe
+            
+            // Si se provee un mini mapa, dibujar una línea simple conectando origen y destino
             if (miniMap) {
-                // Añadir marcadores de origen y destino al minimapa
-                L.marker([userLocation[0], userLocation[1]], {icon: blueIcon}).addTo(miniMap);
-                L.marker([destination[0], destination[1]], {icon: redIcon}).addTo(miniMap);
+                L.marker(startPoint, { icon: blueIcon }).addTo(miniMap);
+                L.marker(endPoint, { icon: redIcon }).addTo(miniMap);
                 
-                // Crear una línea de ruta simple para el minimapa
-                const routeLine = L.polyline([userLocation, destination], {
+                const polyline = L.polyline([startPoint, endPoint], {
                     color: '#ff0000',
                     weight: 4,
                     opacity: 0.7
                 }).addTo(miniMap);
-                
-                // Ajustar vista del minimapa para mostrar toda la ruta
-                miniMap.fitBounds([userLocation, destination]);
+                miniMap.fitBounds([startPoint, endPoint]);
             }
-    
-            // [El resto de la función permanece igual]
+        }).catch(error => {
+            console.error("Error al obtener la ubicación del usuario:", error);
         });
-    }
+    }            
 
     /*** Función para mostrar información del marcador en el modal ***/
     function showMarkerInfo(markerData) {
@@ -204,20 +204,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const lng = typeof markerData.longitud === 'string' ? parseFloat(markerData.longitud) : markerData.longitud;
         
         selectedMarker = markerData;
-        
-        // Configurar el contenido del modal
         markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
         
-        // Procesar la descripción para mantener saltos de línea y espacios
+        // Procesar la descripción manteniendo saltos de línea y espacios
         const descripcion = markerData.descripcion 
             ? markerData.descripcion.replace(/\n/g, '<br>').replace(/\s\s/g, ' &nbsp;')
             : 'Sin descripción';
         
         markerModalBody.innerHTML = `
-            <div class="row" style="z-index: 5000;">
+            <div class="row">
                 <div class="col-md-6">
                     <div class="marker-info-header mb-3">
-                        <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">${markerData.etiqueta || 'Sin etiqueta'}</span>
+                        <span class="badge bg-${getTagColorClass(markerData.etiqueta)}">
+                            ${markerData.etiqueta || 'Sin etiqueta'}
+                        </span>
                     </div>
                     <div class="marker-info-body">
                         <p class="mt-2"><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
@@ -227,52 +227,63 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
                 <div class="col-md-6">
                     <div id="miniMap" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #ddd;"></div>
-                    <div id="directionsPanel" class="mt-3">
-                        <h5>Cómo llegar desde tu ubicación:</h5>
-                        <div id="directionsInstructions" class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
-                            <div class="text-center">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
-                                <p>Calculando ruta...</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         `;
         
-        // Inicializar el mini mapa en el modal
-        const miniMap = L.map('miniMap').setView([lat, lng], 15);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
-        
-        // Iconos personalizados
-        const redIcon = L.icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        });
-        
-        const blueIcon = L.icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        });
-        
-        // Marcador de destino en el mini mapa
-        L.marker([lat, lng], {icon: redIcon}).addTo(miniMap);
-        
         // Mostrar el modal
         markerModal.show();
         
-        // Centrar el mapa principal en el marcador seleccionado
+        // Centrar el mapa principal en el marcador
         map.setView([lat, lng], 16);
         
-        // Calcular ruta automáticamente y mostrarla en ambos mapas
-        calculateRoute([lat, lng], miniMap);
-    }
+        // Una vez que el modal se muestre completamente, inicializamos el mini mapa
+        document.getElementById('markerModal').addEventListener('shown.bs.modal', () => {
+            // Crear el mini mapa
+            const miniMap = L.map('miniMap').setView([lat, lng], 15);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
+            
+            // Definir iconos personalizados
+            const redIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            const blueIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            // Obtener la ubicación actual del usuario para el mini mapa
+            getLocation().then(userLoc => {
+                const userPoint = L.latLng(userLoc[0], userLoc[1]);
+                const markerPoint = L.latLng(lat, lng);
+                
+                // Agregar marcadores en el mini mapa
+                L.marker(userPoint, { icon: blueIcon }).addTo(miniMap);
+                L.marker(markerPoint, { icon: redIcon }).addTo(miniMap);
+                
+                // Dibujar una línea simple entre ambos puntos
+                const line = L.polyline([userPoint, markerPoint], {
+                    color: '#ff0000',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(miniMap);
+                
+                miniMap.fitBounds([userPoint, markerPoint]);
+            }).catch(error => {
+                console.error("Error al obtener la ubicación para el mini mapa:", error);
+            });
+            
+            // Forzar el redimensionamiento del mini mapa
+            setTimeout(() => {
+                miniMap.invalidateSize();
+            }, 100);
+        }, { once: true });
+    }        
 
     /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {

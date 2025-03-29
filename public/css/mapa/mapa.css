@@ -349,15 +349,6 @@ html, body {
     border-radius: 2px;
 }
 
-/* Panel de información del marcador */
-.truncate {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .panel-controls {
     display: flex;
     justify-content: space-between;
