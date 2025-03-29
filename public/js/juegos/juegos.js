@@ -265,15 +265,7 @@ function configurarControlesPersonalizados() {
                 rutaPanelVisible = !rutaPanelVisible;
                 rutaPanel.style.display = rutaPanelVisible ? "block" : "none";
     
-                // Estilos para asegurar que se muestre por encima de #popup-pista
                 rutaPanel.style.zIndex = "4000"; // Mayor que 1000
-                rutaPanel.style.position = "absolute"; // o "fixed" si prefieres
-                rutaPanel.style.top = "10px";
-                rutaPanel.style.right = "10px";
-                rutaPanel.style.background = "white";
-                rutaPanel.style.boxShadow = "0 0 10px rgba(0,0,0,0.2)";
-                rutaPanel.style.maxHeight = "90vh";
-                rutaPanel.style.overflowY = "auto";
             }
         });
     }

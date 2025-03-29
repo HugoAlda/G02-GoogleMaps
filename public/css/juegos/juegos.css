@@ -11,6 +11,7 @@
     border-radius: 8px;
     padding: 10px;
     width: 300px;
+    display: none;
 }
 
 /* Modal del acertijo (debe estar POR DEBAJO) */
