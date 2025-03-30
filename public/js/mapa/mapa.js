@@ -24,7 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Elemento para el filtro por radio (select)
     const radiusSelect = document.getElementById("radiusSelect");
   
-    let map, currentMarker = null, currentLocationMarker, allMarkers = [], currentLayer = "normal";
+    // Variables globales
+    let map,
+        currentMarker = null,
+        currentLocationMarker,
+        allMarkers = [],
+        currentLayer = "normal";
     let selectedMarker = null;
     let routingControl = null;
     let currentPage = 1;
@@ -43,8 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Capas base del mapa
     const baseLayers = {
-      normal: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }),
-      satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: "&copy; Esri" })
+      normal: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+      }),
+      satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "&copy; Esri"
+      })
     };
   
     /*** Previsualizar imagen ***/
@@ -134,11 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function showMarkerInfo(markerData) {
       const lat = typeof markerData.latitud === 'string' ? parseFloat(markerData.latitud) : markerData.latitud;
       const lng = typeof markerData.longitud === 'string' ? parseFloat(markerData.longitud) : markerData.longitud;
+  
       selectedMarker = markerData;
       markerModalTitle.textContent = markerData.nombre || 'Sin nombre';
+  
       const descripcion = markerData.descripcion
         ? markerData.descripcion.replace(/\n/g, '<br>').replace(/\s\s/g, ' &nbsp;')
         : 'Sin descripción';
+  
+      // Se añade el botón "Añadir a Favoritos" al contenido del modal
       markerModalBody.innerHTML = `
         <div class="row">
           <div class="col-md-6">
@@ -151,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <p class="mt-2"><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
               ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3 mt-2">` : ''}
               <p class="mt-2"><strong>Dirección:</strong> ${markerData.direccion || 'Sin dirección especificada'}</p>
+              <button id="favButton" class="btn btn-warning mt-3">Añadir a Favoritos</button>
             </div>
           </div>
           <div class="col-md-6">
@@ -158,11 +172,19 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
       `;
+  
       markerModal.show();
       map.setView([lat, lng], 16);
+  
+      // Asociar el evento del botón de Favoritos
+      document.getElementById('favButton').addEventListener('click', () => {
+        addToFavorites(markerData);
+      });
+  
       document.getElementById('markerModal').addEventListener('shown.bs.modal', () => {
         const miniMap = L.map('miniMap').setView([lat, lng], 15);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(miniMap);
+  
         const redIcon = L.icon({
           iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
           iconSize: [25, 41],
@@ -175,11 +197,13 @@ document.addEventListener("DOMContentLoaded", () => {
           iconAnchor: [12, 41],
           popupAnchor: [1, -34]
         });
+  
         getLocation().then(userLoc => {
           const userPoint = L.latLng(userLoc[0], userLoc[1]);
           const markerPoint = L.latLng(lat, lng);
           L.marker(userPoint, { icon: blueIcon }).addTo(miniMap);
           L.marker(markerPoint, { icon: redIcon }).addTo(miniMap);
+  
           const osrm = L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' });
           osrm.route([userPoint, markerPoint], (err, routes) => {
             if (err) {
@@ -197,9 +221,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }).catch(error => {
           console.error("Error al obtener la ubicación para el mini mapa:", error);
         });
-        setTimeout(() => { miniMap.invalidateSize(); }, 100);
+  
+        setTimeout(() => {
+          miniMap.invalidateSize();
+        }, 100);
       }, { once: true });
     }
+  
+    /*** Agregar a Favoritos (insertar en la etiqueta "Favoritos") ***/
+    function addToFavorites(markerData) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+        fetch('/api/favorites', {
+          method: 'POST',
+          body: JSON.stringify({ marker_id: markerData.id }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+        })
+        .catch(error => console.error('Error al añadir a favoritos:', error));
+    }    
   
     /*** Obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
@@ -325,6 +370,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (radiusSelect) {
       radiusSelect.addEventListener("change", function() {
         filterMarkersCombined();
+        // Si se selecciona "all", se elimina el círculo de radio
+        if (this.value === "all") {
+          if (radiusCircle) {
+            map.removeLayer(radiusCircle);
+            radiusCircle = null;
+          }
+        }
       });
     }
     
@@ -425,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     /*** Inicialización completa ***/
     function init() {
-      // Por defecto, se establece el filtro activo en "all" (etiqueta "Todos")
+      // Por defecto, se establece el filtro activo en "all"
       saveActiveFilter("all");
       updateActiveButton("all");
       setupTagButtons();

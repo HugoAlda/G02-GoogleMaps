@@ -32,6 +32,7 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     Route::get('/juego', 'juego')->name('mapa.juego');
     Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
     Route::get('/markers', [MapController::class, 'apiMarkers']);
+    Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
 
     // Rutas para la administración de partidas (crear/buscar/partidas creadas)
     Route::controller(LobbyController::class)->group(function () {  

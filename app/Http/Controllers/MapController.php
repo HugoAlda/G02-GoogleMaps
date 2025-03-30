@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Marcador;
 use App\Models\Etiqueta;
-use App\Models\Usuario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -13,30 +12,33 @@ class MapController extends Controller
 {
     public function index()
     {
-        // Obtener las etiquetas públicas (limitamos a 2 para mostrar inicialmente)
+        // Obtener las etiquetas públicas (para filtros, paginación, etc.)
         $etiquetas = Etiqueta::where('es_privado', false)
             ->orderBy('nombre')
             ->get();
         
         // Obtener todos los marcadores con sus etiquetas
+        // Se ajusta el mapeo: si un marcador tiene la etiqueta "Favoritos" se usará esa para mostrarlo
         $marcadores = Marcador::with('etiquetas')->get()->map(function ($marcador) {
+            $etiquetaFavoritos = $marcador->etiquetas->firstWhere('nombre', 'Favoritos');
+            $etiqueta = $etiquetaFavoritos ?: $marcador->etiquetas->first();
             return [
-                'id' => $marcador->id,
-                'nombre' => $marcador->nombre,
-                'descripcion' => $marcador->descripcion,
-                'direccion' => $marcador->direccion,
-                'latitud' => $marcador->latitud,
-                'longitud' => $marcador->longitud,
-                'etiqueta' => $marcador->etiquetas->first()->nombre ?? 'sin-etiqueta',
-                'etiqueta_id' => $marcador->etiquetas->first()->id ?? null
+                'id'           => $marcador->id,
+                'nombre'       => $marcador->nombre,
+                'descripcion'  => $marcador->descripcion,
+                'direccion'    => $marcador->direccion,
+                'latitud'      => $marcador->latitud,
+                'longitud'     => $marcador->longitud,
+                'etiqueta'     => $etiqueta ? $etiqueta->nombre : 'sin-etiqueta',
+                'etiqueta_id'  => $etiqueta ? $etiqueta->id : null,
             ];
         });
     
         return view('mapa.index', [
-            'etiquetas' => $etiquetas,
-            'marcadores' => $marcadores,
-            'etiquetas_visibles' => $etiquetas->take(2), // Solo las 2 primeras para mostrar
-            'etiquetas_paginadas' => $etiquetas->slice(2) // El resto para paginación
+            'etiquetas'            => $etiquetas,
+            'marcadores'           => $marcadores,
+            'etiquetas_visibles'   => $etiquetas->take(2),
+            'etiquetas_paginadas'  => $etiquetas->slice(2)
         ]);
     }
 
@@ -55,87 +57,83 @@ class MapController extends Controller
         return view('mapa.store');
     }
 
-    // Método para guardar un nuevo punto (etiqueta y marcador)
     public function guardarPunto(Request $request)
     {
         try {
-            // Validar los datos
             $request->validate([
-                'nombre' => 'required|string|max:255', // Nombre del marcador
-                'latitud' => 'required|numeric', // Latitud del marcador
-                'longitud' => 'required|numeric', // Longitud del marcador
-                'direccion' => 'nullable|string|max:255', // Dirección del marcador
-                'descripcion' => 'nullable|string|max:255', // Descripción del marcador
-                'etiqueta_id' => 'required|nullable|integer', // Etiqueta del marcador
-                'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048', // Imagen con formatos permitidos
-                // 'icono' => 'nullable|string|max:255', // Icono del marcador
+                'nombre'      => 'required|string|max:255',
+                'latitud'     => 'required|numeric',
+                'longitud'    => 'required|numeric',
+                'direccion'   => 'nullable|string|max:255',
+                'descripcion' => 'nullable|string|max:255',
+                'etiqueta_id' => 'nullable|integer',
+                'imagen'      => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             ], [
-                'nombre.required' => 'El nombre es obligatorio.',
-                'latitud.required' => 'La latitud es obligatoria.',
-                'longitud.required' => 'La longitud es obligatoria.',
-                'descripcion.max' => 'La descripción debe tener menos de 255 caracteres.',
-                'imagen.image' => 'El archivo debe ser una imagen.',
-                'imagen.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, gif, svg o webp.',
-                'imagen.max' => 'La imagen debe pesar menos de 2MB.',
-                'icono.max' => 'El icono no puede superar los 255 caracteres.',
+                'nombre.required'      => 'El nombre es obligatorio.',
+                'latitud.required'     => 'La latitud es obligatoria.',
+                'longitud.required'    => 'La longitud es obligatoria.',
+                'descripcion.max'      => 'La descripción debe tener menos de 255 caracteres.',
+                'imagen.image'         => 'El archivo debe ser una imagen.',
+                'imagen.mimes'         => 'La imagen debe ser de tipo: jpeg, png, jpg, gif, svg o webp.',
+                'imagen.max'           => 'La imagen debe pesar menos de 2MB.',
             ]);
-
-            // Diccionario de iconos
-            // TODO: Añadir más iconos y cambiar el icono por defecto
-            $iconos = [
-                'monumentos' => '<i class="fa-solid fa-monument"></i>',
-            ];
-
-            // Empezar una transacción
+  
             DB::beginTransaction();
-
-            // Crear un nuevo marcador
+  
             $marcador = new Marcador();
-            $marcador->nombre = $request->nombre;
-            $marcador->latitud = $request->latitud;
-            $marcador->longitud = $request->longitud;
-            $marcador->direccion = $request->direccion;
+            $marcador->nombre      = $request->nombre;
+            $marcador->latitud     = $request->latitud;
+            $marcador->longitud    = $request->longitud;
+            $marcador->direccion   = $request->direccion;
             $marcador->descripcion = $request->descripcion;
-            $marcador->imagen = $request->imagen;
-            // $marcador->icono = '<i class="fa-solid fa-monument"></i>';
-
-            // Guardar el marcador
+            $marcador->imagen      = $request->imagen;
             $marcador->save();
-
-            // Verificar si existe una etiqueta
+  
             if ($request->etiqueta_id) {
                 $etiqueta = Etiqueta::find($request->etiqueta_id);
-
-                // Si existe, se añade al marcador
                 if ($etiqueta) {
                     $marcador->etiquetas()->attach($etiqueta);
                 }
             } else {
-                // Si no existe, se crea una nueva etiqueta
                 $etiqueta = new Etiqueta();
                 $etiqueta->nombre = $request->nombre;
-
-                //TODO: Añadir icono a la etiqueta
-                // $etiqueta->icono = $iconos[$request->icono];
                 $etiqueta->es_privado = false;
                 $etiqueta->usuario_id = Auth::user()->id;
                 $etiqueta->save();
-
-                // Se añade la etiqueta al marcador
                 $marcador->etiquetas()->attach($etiqueta);
             }
-
-            // Finalizar la transacción
+  
             DB::commit();
-
-            // Retornar una respuesta de éxito
+  
             return response()->json(['message' => 'Punto creado correctamente'], 200);
-
+  
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
-
-        
-        
+    }
+  
+    // Método para añadir un marcador a la etiqueta "Favoritos"
+    public function addToFavorites(Request $request)
+    {
+        $request->validate([
+            'marker_id' => 'required|integer|exists:marcadores,id',
+        ]);
+  
+        $markerId = $request->marker_id;
+  
+        $marcador = Marcador::find($markerId);
+        if (!$marcador) {
+            return response()->json(['error' => 'Marcador no encontrado'], 404);
+        }
+  
+        // Verificar si el marcador ya tiene la etiqueta "Favoritos" (id 6)
+        if ($marcador->etiquetas()->where('etiqueta_id', 6)->exists()) {
+            return response()->json(['message' => 'El marcador ya está en favoritos'], 200);
+        }
+  
+        // Asociar la etiqueta "Favoritos" (id 6) al marcador
+        $marcador->etiquetas()->attach(6);
+  
+        return response()->json(['message' => 'Marcador añadido a favoritos'], 200);
     }
 }
