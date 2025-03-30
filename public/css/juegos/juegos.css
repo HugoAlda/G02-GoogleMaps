@@ -1,7 +1,7 @@
-/* Panel de indicaciones (debe estar POR ENCIMA) */
+/* Panel de indicaciones - Versión compacta */
 .leaflet-routing-container {
     position: fixed !important;
-    z-index: 1000 !important;  /* Mayor que el modal */
+    z-index: 1000 !important;
     top: 20px;
     right: 20px;
     background: white;
@@ -12,6 +12,36 @@
     padding: 10px;
     width: 300px;
     display: none;
+    font-size: 14px; /* Texto ligeramente más pequeño */
+}
+
+/* Versión móvil compacta (≤ 768px) */
+@media (max-width: 768px) {
+    .leaflet-routing-container {
+        width: 280px; /* Reducido de 300px */
+        max-height: 55vh; /* Reducido de 70vh */
+        padding: 8px; /* Menos padding */
+        top: 70px; /* Más pegado al borde superior */
+        right: 50%;
+        transform: translateX(50%);
+        
+        /* Optimizar elementos internos */
+        .leaflet-routing-alt {
+            max-height: 45vh; /* Altura ajustada para contenido */
+        }
+        
+        /* Ajustar texto y márgenes */
+        .leaflet-routing-instructions {
+            margin: 5px 0;
+            font-size: 13px; /* Texto más compacto */
+        }
+        
+        /* Iconos más pequeños */
+        .leaflet-routing-icon {
+            width: 16px;
+            height: 16px;
+        }
+    }
 }
 
 /* Modal del acertijo (debe estar POR DEBAJO) */

@@ -267,6 +267,10 @@ function configurarControlesPersonalizados() {
     
                 rutaPanel.style.zIndex = "4000"; // Mayor que 1000
             }
+            if (window.innerWidth <= 768) {
+                rutaPanel.style.width = "280px";
+                rutaPanel.style.fontSize = "13px";
+            }
         });
     }
 }
