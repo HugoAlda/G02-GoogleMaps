@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <p class="mt-2"><strong>Descripción:</strong> ${markerData.descripcion || 'Sin descripción'}</p>
               ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3 mt-2">` : ''}
               <p class="mt-2"><strong>Dirección:</strong> ${markerData.direccion || 'Sin dirección especificada'}</p>
-              <button id="favButton" class="btn btn-warning mt-3">Añadir a Favoritos</button>
+              <button id="favButton" class="btn btn-success mb-4">Añadir a Favoritos</button>
             </div>
           </div>
           <div class="col-md-6">
@@ -232,19 +232,43 @@ document.addEventListener("DOMContentLoaded", () => {
     function addToFavorites(markerData) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
         fetch('/mapa/api/favorites', {
-            method: 'POST',
-            body: JSON.stringify({ marker_id: markerData.id }),
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken
-            }
+          method: 'POST',
+          body: JSON.stringify({ marker_id: markerData.id }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken
+          }
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+          // Mostrar SweetAlert de éxito
+          Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: data.message,
+            timer: 2000,
+            showConfirmButton: false
+          });
+          // Actualizar el arreglo global de marcadores para que el marcador se marque como favorito.
+          window.marcadores = window.marcadores.map(m => {
+            if (m.id === markerData.id) {
+              m.etiqueta = "Favoritos";
+            }
+            return m;
+          });
+          // Volver a aplicar el filtro combinado para actualizar la vista si se está filtrando por "Favoritos"
+          filterMarkersCombined();
         })
-        .catch(error => console.error('Error al añadir a favoritos:', error));
-    }          
+        .catch(error => {
+          // Mostrar SweetAlert de error
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al añadir a favoritos'
+          });
+          console.error('Error al añadir a favoritos:', error);
+        });
+      }                
   
     /*** Obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
