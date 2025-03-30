@@ -68,3 +68,4 @@ Route::middleware('auth')->get('/api/punto-control/{juegoId}/{indice}', [JuegoCo
 Route::middleware('auth')->post('/api/comprobar-respuesta', [JuegoController::class, 'comprobarRespuesta']);
 Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoController::class, 'marcadoresJuego']);
 Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);
+Route::middleware('auth')->post('/api/abandonar-partida', [JuegoController::class, 'abandonarPartida']);

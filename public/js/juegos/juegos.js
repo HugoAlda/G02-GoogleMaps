@@ -274,3 +274,23 @@ function configurarControlesPersonalizados() {
         });
     }
 }
+
+const abandonarBtn = document.getElementById("btn-abandonar");
+if (abandonarBtn) {
+    abandonarBtn.addEventListener("click", () => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Perderás todo el progreso actual!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, abandonar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('indicePunto');
+                localStorage.removeItem('puntosSuperados');
+                window.location.href = "/mapa";
+            }
+        });
+    });
+}

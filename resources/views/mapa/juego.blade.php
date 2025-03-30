@@ -26,6 +26,9 @@
     <div id="map"></div>
 
     <div class="controls-panel">
+        <button id="btn-abandonar" class="btn btn-primary iconos abandonar" title="Abandonar partida">
+            <i class="fa-solid fa-flag"></i>
+        </button>
         <button id="zoomOut" class="btn btn-primary iconos" title="Alejar">
             <i class="fas fa-minus"></i>
         </button>
