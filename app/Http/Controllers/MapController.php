@@ -120,18 +120,23 @@ class MapController extends Controller
         ]);
   
         $markerId = $request->marker_id;
+        // Cargar el marcador con sus etiquetas para poder comprobar la existencia de "Favoritos"
+        $marcador = Marcador::with('etiquetas')->find($markerId);
   
-        $marcador = Marcador::find($markerId);
         if (!$marcador) {
             return response()->json(['error' => 'Marcador no encontrado'], 404);
         }
   
-        // Verificar si el marcador ya tiene la etiqueta "Favoritos" (id 6)
-        if ($marcador->etiquetas()->where('etiqueta_id', 6)->exists()) {
+        // Verificar si ya tiene la etiqueta "Favoritos" (id 6)
+        if ($marcador->etiquetas->contains('id', 6)) {
             return response()->json(['message' => 'El marcador ya está en favoritos'], 200);
         }
   
         // Asociar la etiqueta "Favoritos" (id 6) al marcador
+        // $marcador = new MarcadoresEtiquetas();
+        //     $marcador->marcador_id = $request->marker_id;
+        //     $marcador->etiqueta_id = 6;
+        //     $marcador->save();
         $marcador->etiquetas()->attach(6);
   
         return response()->json(['message' => 'Marcador añadido a favoritos'], 200);

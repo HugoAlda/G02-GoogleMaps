@@ -231,20 +231,20 @@ document.addEventListener("DOMContentLoaded", () => {
     /*** Agregar a Favoritos (insertar en la etiqueta "Favoritos") ***/
     function addToFavorites(markerData) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-        fetch('/api/favorites', {
-          method: 'POST',
-          body: JSON.stringify({ marker_id: markerData.id }),
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken
-          }
+        fetch('/mapa/api/favorites', {
+            method: 'POST',
+            body: JSON.stringify({ marker_id: markerData.id }),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken
+            }
         })
         .then(response => response.json())
         .then(data => {
-          alert(data.message);
+            alert(data.message);
         })
         .catch(error => console.error('Error al añadir a favoritos:', error));
-    }    
+    }          
   
     /*** Obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
