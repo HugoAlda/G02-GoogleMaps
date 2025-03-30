@@ -1,4 +1,132 @@
+/* Panel de indicaciones - Versión compacta */
+.leaflet-routing-container {
+    position: fixed !important;
+    z-index: 1000 !important;
+    top: 20px;
+    right: 20px;
+    background: white;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 300px;
+    display: none;
+    font-size: 14px; /* Texto ligeramente más pequeño */
+}
+
+/* Versión móvil compacta (≤ 768px) */
+@media (max-width: 768px) {
+    .leaflet-routing-container {
+        width: 280px; /* Reducido de 300px */
+        max-height: 55vh; /* Reducido de 70vh */
+        padding: 8px; /* Menos padding */
+        top: 70px; /* Más pegado al borde superior */
+        right: 50%;
+        transform: translateX(50%);
+        
+        /* Optimizar elementos internos */
+        .leaflet-routing-alt {
+            max-height: 45vh; /* Altura ajustada para contenido */
+        }
+        
+        /* Ajustar texto y márgenes */
+        .leaflet-routing-instructions {
+            margin: 5px 0;
+            font-size: 13px; /* Texto más compacto */
+        }
+        
+        /* Iconos más pequeños */
+        .leaflet-routing-icon {
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+/* Modal del acertijo (debe estar POR DEBAJO) */
+#popup-pista {
+    position: fixed;
+    z-index: 900;  /* Menor que el panel de ruta */
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 250px;
+}
+
 #map {
     height: 100vh;
     width: 100%;
+}
+
+#btn-responder {
+    background-color: #0066CC;
+}
+
+/* Título del popup */
+#popup-pista h5 {
+    margin-bottom: 10px;
+}
+
+/* Versión responsiva para móviles */
+@media (max-width: 768px) {
+    #popup-pista {
+        top: 15px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 90%;
+        max-width: 350px;
+    }
+}
+
+.controls-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    margin-top: 20px;
+}
+
+.iconos {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0066CC;
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+    .controls-panel {
+        bottom: 20px;
+        right: 10px;
+    }
+}
+
+
+.iconos.abandonar {
+    background-color: #cc0000;
+}
+
+.iconos.abandonar:hover {
+    background-color: #a30000;
+    transform: scale(1.1);
+    color: white;
 }
