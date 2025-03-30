@@ -45,6 +45,9 @@
                     <div class="modal-body" id="markerModalBody">
                         <!-- Contenido dinámico se insertará aquí -->
                     </div>
+                    @foreach($marcadores as $marcador)
+                        {{-- <img src="{{ asset("img/$marcador->imagen") }}"> --}}
+                    @endforeach
                 </div>
             </div>
         </div>
