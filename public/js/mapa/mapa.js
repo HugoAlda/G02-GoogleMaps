@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     /*** Inicializar el mapa ***/
-    function initializeMap(coords) {
+    function initializeMap(coords){
       map = L.map("map", {
         zoomControl: false,
         preferCanvas: true
