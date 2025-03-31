@@ -35,7 +35,7 @@ class EtiquetaSeeder extends Seeder
                 'usuario_id' => $admin->id
             ],
             [
-                'nombre' => 'Puntos de interés',
+                'nombre' => 'Puntos de interes',
                 'icono' => 'fa-solid fa-circle-info',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
@@ -47,14 +47,14 @@ class EtiquetaSeeder extends Seeder
                 'usuario_id' => $admin->id
             ],
             [
-                'nombre' => 'Vacacion 2024',
-                'icono' => 'fa-solid fa-umbrella-beach',
+                'nombre' => 'Parques',
+                'icono' => 'fa-solid fa-tree',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ],
             [
-                'nombre' => 'Parques',
-                'icono' => 'fa-solid fa-tree',
+                'nombre' => 'Favoritos',
+                'icono' => 'fa-solid fa-star',
                 'es_privado' => false,
                 'usuario_id' => $admin->id
             ]

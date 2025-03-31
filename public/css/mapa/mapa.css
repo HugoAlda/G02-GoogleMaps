@@ -110,29 +110,18 @@ html, body {
     background-color: rgba(0,0,0,0.05);
 }
 
-/* Barra de etiquetas */
-.tags-bar {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    display: flex;
-    gap: 8px;
-    padding: 8px;
-}
-
 .btn-tag {
-    padding: 8px 16px;
+    padding: 8px 12px;            /* Espaciado interno */
     border: none;
     background: white;
     color: #5f6368;
     border-radius: 16px;
     font-size: 14px;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;         /* Se ajusta al contenido */
     align-items: center;
-    gap: 6px;
+    gap: 6px;                     /* Espacio entre icono y texto */
+    white-space: nowrap;          /* Evita que el texto se divida */
 }
 
 .btn-tag i {
@@ -169,21 +158,36 @@ html, body {
     border-radius: 8px;
     z-index: 1000;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    align-items: flex-end;  /* Alinea todos los elementos a la derecha */
     gap: 10px;
     max-height: calc(100vh - 96px);
     overflow-y: auto;
-    margin-top: 20px;
 }
 
-/* Ocultar scrollbar pero mantener funcionalidad */
-.controls-panel::-webkit-scrollbar {
-    display: none;
+
+/* Estilo para el filtro por radio dentro del panel */
+.controls-panel .radius-filter {
+    margin-top: auto;  /* Esto empuja el filtro al fondo */
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-.controls-panel {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.controls-panel .radius-filter label {
+    font-weight: bold;
+}
+
+.controls-panel .radius-filter select {
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: white;
 }
 
 .btn-primary {
@@ -261,7 +265,6 @@ html, body {
     /* Barra de etiquetas */
     .tags-bar {
         position: absolute;
-        top: 60px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
@@ -283,32 +286,34 @@ html, body {
     }
 
     .btn-tag {
-        flex: 1 1 auto;
-        min-width: 80px;
-        padding: 6px 12px;
+        padding: 6px 10px;
         font-size: 13px;
-        display: flex;
+        display: inline-flex;
         justify-content: center;
+        white-space: nowrap;
     }
 }
 /* Estilos para la paginación de etiquetas */
 .tags-container {
-    position: relative;
-    margin-bottom: 15px;
+    position: fixed;  /* Fija el contenedor para que siempre esté visible */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;    /* Asegura que esté sobre el mapa y otros elementos */
+    width: 90%;       /* O el ancho que necesites */
 }
 
 .tags-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000; /* Aumentamos el z-index para asegurarnos de que quede sobre otros elementos */
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 8px;
+    padding: 8px;
     padding-bottom: 10px;
     scroll-behavior: smooth;
-}
-
-.paged-tags {
-    display: flex;
-    gap: 8px;
 }
 
 .tags-pagination {
@@ -317,6 +322,11 @@ html, body {
     align-items: center;
     gap: 15px;
     margin-top: 10px;
+}
+
+.paged-tags {
+    display: flex;
+    gap: 8px;
 }
 
 .btn-pagination {
@@ -349,15 +359,6 @@ html, body {
 .tags-bar::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 2px;
-}
-
-/* Panel de información del marcador */
-.truncate {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .panel-controls {

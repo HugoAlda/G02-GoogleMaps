@@ -34,6 +34,8 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
     // Route::get('/juego/partida/{id}', 'juegoDesdePartida')->name('mapa.juego.desdePartida');
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
+    Route::get('/markers', [MapController::class, 'apiMarkers']);
+    Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
 
         // Métodos POST
         Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
@@ -68,3 +70,5 @@ Route::middleware('auth')->get('/api/punto-control/{juegoId}/{indice}', [JuegoCo
 Route::middleware('auth')->post('/api/comprobar-respuesta', [JuegoController::class, 'comprobarRespuesta']);
 Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoController::class, 'marcadoresJuego']);
 Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);
+Route::middleware('auth')->post('/api/abandonar-partida', [JuegoController::class, 'abandonarPartida']);
+Route::middleware('auth')->get('/mapa/juego/{partidaId}', [MapController::class, 'juego'])->name('mapa.juego');

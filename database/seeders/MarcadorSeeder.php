@@ -39,7 +39,8 @@ class MarcadorSeeder extends Seeder
                 "descripcion" => "Es el hotel por excelencia de Bellvitge.",
                 "latitud" => 41.346340,
                 "longitud" => 2.108386,
-                "direccion" => "Avinguda de la Granvia de l’Hospitalet, 144, 08907 Barcelona"
+                "direccion" => "Avinguda de la Granvia de l’Hospitalet, 144, 08907 Barcelona",
+                "imagen" => "image.png"
             ]
         );
 

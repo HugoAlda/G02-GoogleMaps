@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     {{-- Añadir el CSRF Token --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,26 +26,14 @@
                 <button class="btn-tag" data-tag="all">
                     <i class="fas fa-globe"></i> Todos
                 </button>
-                
-                <!-- Botones de etiquetas (se muestran según paginación) -->
+                <!-- Botones de etiquetas -->
                 @foreach($etiquetas as $etiqueta)
-                    <button class="btn-tag" data-tag="{{ $etiqueta->nombre }}">
-                        {!! $etiqueta->icono !!} {{ $etiqueta->nombre }}
+                    <button class="btn-tag {{ $etiqueta->icono }}" data-tag="{{ $etiqueta->nombre }}">
+                        {{ $etiqueta->nombre }}
                     </button>
                 @endforeach
             </div>
-            
-            <!-- Controles de paginación -->
-            <div class="tags-pagination">
-                <button class="btn-pagination prev" disabled>
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <span class="page-indicator">1/X</span>
-                <button class="btn-pagination next">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
+        </div>        
 
         <!-- Modal para información del marcador -->
         <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
@@ -54,12 +46,9 @@
                     <div class="modal-body" id="markerModalBody">
                         <!-- Contenido dinámico se insertará aquí -->
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" id="getDirectionsBtn" class="btn btn-primary">
-                            <i class="fas fa-route"></i> Cómo llegar
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
+                    @foreach($marcadores as $marcador)
+                        {{-- <img src="{{ asset("img/$marcador->imagen") }}"> --}}
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -67,22 +56,49 @@
         <div id="map"></div>
 
         <div class="controls-panel">
-            <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
-                <i class="fa-solid fa-right-from-bracket"></i>
+            <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
+                <i class="fas fa-gamepad"></i>
             </a>
-            <button id="zoomOut" class="btn btn-primary" title="Alejar">
-                <i class="fas fa-minus"></i>
+            <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
+                <i class="fas fa-play"></i>
+            </a>
+            <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
+                <i class="fas fa-location-crosshairs"></i>
             </button>
             <button id="zoomIn" class="btn btn-primary" title="Acercar">
                 <i class="fas fa-plus"></i>
             </button>
-            <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
-                <i class="fas fa-location-crosshairs"></i>
+            <button id="zoomOut" class="btn btn-primary" title="Alejar">
+                <i class="fas fa-minus"></i>
             </button>
+<<<<<<< HEAD
+            <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>      
+            <!-- Filtro por radio al final del panel -->
+            <select class="radius-filter" id="radiusSelect">
+                <option value="all" selected>Todos</option>
+                <option value="50">50 metros</option>
+                <option value="100">100 metros</option>
+                <option value="200">200 metros</option>
+                <option value="300">300 metros</option>
+                <option value="400">400 metros</option>
+                <option value="500">500 metros</option>
+                <option value="600">600 metros</option>
+                <option value="700">700 metros</option>
+                <option value="800">800 metros</option>
+                <option value="900">900 metros</option>
+                <option value="1000">1000 metros</option>
+                <option value="1500">1500 metros</option>
+                <option value="2000">2000 metros</option>
+                <option value="2500">2500 metros</option>
+                <option value="3000">3000 metros</option>
+            </select>
+=======
             <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
                 <i class="fas fa-play"></i>
             </a>
-            <a href="{{ route('mapa.juego', ['id' => 1]) }}" class="btn btn-primary" title="Iniciar juego">
+            <a href="{{ route('mapa.juego', ['partidaId' => 1]) }}" class="btn btn-primary" title="Iniciar juego">
                 <i class="fas fa-gamepad"></i>
             </a>
             <!-- Botones de ADMIN -->
@@ -92,7 +108,16 @@
                     <i class="fa-solid fa-location-dot"></i>
                 </button>
             @endif
+>>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
         </div>
+        
+        <!-- Botones de ADMIN -->
+        @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+            <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point-form" data-bs-toggle="modal" data-bs-target="#modal-add-point">
+                <i class="fa-solid fa-plus fa-xs me-1"></i>
+                <i class="fa-solid fa-location-dot"></i>
+            </button>
+        @endif
     </div>
 
     <!-- Modal para el admin: Agregar un nuevo punto -->
@@ -119,9 +144,6 @@
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label fw-bold">Nombre</label>
                                 <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
-                                @error('nombre')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
 
@@ -135,9 +157,6 @@
                                         <i class="fas fa-location-dot"></i>
                                     </button>
                                 </div>
-                                @error('direccion')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Etiqueta -->
@@ -154,9 +173,6 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
-                                @error('etiqueta_id')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Icono -->
@@ -171,18 +187,12 @@
                                     <option value="vacaciones-2024">&#xf072; Vacaciones 2024</option>
                                     <option value="parques">&#xf1bb; Parques</option>
                                 </select>
-                                @error('icono')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Descripción (12 columnas) -->
                             <div class="col-12">
                                 <label for="descripcion" class="form-label fw-bold">Descripción</label>
                                 <textarea class="form-control custom-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Añade una descripción detallada del punto..."></textarea>
-                                @error('descripcion')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Imagen (12 columnas) -->
@@ -211,9 +221,6 @@
                                         <i class="fas fa-info-circle me-1"></i> Formatos: PNG, JPEG, JPG, WEBP
                                     </small>
                                 </div>
-                                @error('imagen')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
                         </div>
                     </div>

@@ -150,15 +150,15 @@ function mostrarGruposPartida(partidaId) {
             // Capturar el evento onclick del botón empezar partida
             btnEmpezarPartida.onclick = function() {
                 if (gruposCompletos) {
-                    // Aquí puedes agregar la lógica para empezar la partida
                     Swal.fire({
                         title: '¡Grupos completos!',
                         text: 'La partida puede comenzar',
                         icon: 'success',
                         confirmButtonText: 'OK'
+                    }).then(() => {
+                        modalUnirseGrupo.hide();
+                        empezarPartida(partidaId); // <-- AQUÍ se dispara la partida
                     });
-                    // Cerrar el modal
-                    modalUnirseGrupo.hide();
                 } else {
                     Swal.fire({
                         title: 'No se puede empezar',
@@ -167,7 +167,7 @@ function mostrarGruposPartida(partidaId) {
                         confirmButtonText: 'OK'
                     });
                 }
-            };
+            };            
         }
     })
     .catch(error => {
@@ -219,7 +219,7 @@ function unirseAGrupo(grupoId, partidaId) {
 }
 
 // Función para empezar la partida
-function empezarPartida(partidaId) {
+/*function empezarPartida(partidaId) {
     Swal.fire({
         title: '¿Estás seguro?',
         text: "¿Quieres empezar la partida ahora?",
@@ -247,6 +247,45 @@ function empezarPartida(partidaId) {
                 
                 Swal.fire('¡Éxito!', 'La partida ha comenzado', 'success');
                 window.location.href = `/mapa/juego?partida_id=${partidaId}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', error.message || 'Error al empezar la partida', 'error');
+            });
+        }
+    });
+}*/
+
+function empezarPartida(partidaId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Quieres empezar la partida ahora?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, empezar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/mapa/empezar-partida/${partidaId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                Swal.fire('¡Éxito!', 'La partida ha comenzado', 'success')
+                .then(() => {
+                    window.location.href = data.redirect_url;
+                });
             })
             .catch(error => {
                 console.error('Error:', error);
