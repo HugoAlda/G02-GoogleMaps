@@ -36,4 +36,16 @@ class Grupo extends Model
         return $this->belongsTo(Jugador::class, 'jugadores_grupos', 'grupo_id', 'jugador_id')
         ->wherePivot('is_owner', true);
     }
+
+    /*public function jugadores()
+    {
+        return $this->belongsToMany(Jugador::class, 'jugadores_grupos', 'grupo_id', 'jugador_id')->withPivot('is_owner');
+    }
+
+    // Devuelve una relación a los jugadores que son owners
+    public function owner()
+    {
+        return $this->belongsToMany(Jugador::class, 'jugadores_grupos', 'grupo_id', 'jugador_id')
+                    ->wherePivot('is_owner', true);
+    }*/
 }

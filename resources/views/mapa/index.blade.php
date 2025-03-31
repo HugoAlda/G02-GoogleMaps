@@ -71,6 +71,7 @@
             <button id="zoomOut" class="btn btn-primary" title="Alejar">
                 <i class="fas fa-minus"></i>
             </button>
+<<<<<<< HEAD
             <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>      
@@ -93,6 +94,21 @@
                 <option value="2500">2500 metros</option>
                 <option value="3000">3000 metros</option>
             </select>
+=======
+            <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
+                <i class="fas fa-play"></i>
+            </a>
+            <a href="{{ route('mapa.juego', ['partidaId' => 1]) }}" class="btn btn-primary" title="Iniciar juego">
+                <i class="fas fa-gamepad"></i>
+            </a>
+            <!-- Botones de ADMIN -->
+            @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+                <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point-form" data-bs-toggle="modal" data-bs-target="#modal-add-point">
+                    <i class="fa-solid fa-plus fa-xs me-1"></i>
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>
+            @endif
+>>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
         </div>
         
         <!-- Botones de ADMIN -->
@@ -128,6 +144,9 @@
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label fw-bold">Nombre</label>
                                 <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
+                                @error('nombre')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
 
@@ -141,6 +160,9 @@
                                         <i class="fas fa-location-dot"></i>
                                     </button>
                                 </div>
+                                @error('direccion')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <!-- Etiqueta -->
@@ -157,6 +179,9 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
+                                @error('etiqueta_id')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <!-- Icono -->
@@ -171,12 +196,18 @@
                                     <option value="vacaciones-2024">&#xf072; Vacaciones 2024</option>
                                     <option value="parques">&#xf1bb; Parques</option>
                                 </select>
+                                @error('icono')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <!-- Descripción (12 columnas) -->
                             <div class="col-12">
                                 <label for="descripcion" class="form-label fw-bold">Descripción</label>
                                 <textarea class="form-control custom-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Añade una descripción detallada del punto..."></textarea>
+                                @error('descripcion')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
                             <!-- Imagen (12 columnas) -->
@@ -205,6 +236,9 @@
                                         <i class="fas fa-info-circle me-1"></i> Formatos: PNG, JPEG, JPG, WEBP
                                     </small>
                                 </div>
+                                @error('imagen')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     </div>
