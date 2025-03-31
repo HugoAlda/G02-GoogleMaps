@@ -303,17 +303,111 @@ class LobbyController extends Controller
             }
 
             // Si todo está correcto, actualizar el estado de la partida
-            $partida->estado = 'en_curso';
+            $partida->estado = 'en curso';
             $partida->fecha_inicio = now();
             $partida->save();
 
             // También podemos actualizar el estado de los grupos
             foreach ($gruposValidos as $grupo) {
-                $grupo->estado = 'en_juego';
+                $grupo->estado = 'Cerrado';
                 $grupo->save();
             }
 
             DB::commit();
+            /*return response()->json([
+                'message' => '¡La partida ha comenzado!',
+                'partida' => [
+                    'id' => $partida->id,
+                    'juego_id' => $partida->juego_id,
+                    'estado' => $partida->estado,
+                    'fecha_inicio' => $partida->fecha_inicio,
+                    'grupos_activos' => $gruposValidos->count()
+                ]
+            ]);*/
+
+            return response()->json([
+                'message' => '¡La partida ha comenzado!',
+                'redirect_url' => route('mapa.juego', ['partidaId' => $partida->id])
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al iniciar la partida: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /*public function empezarPartida($partidaId)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $jugador = Jugador::where('usuario_id', $user->id)->first();
+
+            if (!$jugador) {
+                return response()->json(['error' => 'No se encontró el jugador.'], 404);
+            }
+
+            $partida = Partida::with(['grupos.jugadores'])->findOrFail($partidaId);
+
+            // Obtener el grupo creador (asumimos el primer grupo es el del creador)
+            $grupoCreador = $partida->grupos->sortBy('id')->first();
+
+            if (!$grupoCreador) {
+                return response()->json(['error' => 'No se encontró el grupo creador'], 404);
+            }
+
+            $esCreador = $grupoCreador->jugadores->contains(function ($j) use ($jugador) {
+                return $j->id === $jugador->id && $j->pivot->is_owner === 1;
+            });
+
+            if (!$esCreador) {
+                return response()->json(['error' => 'Solo el creador de la partida puede comenzarla.'], 403);
+            }
+
+            // Verificar que la partida está en estado pendiente
+            if ($partida->estado !== 'pendiente') {
+                return response()->json(['error' => 'La partida ya ha comenzado o ha finalizado'], 400);
+            }
+
+            // Contar grupos con al menos 4 jugadores
+            $gruposValidos = $partida->grupos->filter(function($grupo) {
+                return $grupo->jugadores->count() >= 4;
+            });
+
+            if ($gruposValidos->count() < 2) {
+                $mensaje = 'No hay suficientes grupos completos. Se necesitan al menos 2 grupos con 4 jugadores cada uno.';
+                $gruposFaltantes = [];
+
+                foreach ($partida->grupos as $grupo) {
+                    $jugadoresActuales = $grupo->jugadores->count();
+                    if ($jugadoresActuales < 4) {
+                        $gruposFaltantes[] = [
+                            'grupo_id' => $grupo->id,
+                            'jugadores_actuales' => $jugadoresActuales,
+                            'jugadores_necesarios' => 4 - $jugadoresActuales
+                        ];
+                    }
+                }
+
+                return response()->json([
+                    'error' => $mensaje,
+                    'grupos_incompletos' => $gruposFaltantes
+                ], 400);
+            }
+
+            // Todo correcto: actualizar estado
+            $partida->estado = 'en curso';
+            $partida->fecha_inicio = now();
+            $partida->save();
+
+            foreach ($gruposValidos as $grupo) {
+                $grupo->estado = 'Cerrado';
+                $grupo->save();
+            }
+
+            DB::commit();
+
             return response()->json([
                 'message' => '¡La partida ha comenzado!',
                 'partida' => [
@@ -328,5 +422,5 @@ class LobbyController extends Controller
             DB::rollBack();
             return response()->json(['error' => 'Error al iniciar la partida: ' . $e->getMessage()], 500);
         }
-    }
+    }*/
 }

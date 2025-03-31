@@ -40,11 +40,49 @@ class MapController extends Controller
         ]);
     }
     
-    public function juego($id)
+    /*public function juego($id)
     {
         $juego = Juego::findOrFail($id); // Lanza 404 si no existe
         // $juego = $partida->juego;
         return view('mapa.juego', compact('juego'));
+    }*/
+
+    // david
+    /*public function juego($partidaId)
+    {
+        $partida = \App\Models\Partida::with('juego')->findOrFail($partidaId);
+
+        // Solo permitir si la partida está en curso
+        if ($partida->estado !== 'en curso') {
+            return redirect()->route('mapa.lobby')->with('error', 'La partida no está en curso.');
+        }
+
+        $juego = $partida->juego;
+
+        return view('mapa.juego', compact('juego', 'partida'));
+    }*/
+
+    public function juego($partidaId)
+    {
+        $user = Auth::user();
+        $jugador = \App\Models\Jugador::where('usuario_id', $user->id)->first();
+
+        $partida = \App\Models\Partida::with(['juego', 'grupos.jugadores'])->findOrFail($partidaId);
+
+        // Verifica que la partida esté en curso
+        if ($partida->estado !== 'en curso') {
+            return redirect()->route('mapa.lobby')->with('error', 'La partida no está en curso.');
+        }
+
+        // Verifica que el jugador pertenece a esta partida
+        $estaEnPartida = $partida->grupos->flatMap->jugadores->contains('id', $jugador->id);
+
+        if (!$estaEnPartida) {
+            return redirect()->route('mapa.lobby')->with('error', 'No perteneces a esta partida.');
+        }
+
+        $juego = $partida->juego;
+        return view('mapa.juego', compact('juego', 'partida'));
     }
 
     public function partida()

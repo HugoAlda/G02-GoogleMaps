@@ -69,3 +69,4 @@ Route::middleware('auth')->post('/api/comprobar-respuesta', [JuegoController::cl
 Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoController::class, 'marcadoresJuego']);
 Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);
 Route::middleware('auth')->post('/api/abandonar-partida', [JuegoController::class, 'abandonarPartida']);
+Route::middleware('auth')->get('/mapa/juego/{partidaId}', [MapController::class, 'juego'])->name('mapa.juego');

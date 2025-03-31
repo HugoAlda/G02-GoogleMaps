@@ -47,8 +47,9 @@
     <!-- Variable desde el backend -->
     <script>
         window.juegoId = {{ $juego->id }};
+        window.partidaId = {{ $partida->id }};
         window.indicePunto = 0;
-    </script>
+    </script>    
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

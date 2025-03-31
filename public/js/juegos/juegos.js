@@ -109,6 +109,103 @@ function enviarRespuesta() {
     }
 }
 
+/*function enviarRespuesta() {
+    const respuestaUsuario = document.getElementById('respuesta').value.trim();
+
+    if (!respuestaUsuario) return;
+
+    fetch("/api/comprobar-respuesta", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            juego_id: window.juegoId,
+            partida_id: window.partidaId,
+            indice: window.indicePunto,
+            respuesta: respuestaUsuario
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.correcto) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Respuesta correcta!',
+                text: 'Esperando a que tu equipo también acierte...',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            if (data.todosHanRespondido) {
+                avanzarAlSiguientePunto();
+            } else {
+                // Desactiva el input hasta que el grupo lo resuelva
+                document.getElementById('respuesta').disabled = true;
+                document.getElementById('btn-responder').disabled = true;
+
+                // Verificar cada 3 segundos si el grupo ya completó
+                const interval = setInterval(() => {
+                    fetch(`/api/comprobar-respuesta`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            juego_id: window.juegoId,
+                            partida_id: window.partidaId,
+                            indice: window.indicePunto,
+                            respuesta: respuestaUsuario
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(recheck => {
+                        if (recheck.todosHanRespondido) {
+                            clearInterval(interval);
+                            avanzarAlSiguientePunto();
+                        }
+                    });
+                }, 3000);
+            }
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Incorrecto',
+                text: 'Intenta de nuevo'
+            });
+        }
+    })
+    .catch(err => console.error('Error al comprobar respuesta:', err));
+}
+
+function avanzarAlSiguientePunto() {
+    const puntoActual = {
+        lat: window.ubicacionPunto.lat,
+        lng: window.ubicacionPunto.lng
+    };
+
+    const superados = JSON.parse(localStorage.getItem('puntosSuperados')) || [];
+    superados.push(puntoActual);
+    localStorage.setItem('puntosSuperados', JSON.stringify(superados));
+
+    L.marker([puntoActual.lat, puntoActual.lng])
+        .addTo(map)
+        .bindPopup("¡Punto superado!").openPopup();
+
+    if (window.ubicacionJugador) {
+        mostrarRuta(window.ubicacionJugador, [puntoActual.lat, puntoActual.lng]);
+    }
+
+    window.indicePunto++;
+    localStorage.setItem('indicePunto', window.indicePunto);
+    document.getElementById('respuesta').value = "";
+    document.getElementById('respuesta').disabled = false;
+    document.getElementById('btn-responder').disabled = false;
+    cargarPunto(window.juegoId, window.indicePunto);
+}*/
+
 function normalizarTexto(texto) {
     return texto
         .toLowerCase()
