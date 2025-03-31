@@ -92,5 +92,6 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('js/auth/utils.js') }}"></script>
     <script src="{{ asset('js/auth/login.js') }}"></script>
 @endpush

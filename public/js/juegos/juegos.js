@@ -7,7 +7,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     const a = Math.sin(dLat / 2) ** 2 +
         Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
         Math.sin(dLon / 2) ** 2;
-
+        
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
@@ -17,7 +17,10 @@ document.addEventListener("DOMContentLoaded", function () {
     window.indicePunto = guardado ? parseInt(guardado) : 0;
     window.puntosJuego = [];
 
-    document.getElementById("btn-responder").addEventListener("click", enviarRespuesta);
+    const btnResponder = document.getElementById("btn-responder");
+
+
+    btnResponder.addEventListener("click", enviarRespuesta);
 
     fetch(`/api/todos-puntos/${window.juegoId}`)
         .then(res => res.json())
@@ -312,14 +315,24 @@ function actualizarRango(ubicacionJugador) {
         window.ubicacionPunto.lng
     );
 
+    const btnResponder = document.getElementById("btn-responder");
+
+    // Habilitar o deshabilitar el botón según la distancia
+    if (dist <= 50) {
+        btnResponder.disabled = false;
+    } else {
+        btnResponder.disabled = true;
+    }
+
+    // Visualización del círculo
     if (pistaCircle) {
-        pistaCircle.setLatLng(ubicacionJugador).setRadius(dist + 50);
+        pistaCircle.setLatLng(ubicacionJugador).setRadius(50); // Radio visual fijo
     } else {
         pistaCircle = L.circle(ubicacionJugador, {
             color: 'blue',
             fillColor: 'blue',
             fillOpacity: 0.2,
-            radius: dist + 50
+            radius: 50
         }).addTo(map);
     }
 }
