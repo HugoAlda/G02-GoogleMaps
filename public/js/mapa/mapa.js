@@ -485,6 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData(form);
       formData.append("latitud", savedMarker.lat);
       formData.append("longitud", savedMarker.lng);
+      console.log(savedMarker);
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       fetch(form.action, {
         method: "POST",
@@ -495,8 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(() => {
           loadMarkers();
           bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
-        })
-        .catch(error => console.error("Error al enviar los datos:", error));
+        });
     }
     
     /*** Inicialización completa ***/
@@ -511,6 +511,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filterMarkersCombined();
       setInterval(getLocation, 2000);
     }
-    
+
     init();
   });  

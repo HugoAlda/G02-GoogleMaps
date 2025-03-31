@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Marcador;
 use App\Models\Etiqueta;
+use App\Models\Juego;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -42,9 +43,17 @@ class MapController extends Controller
         ]);
     }
 
-    public function juego()
+    public function juego(Juego $id)
     {
-        return view('mapa.juego');
+
+        try {
+            // Obtener el juego por su ID
+            $juego = Juego::with(['partidas.grupos.jugadores', 'puntosControl'])->findOrFail($id->id);
+
+            return view('mapa.juego', compact('juego'));
+        } catch (\Exception $e) {
+            return redirect()->route('mapa.index')->withErrors(['error' => 'Juego no encontrado']);
+        }
     }
 
     public function partida()

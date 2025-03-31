@@ -56,12 +56,22 @@
         <div id="map"></div>
 
         <div class="controls-panel">
-            <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
-                <i class="fas fa-gamepad"></i>
-            </a>
+            <!-- Botones de ADMIN -->
+            @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
+                <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point-form" data-bs-toggle="modal" data-bs-target="#modal-add-point">
+                    <i class="fa-solid fa-plus fa-xs me-1"></i>
+                    <i class="fa-solid fa-location-dot"></i>
+                </button>
+            @endif
             <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
                 <i class="fas fa-play"></i>
             </a>
+            <a href="{{ route('mapa.juego', ['id' => '1']) }}" class="btn btn-primary" title="Iniciar juego">
+                <i class="fas fa-gamepad"></i>
+            </a>
+            <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
+                <i class="fas fa-map"></i>
+            </button>
             <button id="centerUser" class="btn btn-primary" title="Centrar en mi ubicación">
                 <i class="fas fa-location-crosshairs"></i>
             </button>
@@ -71,25 +81,9 @@
             <button id="zoomOut" class="btn btn-primary" title="Alejar">
                 <i class="fas fa-minus"></i>
             </button>
-            <button id="toggleSatellite" class="btn btn-primary" title="Cambiar vista">
-                <i class="fas fa-map"></i>
-            </button>
-            <a href="{{ route('mapa.lobby') }}" class="btn btn-primary" title="Iniciar partida">
-                <i class="fas fa-play"></i>
-            </a>
-            <a href="{{ route('mapa.juego') }}" class="btn btn-primary" title="Iniciar juego">
-                <i class="fas fa-gamepad"></i>
-            </a>
-            <!-- Botones de ADMIN -->
-            @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-                <button id="centerUser" class="btn btn-primary" title="Crear nuevo punto">
-                    <i class="fa-solid fa-plus fa-xs me-1"></i>
-                    <i class="fa-solid fa-location-dot"></i>
-                </button>
-            @endif
             <a href="{{ route('logout') }}" class="btn btn-danger" title="Cerrar sesión">
                 <i class="fa-solid fa-right-from-bracket"></i>
-            </a>      
+            </a>
             <!-- Filtro por radio al final del panel -->
             <select class="radius-filter" id="radiusSelect">
                 <option value="all" selected>Todos</option>
@@ -110,14 +104,6 @@
                 <option value="3000">3000 metros</option>
             </select>
         </div>
-        
-        <!-- Botones de ADMIN -->
-        @if (Auth::check() && Auth::user()->rol->nombre == 'Administrador')
-            <button class="btn btn-danger" title="Crear nuevo punto" id="button-add-point-form" data-bs-toggle="modal" data-bs-target="#modal-add-point">
-                <i class="fa-solid fa-plus fa-xs me-1"></i>
-                <i class="fa-solid fa-location-dot"></i>
-            </button>
-        @endif
     </div>
 
     <!-- Modal para el admin: Agregar un nuevo punto -->

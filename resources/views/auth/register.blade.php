@@ -144,4 +144,5 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/auth/register.js') }}"></script>
+    <script src="{{ asset('js/auth/utils.js') }}"></script>
 @endpush
