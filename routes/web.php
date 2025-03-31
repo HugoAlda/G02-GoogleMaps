@@ -30,20 +30,15 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
     Route::get('/', 'index')->name('mapa.index');
-<<<<<<< HEAD
-    Route::get('/juego', 'juego')->name('mapa.juego');
-    Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
-    Route::get('/markers', [MapController::class, 'apiMarkers']);
-    Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
-=======
     //Route::get('/juego', 'juego')->name('mapa.juego');
     // Route::get('/juego/partida/{id}', 'juegoDesdePartida')->name('mapa.juego.desdePartida');
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
+    Route::get('/markers', [MapController::class, 'apiMarkers']);
+    Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
 
         // Métodos POST
         Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
->>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
 
     // Rutas para la administración de partidas (crear/buscar/partidas creadas)
     Route::controller(LobbyController::class)->group(function () {  
@@ -59,9 +54,6 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
         // Nueva ruta para empezar partida
         Route::post('/empezar-partida/{partidaId}', 'empezarPartida')->name('mapa.empezarPartida');
     });
-<<<<<<< HEAD
-});
-=======
 });
 
 // Rutas para el lobby y partidas
@@ -80,4 +72,3 @@ Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoControll
 Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);
 Route::middleware('auth')->post('/api/abandonar-partida', [JuegoController::class, 'abandonarPartida']);
 Route::middleware('auth')->get('/mapa/juego/{partidaId}', [MapController::class, 'juego'])->name('mapa.juego');
->>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
