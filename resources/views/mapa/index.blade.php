@@ -144,9 +144,6 @@
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label fw-bold">Nombre</label>
                                 <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
-                                @error('nombre')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
 
@@ -160,9 +157,6 @@
                                         <i class="fas fa-location-dot"></i>
                                     </button>
                                 </div>
-                                @error('direccion')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Etiqueta -->
@@ -179,9 +173,6 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
-                                @error('etiqueta_id')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Icono -->
@@ -196,18 +187,12 @@
                                     <option value="vacaciones-2024">&#xf072; Vacaciones 2024</option>
                                     <option value="parques">&#xf1bb; Parques</option>
                                 </select>
-                                @error('icono')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Descripción (12 columnas) -->
                             <div class="col-12">
                                 <label for="descripcion" class="form-label fw-bold">Descripción</label>
                                 <textarea class="form-control custom-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Añade una descripción detallada del punto..."></textarea>
-                                @error('descripcion')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <!-- Imagen (12 columnas) -->
@@ -236,9 +221,6 @@
                                         <i class="fas fa-info-circle me-1"></i> Formatos: PNG, JPEG, JPG, WEBP
                                     </small>
                                 </div>
-                                @error('imagen')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
                         </div>
                     </div>

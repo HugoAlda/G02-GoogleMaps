@@ -227,6 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
       }, { once: true });
     }
+<<<<<<< HEAD
   
     /*** Agregar a Favoritos (insertar en la etiqueta "Favoritos") ***/
     function addToFavorites(markerData) {
@@ -280,6 +281,241 @@ document.addEventListener("DOMContentLoaded", () => {
         'otros': 'secondary'
       };
       return tagColors[tag.toLowerCase()] || 'info';
+=======
+
+    /*** Función auxiliar para obtener clase CSS según la etiqueta ***/
+    function getTagColorClass(tag) {
+        const tagColors = {
+            'restaurante': 'danger',
+            'hotel': 'primary',
+            'monumento': 'warning',
+            'naturaleza': 'success',
+            'otros': 'secondary'
+        };
+        return tagColors[tag.toLowerCase()] || 'info';
+    }
+
+    /*** Cargar los marcadores guardados ***/
+    function loadMarkers() {
+        if (!window.marcadores) {
+            console.error("No se encontraron marcadores");
+            return;
+        }
+        
+        allMarkers.forEach(marker => map.removeLayer(marker));
+        allMarkers = [];
+        
+        allMarkers = window.marcadores.map(marcador => {
+            // Convertir coordenadas a números si son strings
+            const lat = typeof marcador.latitud === 'string' ? parseFloat(marcador.latitud) : marcador.latitud;
+            const lng = typeof marcador.longitud === 'string' ? parseFloat(marcador.longitud) : marcador.longitud;
+            
+            const marker = L.marker([lat, lng], {
+                title: marcador.nombre,
+                alt: marcador.descripcion,
+                riseOnHover: true
+            }).addTo(map);
+            
+            // Almacenar todos los datos del marcador
+            marker.markerData = marcador;
+            
+            // Evento para hacer clic en el marcador
+            marker.on('click', () => {
+                showMarkerInfo(marcador);
+            });
+            
+            marker.etiqueta = marcador.etiqueta;
+            return marker;
+        });
+    }
+
+    /*** Configurar paginación de etiquetas ***/
+    function setupTagPagination() {
+        if (!tagsContainer || !tagsBar || !prevBtn || !nextBtn || !pageIndicator) return;
+        
+        allTagButtons = Array.from(document.querySelectorAll('.btn-tag'));
+        
+        // Separar el botón "Todos" de las demás etiquetas
+        const allButton = allTagButtons.find(btn => btn.dataset.tag === "all");
+        const filterButtons = allTagButtons.filter(btn => btn.dataset.tag !== "all");
+        
+        const totalPages = Math.max(1, Math.ceil(filterButtons.length / tagsPerPage));
+
+        function updateTagsDisplay() {
+            // 1. Mostrar siempre el botón "Todos"
+            if (allButton) allButton.style.display = 'flex';
+            
+            // 2. Ocultar todas las etiquetas de filtro primero
+            filterButtons.forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // 3. Calcular qué etiquetas mostrar para la página actual
+            const startIdx = (currentPage - 1) * tagsPerPage;
+            const endIdx = startIdx + tagsPerPage;
+            const tagsToShow = filterButtons.slice(startIdx, endIdx);
+
+            // 4. Mostrar las etiquetas correspondientes a la página actual
+            tagsToShow.forEach(btn => {
+                btn.style.display = 'flex';
+            });
+
+            // 5. Actualizar estado de los botones de paginación
+            if (prevBtn) prevBtn.disabled = currentPage === 1;
+            if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+
+            // 6. Actualizar indicador de página
+            if (pageIndicator) pageIndicator.textContent = `${currentPage}/${totalPages}`;
+            
+            // 7. Asegurar que el scroll se mantenga visible al cambiar páginas
+            if (tagsBar) tagsBar.scrollTo(0, 0);
+        }
+
+        // Eventos para los botones de paginación
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateTagsDisplay();
+                }
+            });
+        }
+
+        // Inicializar la visualización
+        updateTagsDisplay();
+    }
+
+    /*** Configurar eventos de los botones de etiquetas ***/
+    function setupTagButtons() {
+        document.querySelectorAll('.btn-tag').forEach(button => {
+            button.addEventListener('click', function() {
+                filterMarkers(this.dataset.tag);
+            });
+        });
+    }
+
+    /*** Filtrar los marcadores por etiqueta ***/
+    function filterMarkers(tag) {
+        allMarkers.forEach(marker => {
+            if (tag === "all" || marker.etiqueta === tag) {
+                if (!map.hasLayer(marker)) {
+                    marker.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            }
+        });
+        
+        updateActiveButton(tag);
+        saveActiveFilter(tag);
+    }
+
+    /*** Actualizar el botón activo ***/
+    function updateActiveButton(activeTag) {
+        document.querySelectorAll('.btn-tag').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.tag === activeTag) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    /*** Guardar filtro activo en sessionStorage ***/
+    function saveActiveFilter(tag) {
+        try {
+            sessionStorage.setItem('activeFilter', tag);
+        } catch (e) {
+            console.error('Error al guardar el filtro:', e);
+        }
+    }
+
+    /*** Obtener filtro activo de sessionStorage ***/
+    function getActiveFilter() {
+        try {
+            return sessionStorage.getItem('activeFilter') || 'all';
+        } catch (e) {
+            console.error('Error al obtener el filtro:', e);
+            return 'all';
+        }
+    }
+
+    /*** Manejar la adición de un nuevo punto ***/
+    if (buttonAddPoint) {
+        buttonAddPoint.addEventListener("click", () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("modal-add-point"));
+            modal.hide();
+
+            const pointControls = document.getElementById("point-controls");
+            const confirmButton = document.getElementById("confirm-add-point");
+            const cancelButton = document.getElementById("cancel-add-point");
+
+            pointControls.style.display = "block";
+            confirmButton.disabled = true;
+
+            const mapClickHandler = e => {
+                if (currentMarker) removeMarker(currentMarker);
+                currentMarker = createMarker(e.latlng);
+                confirmButton.textContent = "Confirmar";
+                confirmButton.disabled = false;
+            };
+
+            map.on("click", mapClickHandler);
+
+            cancelButton.addEventListener("click", () => {
+                if (currentMarker) removeMarker(currentMarker);
+                pointControls.style.display = "none";
+                buttonAddPoint.style.backgroundColor = "#ff0000";
+                buttonAddPoint.style.color = "#fff";
+                map.off("click", mapClickHandler);
+                modal.show();
+            }, { once: true });
+
+            confirmButton.addEventListener("click", () => {
+                if (!currentMarker) return;
+                const savedMarker = currentMarker.getLatLng();
+                removeMarker(currentMarker);
+                pointControls.style.display = "none";
+                map.off("click", mapClickHandler);
+                modal.show();
+                buttonAddPoint.style.backgroundColor = "#008000";
+                buttonAddPoint.style.color = "#fff";
+
+                form.addEventListener("submit", event => submitForm(event, savedMarker), { once: true });
+            }, { once: true });
+        });
+    }
+
+    /*** Enviar formulario con marcador ***/
+    function submitForm(event, savedMarker) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        formData.append("latitud", savedMarker.lat);
+        formData.append("longitud", savedMarker.lng);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRF-TOKEN": csrfToken }
+        })
+        .then(response => response.json())
+        .then(() => {
+            loadMarkers();
+            bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
+        })
+        .catch(error => console.error("Error al enviar los datos:", error));
+>>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
     }
   
     /***** Filtrado combinado (etiqueta + radio) *****/

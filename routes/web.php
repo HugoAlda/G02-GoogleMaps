@@ -31,19 +31,27 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->group(function () {
     Route::get('/', 'index')->name('mapa.index');
 <<<<<<< HEAD
+<<<<<<< HEAD
     Route::get('/juego', 'juego')->name('mapa.juego');
     Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
     Route::get('/markers', [MapController::class, 'apiMarkers']);
     Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
 =======
+=======
+>>>>>>> e136b051913b5567b8d6d038a9a8ee4b32fbde3a
     //Route::get('/juego', 'juego')->name('mapa.juego');
     // Route::get('/juego/partida/{id}', 'juegoDesdePartida')->name('mapa.juego.desdePartida');
     Route::get('/juego/{id}', 'juego')->name('mapa.juego');
     Route::get('/partida', 'partida')->name('mapa.partida');
+    Route::get('/markers', [MapController::class, 'apiMarkers']);
+    Route::post('/api/favorites', [MapController::class, 'addToFavorites'])->name('favorites.add');
 
         // Métodos POST
         Route::post('/puntos', 'guardarPunto')->name('puntos.store'); // Guardar un nuevo punto
+<<<<<<< HEAD
 >>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
+=======
+>>>>>>> e136b051913b5567b8d6d038a9a8ee4b32fbde3a
 
     // Rutas para la administración de partidas (crear/buscar/partidas creadas)
     Route::controller(LobbyController::class)->group(function () {  
@@ -60,8 +68,11 @@ Route::middleware('auth')->prefix('mapa')->controller(MapController::class)->gro
         Route::post('/empezar-partida/{partidaId}', 'empezarPartida')->name('mapa.empezarPartida');
     });
 <<<<<<< HEAD
+<<<<<<< HEAD
 });
 =======
+=======
+>>>>>>> e136b051913b5567b8d6d038a9a8ee4b32fbde3a
 });
 
 // Rutas para el lobby y partidas
@@ -80,4 +91,7 @@ Route::middleware('auth')->get('/api/marcadores-juego/{juegoId}', [JuegoControll
 Route::middleware('auth')->get('/api/todos-puntos/{juegoId}', [JuegoController::class, 'obtenerTodosPuntos']);
 Route::middleware('auth')->post('/api/abandonar-partida', [JuegoController::class, 'abandonarPartida']);
 Route::middleware('auth')->get('/mapa/juego/{partidaId}', [MapController::class, 'juego'])->name('mapa.juego');
+<<<<<<< HEAD
 >>>>>>> 690a9ae9ba82eb2663f46914d1acd14a0ba67ad2
+=======
+>>>>>>> e136b051913b5567b8d6d038a9a8ee4b32fbde3a
