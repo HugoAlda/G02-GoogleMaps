@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('juego_id')->constrained('juegos');
             $table->decimal('latitud', 10, 8);
             $table->decimal('longitud', 11, 8);
-            $table->string('direccion', 100);
+            $table->string('direccion', 400);
             $table->text('acertijo');
             $table->text('respuesta');
             $table->string('imagen', 255)->nullable();
