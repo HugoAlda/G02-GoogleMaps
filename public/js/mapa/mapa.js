@@ -165,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ${markerData.imagen ? `<img src="${markerData.imagen}" alt="${markerData.nombre || 'Marcador'}" class="img-fluid mb-3 mt-2">` : ''}
               <p class="mt-2"><strong>Dirección:</strong> ${markerData.direccion || 'Sin dirección especificada'}</p>
               <button id="favButton" class="btn btn-success mb-4">Añadir a Favoritos</button>
+              <button id="removeButton" class="btn btn-warning mb-4">Eliminar de Favoritos</button>
             </div>
           </div>
           <div class="col-md-6">
@@ -179,6 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Asociar el evento del botón de Favoritos
       document.getElementById('favButton').addEventListener('click', () => {
         addToFavorites(markerData);
+      });
+
+      document.getElementById('removeButton').addEventListener('click', () => {
+        removeFavorites(markerData);
       });
   
       document.getElementById('markerModal').addEventListener('shown.bs.modal', () => {
@@ -230,46 +235,81 @@ document.addEventListener("DOMContentLoaded", () => {
   
     /*** Agregar a Favoritos (insertar en la etiqueta "Favoritos") ***/
     function addToFavorites(markerData) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-        fetch('/mapa/api/favorites', {
-          method: 'POST',
-          body: JSON.stringify({ marker_id: markerData.id }),
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken,
-            "Accept": "application/json"
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Mostrar SweetAlert de éxito
-          Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: '¡Marcador añadido a favoritos correctamente!',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          // Actualizar el arreglo global de marcadores para que el marcador se marque como favorito.
-          window.marcadores = window.marcadores.map(m => {
-            if (m.id === markerData.id) {
-              m.etiqueta = "Favoritos";
-            }
-            return m;
-          });
-          // Volver a aplicar el filtro combinado para actualizar la vista si se está filtrando por "Favoritos"
-          filterMarkersCombined();
-        })
-        .catch(error => {
-          // Mostrar SweetAlert de error
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error al añadir a favoritos'
-          });
-          console.error('Error al añadir a favoritos:', error);
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      fetch('/mapa/api/favorites', {
+        method: 'POST',
+        body: JSON.stringify({ marker_id: markerData.id }),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+          "Accept": "application/json"
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Mostrar SweetAlert de éxito
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: '¡Marcador añadido a favoritos correctamente!',
+          timer: 2000,
+          showConfirmButton: false
         });
-      }                
+        // Actualizar el arreglo global de marcadores para que el marcador se marque como favorito.
+        window.marcadores = window.marcadores.map(m => {
+          if (m.id === markerData.id) {
+            m.etiqueta = "Favoritos";
+          }
+          return m;
+        });
+        // Volver a aplicar el filtro combinado para actualizar la vista si se está filtrando por "Favoritos"
+        filterMarkersCombined();
+      })
+      .catch(error => {
+        // Mostrar SweetAlert de error
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al añadir a favoritos'
+        });
+        console.error('Error al añadir a favoritos:', error);
+      });
+    }
+    
+    function removeFavorites(markerData) {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      fetch('/mapa/api/removeFavorites', {
+        method: 'POST',
+        body: JSON.stringify({ marker_id: markerData.id }),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+          "Accept": "application/json"
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Mostrar SweetAlert de éxito
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: '¡Marcador eliminado de favoritos correctamente!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        // Volver a aplicar el filtro combinado para actualizar la vista si se está filtrando por "Favoritos"
+        filterMarkersCombined();
+      })
+      .catch(error => {
+        // Mostrar SweetAlert de error
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: '¡Error al eliminar de favoritos!'
+        });
+        console.error('Error al eliminar de favoritos:', error);
+      });
+    } 
   
     /*** Obtener clase CSS según la etiqueta ***/
     function getTagColorClass(tag) {
