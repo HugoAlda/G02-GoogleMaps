@@ -236,7 +236,8 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ marker_id: markerData.id }),
           headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken
+            "X-CSRF-TOKEN": csrfToken,
+            "Accept": "application/json"
           }
         })
         .then(response => response.json())
@@ -245,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Swal.fire({
             icon: 'success',
             title: '¡Éxito!',
-            text: data.message,
+            text: '¡Marcador añadido a favoritos correctamente!',
             timer: 2000,
             showConfirmButton: false
           });

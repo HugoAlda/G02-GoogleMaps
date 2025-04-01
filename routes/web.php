@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mapa/unirse-grupo', [LobbyController::class, 'unirseGrupo']);
     Route::get('/mapa/grupos/{partida}', [LobbyController::class, 'getGruposPartida']);
     Route::post('/mapa/empezar-partida/{partida}', [LobbyController::class, 'empezarPartida']);
+    Route::post('/mapa/api/favorites', [MapController::class, 'addToFavorites'])->name('mapa.addToFavorites');
 });
 
 // Ruta API protegida para obtener un punto de control de un juego según el índice

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Marcador;
 use App\Models\Etiqueta;
+use App\Models\MarcadoresEtiquetas;
 use App\Models\Juego;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -54,6 +55,26 @@ class MapController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('mapa.index')->withErrors(['error' => 'Juego no encontrado']);
         }
+    }
+
+    public function addToFavorites(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Validar que se recibió el ID del marcador
+        $request->validate([
+            'marker_id' => 'required|exists:marcadores,id',
+        ]);
+
+        $marcador = Marcador::find($request->marker_id);
+
+        // Insert
+        $etiquetaFavoritos = MarcadoresEtiquetas::firstOrCreate([
+            'marcador_id' => $request->marker_id, // Opcional si gestionas etiquetas privadas
+            'etiqueta_id' => 6,
+        ]);
+
+        return response()->json(['message' => 'Marcador añadido a Favoritos con éxito']);
     }
 
     public function partida()
