@@ -75,6 +75,7 @@ class MapController extends Controller
                 'longitud'    => 'required|numeric',
                 'direccion'   => 'nullable|string|max:255',
                 'descripcion' => 'nullable|string|max:255',
+                'etiqueta_name' => 'nullable|string|max:255',
                 'etiqueta_id' => 'nullable|integer',
                 'imagen'      => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             ], [
@@ -105,7 +106,7 @@ class MapController extends Controller
                 }
             } else {
                 $etiqueta = new Etiqueta();
-                $etiqueta->nombre = $request->nombre;
+                $etiqueta->nombre = $request->etiqueta_name;
                 $etiqueta->es_privado = false;
                 $etiqueta->usuario_id = Auth::user()->id;
                 $etiqueta->save();
@@ -117,7 +118,11 @@ class MapController extends Controller
             return response()->json(['message' => 'Punto creado correctamente'], 200);
   
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al guardar el punto'], 500);
         }
     }
   

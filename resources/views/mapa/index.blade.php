@@ -120,7 +120,8 @@
                 </div>
 
                 <!-- Formulario para agregar un punto -->
-                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('puntos.store') }}" method="POST" enctype="multipart/form-data" id="form-add-point">
+                    {{-- CSRF Token --}}
                     @csrf
 
                     <div class="modal-body">
@@ -132,8 +133,6 @@
                                 <input type="text" class="form-control custom-input" id="nombre" name="nombre" placeholder="Ej: Mirador de la ciudad">
                             </div>
 
-
-                            
                             <!-- Dirección y Icono -->
                             <div class="col-md-6">
                                 <label for="direccion" class="form-label fw-bold">Dirección</label>
@@ -159,20 +158,6 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
-                            </div>
-
-                            <!-- Icono -->
-                            <div class="col-md-6">
-                                <label for="icono" class="form-label fw-bold">Icono</label>
-                                <select class="form-select custom-select" id="icono" name="icono">
-                                    <option value="" disabled selected>Selecciona un icono</option>
-                                    <option value="monumentos">&#xf19c; Monumentos</option>
-                                    <option value="hoteles">&#xf594; Hoteles</option>
-                                    <option value="puntos-interes">&#xf3c5; Puntos de interés</option>
-                                    <option value="estadios">&#xf1e3; Estadios</option>
-                                    <option value="vacaciones-2024">&#xf072; Vacaciones 2024</option>
-                                    <option value="parques">&#xf1bb; Parques</option>
-                                </select>
                             </div>
 
                             <!-- Descripción (12 columnas) -->

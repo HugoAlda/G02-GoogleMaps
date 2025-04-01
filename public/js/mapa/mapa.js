@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const imagePreviewContainer = document.getElementById("image-preview-container");
     const removeImageButton = document.getElementById("remove-image");
     const buttonAddPoint = document.getElementById("button-add-point");
-    const form = document.getElementById("form-add-point");
+    const  form = document.getElementById("form-add-point");
+    const newEtiquetaButton = document.getElementById("btn-create-etiqueta");
   
     // Elementos para el modal de información
     const markerModal = new bootstrap.Modal(document.getElementById('markerModal'));
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Elemento para el filtro por radio (select)
     const radiusSelect = document.getElementById("radiusSelect");
-  
+    
     // Variables globales
     let map,
         currentMarker = null,
@@ -456,6 +457,8 @@ document.addEventListener("DOMContentLoaded", () => {
           confirmButton.textContent = "Confirmar";
           confirmButton.disabled = false;
         };
+
+        // Al hacer clic en el mapa, se añade un marcador
         map.on("click", mapClickHandler);
         cancelButton.addEventListener("click", () => {
           if (currentMarker) removeMarker(currentMarker);
@@ -465,6 +468,8 @@ document.addEventListener("DOMContentLoaded", () => {
           map.off("click", mapClickHandler);
           modal.show();
         }, { once: true });
+
+        // Al hacer clic en "Confirmar", se guarda el marcador y se muestra el modal
         confirmButton.addEventListener("click", () => {
           if (!currentMarker) return;
           const savedMarker = currentMarker.getLatLng();
@@ -483,9 +488,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function submitForm(event, savedMarker) {
       event.preventDefault();
       const formData = new FormData(form);
+      console.log(savedMarker);
       formData.append("latitud", savedMarker.lat);
       formData.append("longitud", savedMarker.lng);
-      console.log(savedMarker);
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       fetch(form.action, {
         method: "POST",
@@ -494,9 +499,29 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then(response => response.json())
         .then(() => {
-          loadMarkers();
+          // Mostrar SweetAlert de éxito
+          Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: 'Punto añadido correctamente',
+            timer: 2000,
+            showConfirmButton: false
+          }
+          );
+
+          // Limpiar el formulario
+          form.reset();
+          imagePreview.src = "";
+          imagePreviewContainer.classList.add("d-none");
+          // Ocultar el modal
           bootstrap.Modal.getInstance(document.getElementById("modal-add-point")).hide();
-        });
+
+          // Recargar la página después de 2 segundos
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        })
+        .catch(error => console.error("Error al enviar los datos:", error));
     }
     
     /*** Inicialización completa ***/
@@ -511,6 +536,6 @@ document.addEventListener("DOMContentLoaded", () => {
       filterMarkersCombined();
       setInterval(getLocation, 2000);
     }
-
+    
     init();
   });  
