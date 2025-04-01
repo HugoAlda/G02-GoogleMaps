@@ -59,7 +59,6 @@ class AuthController extends Controller
                     'Cliente' => 'mapa.index',
                 ];
 
-                
                 if (isset($routes[$roleName])) {
                     if ($request->expectsJson()) {
                         return response()->json([
@@ -68,7 +67,8 @@ class AuthController extends Controller
                         ], 200);
                     }
     
-                    return redirect()->intended(route($routes[$roleName]));
+                    // Cambiar intended por redirect directo
+                    return redirect()->route($routes[$roleName]);
                 }
     
                 // Si el rol no es válido, cerrar sesión y mostrar error
@@ -100,7 +100,7 @@ class AuthController extends Controller
                     'error' => 'Ocurrió un error en el servidor, intenta nuevamente: ' . $e->getMessage()
                 ], 500);
             }
-    
+
             return redirect()->route('login')->withErrors([
                 'server' => 'Ocurrió un error en el servidor, intenta nuevamente.'
             ])->withInput();

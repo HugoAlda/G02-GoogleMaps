@@ -202,61 +202,32 @@ function unirseAGrupo(grupoId, partidaId) {
             throw new Error(data.error);
         }
         
-        Swal.fire('¡Éxito!', 'Te has unido al grupo correctamente', 'success');
-        if (modalUnirseGrupo) {
-            modalUnirseGrupo.hide();
-        }
-        cargarPartidas();
+        // Añadir el data-partida-id al body cuando el usuario se une exitosamente
+        document.body.dataset.partidaId = partidaId;
+        
+        Swal.fire('¡Éxito!', 'Te has unido al grupo correctamente', 'success')
+        .then(() => {
+            mostrarGruposPartida(partidaId);
+        });
     })
     .catch(error => {
         console.error('Error:', error);
-        Swal.fire('Error', error.message || 'Error al unirse al grupo', 'error');
-        // Reactivar el botón en caso de error
         if (btnUnirseGrupo) {
             btnUnirseGrupo.disabled = false;
         }
+        Swal.fire('Error', error.message || 'Error al unirse al grupo', 'error');
     });
 }
 
-// Función para empezar la partida
-/*function empezarPartida(partidaId) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¿Quieres empezar la partida ahora?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, empezar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/mapa/empezar-partida/${partidaId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                Swal.fire('¡Éxito!', 'La partida ha comenzado', 'success');
-                window.location.href = `/mapa/juego?partida_id=${partidaId}`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error', error.message || 'Error al empezar la partida', 'error');
-            });
-        }
-    });
-}*/
-
 function empezarPartida(partidaId) {
+    if (!partidaId) {
+        console.error('No se proporcionó el ID de la partida');
+        Swal.fire('Error', 'No se pudo identificar la partida', 'error');
+        return;
+    }
+
+    console.log('ID de la partida:', partidaId);
+    
     Swal.fire({
         title: '¿Estás seguro?',
         text: "¿Quieres empezar la partida ahora?",
@@ -281,11 +252,8 @@ function empezarPartida(partidaId) {
                 if (data.error) {
                     throw new Error(data.error);
                 }
-
-                Swal.fire('¡Éxito!', 'La partida ha comenzado', 'success')
-                .then(() => {
-                    window.location.href = data.redirect_url;
-                });
+                console.log('Redirigiendo a:', `/mapa/juego/${partidaId}`);
+                window.location.href = `/mapa/juego/${partidaId}`;
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -354,6 +322,20 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarPartidas();
         });
     }
+
+    // Comprobar cada segundo si la partida ha comenzado
+    setInterval(function() {
+        const partidaId = document.querySelector('[data-partida-id]')?.dataset.partidaId;
+        if (partidaId) {
+            fetch(`/mapa/estado-partida/${partidaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.estado === 'iniciada') {
+                        window.location.href = `/mapa/juego/${partidaId}`;
+                    }
+                });
+        }
+    }, 1000);
 
     // Manejar el botón de limpiar filtros
     const limpiarFiltrosBtn = document.getElementById('limpiarFiltros');

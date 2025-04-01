@@ -64,7 +64,6 @@ class MapController extends Controller
 
         return view('mapa.juego', compact('juego', 'partida'));
     }*/
-
     public function juego($partidaId)
     {
         $user = Auth::user();
@@ -74,7 +73,7 @@ class MapController extends Controller
 
         // Verifica que la partida esté en curso
         if ($partida->estado !== 'en curso') {
-            return redirect()->route('mapa.lobby')->with('error', 'La partida no está en curso.');
+            return redirect()->route('mapa.lobby')->with('error', 'La partida no está activa.');
         }
 
         // Verifica que el jugador pertenece a esta partida
